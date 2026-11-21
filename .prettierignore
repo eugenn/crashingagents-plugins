@@ -1,0 +1,15 @@
+pnpm-lock.yaml
+node_modules
+dist
+.idea
+plugins/openchamber/panel/main.js
+plugins/openchamber/panel/styles.css
+plugins/openchamber/service/main.js
+plugins/openchamber/opencode-plugin/index.js
+plugins/openchamber/*.zip
+plugins/jetbrains/build
+plugins/jetbrains/.gradle
+plugins/jetbrains/.intellijPlatform
+plugins/jetbrains/.kotlin
+plugins/jetbrains/src/main/resources/webview/main.js
+plugins/jetbrains/src/main/resources/webview/styles.css

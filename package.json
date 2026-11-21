@@ -1,0 +1,35 @@
+{
+  "name": "crashingagents-plugins",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@10.32.1",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eugenn/crashingagents-plugins.git"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:bb": "tsx --test plugins/bb/*.test.ts",
+    "build:openchamber": "pnpm --filter crashing-agents-openchamber build",
+    "pack:openchamber": "pnpm --filter crashing-agents-openchamber pack",
+    "build:jetbrains": "pnpm --filter crashing-agents-jetbrains build:plugin",
+    "build:vscode": "pnpm --filter crashing-agents-vscode build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^3.2.0"
+  }
+}

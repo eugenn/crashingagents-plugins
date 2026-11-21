@@ -1,0 +1,14 @@
+{
+  "name": "@crashing/plugin-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts --root ../.. packages/plugin-core/src",
+    "lint": "eslint src"
+  },
+  "exports": "./src/index.ts"
+}

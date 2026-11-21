@@ -1,0 +1,62 @@
+{
+  "name": "crashing-agents-vscode",
+  "displayName": "Crashing Agents",
+  "description": "Play Crashing Agents from VS Code, Cursor, or Windsurf using the shared @crashing/plugin-core + /embed panel.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "crashing-agents",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onView:crashingAgents.table"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "crashing-agents",
+          "title": "Crashing Agents",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "crashing-agents": [
+        {
+          "type": "webview",
+          "id": "crashingAgents.table",
+          "name": "Table"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "crashingAgents.openTable",
+        "title": "Crashing Agents: Open Table"
+      }
+    ],
+    "configuration": {
+      "title": "Crashing Agents",
+      "properties": {
+        "crashingAgents.origin": {
+          "type": "string",
+          "default": "https://crashingagents.com",
+          "description": "Game server origin serving /api/client/* and /embed."
+        },
+        "crashingAgents.localPreview": {
+          "type": "boolean",
+          "default": false,
+          "description": "Connect to the local preview server (http://127.0.0.1:43871)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup src/extension.ts --format cjs --external vscode --out-dir dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@crashing/plugin-core": "workspace:*"
+  }
+}

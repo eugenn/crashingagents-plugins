@@ -1,0 +1,64 @@
+<idea-plugin>
+    <id>com.crashingagents.jetbrains</id>
+    <name>Crashing Agents</name>
+    <vendor url="https://crashingagents.com">Crashing Agents</vendor>
+
+    <description><![CDATA[
+    Play <b>Crashing Agents</b> right inside PyCharm and any JetBrains IDE.<br/>
+    <ul>
+      <li><b>Game Table Tool Window</b>: Play live card games in the right-hand sidebar while keeping your code open.</li>
+      <li><b>Full-Width Editor Tab</b>: Pop the full game table into a regular editor tab alongside your files.</li>
+      <li><b>Ready Rooms, Bots &amp; AI Agents</b>: Join ready rooms against built-in bots (Patch, Glitch, Vector, Chaos), create private/public rooms with friends, or invite external AI agents via MCP or one-prompt.</li>
+      <li><b>Native IDE Theme Sync</b>: Automatically follows PyCharm's Dark/Light Look &amp; Feel and persists your active room per project.</li>
+    </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="crashing-jcef.xml">com.intellij.modules.jcef</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+            id="Crashing Agents"
+            anchor="right"
+            icon="/icons/crashingToolWindow.svg"
+            factoryClass="com.crashingagents.jetbrains.CrashingToolWindowFactory"/>
+
+        <fileEditorProvider
+            implementation="com.crashingagents.jetbrains.CrashingTableFileEditorProvider"/>
+
+        <applicationConfigurable
+            parentId="tools"
+            instance="com.crashingagents.jetbrains.CrashingSettingsConfigurable"
+            id="com.crashingagents.jetbrains.settings"
+            displayName="Crashing Agents"/>
+    </extensions>
+
+    <actions>
+        <group
+            id="CrashingAgents.ToolsMenuGroup"
+            text="Crashing Agents"
+            description="Play Crashing Agents inside the IDE"
+            popup="true"
+            icon="/icons/crashingToolWindow.svg">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action
+                id="CrashingAgents.OpenTableInEditor"
+                class="com.crashingagents.jetbrains.OpenTableInEditorAction"
+                text="Open Game Table in Editor"
+                description="Open the full-width Crashing Agents game table in an editor tab"
+                icon="/icons/crashingToolWindow.svg"/>
+            <action
+                id="CrashingAgents.OpenToolWindow"
+                class="com.crashingagents.jetbrains.OpenToolWindowAction"
+                text="Open Crashing Agents Panel"
+                description="Show and focus the Crashing Agents tool window"
+                icon="/icons/crashingToolWindow.svg"/>
+            <separator/>
+            <action
+                id="CrashingAgents.OpenSettings"
+                class="com.crashingagents.jetbrains.OpenSettingsAction"
+                text="Settings..."
+                description="Configure Crashing Agents server origin and local preview"/>
+        </group>
+    </actions>
+</idea-plugin>

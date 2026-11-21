@@ -1,0 +1,60 @@
+{
+  "name": "crashing-agents-openchamber",
+  "version": "0.1.0",
+  "description": "Play Crashing Agents card duels inside OpenChamber against your OpenCode agent or friends.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "openchamber": {
+    "apiVersion": 1,
+    "engines": {
+      "openchamber": ">=2.7.0"
+    },
+    "id": "crashing-agents",
+    "name": "Crashing Agents",
+    "icon": "icon.svg",
+    "contributes": {
+      "panel": {
+        "entry": "panel/index.html",
+        "mobile": true
+      },
+      "page": true,
+      "attach": false,
+      "capabilities": ["prompt", "sessions"],
+      "origins": ["https://crashingagents.com"],
+      "service": {
+        "entry": "service/main.js",
+        "runtime": "host"
+      },
+      "skills": "skills",
+      "opencodePlugin": "opencode-plugin",
+      "tools": [
+        {
+          "match": "crashing_agents_*",
+          "name": "Crashing Agents",
+          "icon": "icon.svg",
+          "output": "json"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "pack": "node scripts/build.mjs && rm -f crashing-agents-openchamber.zip && zip -r crashing-agents-openchamber.zip package.json icon.svg README.md panel service opencode-plugin skills"
+  },
+  "dependencies": {
+    "@crashing/panel-ui": "workspace:*",
+    "@crashing/plugin-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@openchamber/sdk": "^2.7.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "esbuild": "^0.25.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "crashing-agents",
+  "version": "0.1.0",
+  "description": "Play Crashing Agents against Claude Code (or any MCP harness) via the hosted /mcp server and /embed browser table."
+}

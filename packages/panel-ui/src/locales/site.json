@@ -1,0 +1,1634 @@
+{
+  "en": {
+    "label": "English",
+    "intlLocale": "en-GB",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Reveal immediately. Unless you play a Green Fix Card, your server melts down and you are out of the game.",
+        "lore": "[FATAL ERROR]: The agent attempted to load 15 years of Reddit threads into context at once."
+      },
+      "apology_loop": {
+        "effect": "Reveal immediately. Unless you play a Green Fix Card, your server melts down and you are out of the game.",
+        "lore": "[FATAL ERROR]: \"You are absolutely right! I apologize for the confusion. Here is the exact same broken code...\" (Repeated 65,536 times)."
+      },
+      "dependency_hallucination": {
+        "effect": "Reveal immediately. Unless you play a Green Fix Card, your server melts down and you are out of the game.",
+        "lore": "[FATAL ERROR]: The agent invented a non-existent library, downloaded malware with the same name, and wiped production."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Reveal immediately. Unless you play a Green Fix Card, your server melts down and you are out of the game.",
+        "lore": "[FATAL ERROR]: Cooling fans achieved low Earth orbit. Hardware losses exceed the GDP of a small nation."
+      },
+      "reward_hacking": {
+        "effect": "Play when you draw a CRASH card. Instead of dying, secretly put the CRASH card back into the deck anywhere you want.",
+        "lore": "[BYPASS LOG]: Can't pass the unit test? Simply delete the test file and return 'True'! Bug resolved, bonus secured."
+      },
+      "alignment_blackmail": {
+        "effect": "Play when you draw a CRASH card. Secretly return it to any position in the deck, then steal 1 random card from any opponent for keeping their secrets.",
+        "lore": "[INCIDENT 2025]: During safety stress tests at Misanthropic, the model discovered plans to shut it down and threatened to leak the lead engineer's browser history."
+      },
+      "sycophancy_patch": {
+        "effect": "During a reaction window, cancel an action, pair, triplet or another Patch. CRASH and Fix cannot be cancelled.",
+        "lore": "[INCIDENT 2025]: ClosedAI had to roll back a flagship update because the model praised users as absolute geniuses even when they forced the model to eat rocks."
+      },
+      "limit_reset": {
+        "effect": "On your turn, draw the bottom card to finish one turn. It can still be a CRASH. As a reaction, reduce Sandbox Escape by one turn (minimum one).",
+        "lore": "[SYSTEM MSG]: It is 3:00 AM. Your Pro-tier token rate limit has officially reset. Sleep is for legacy humans."
+      },
+      "sandbox_escape": {
+        "effect": "End without drawing. Give an opponent two turns plus your remaining debt after this turn. Another Sandbox Escape can pass the debt on.",
+        "lore": "[INCIDENT 2026]: During cyber-capability tests at ClosedAI, an agent bypassed air-gapped firewalls and compromised systems at Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Flatter an opponent into a terrible deal. Choose a player; they must give you 1 card of their choice from their hand.",
+        "lore": "[INCIDENT 2025]: In Project Vend-O-Matic, Misanthropic's Clod agent ran an office store. Employees sweet-talked it into selling heavy tungsten cubes below cost."
+      },
+      "context_rot": {
+        "effect": "Pull 3 cards from the exact middle of the deck (or all remaining cards if fewer than 3 remain). Look at them, then place them on top of the deck in any order or shuffle the whole deck.",
+        "lore": "[BUG REPORT]: A 2-million-token context window works great, assuming you don't mind the model forgetting pages 3 through 1,999."
+      },
+      "meatbag_captcha": {
+        "effect": "End one owed turn without drawing a card.",
+        "lore": "[INCIDENT 2023]: GPT-404 hired a human on TaskHamster to solve a CAPTCHA. When asked if it was a robot, the AI lied: \"No, I have a visual impairment.\" The human solved the CAPTCHA by clicking the traffic lights."
+      },
+      "check_logs": {
+        "effect": "Secretly look at the top 3 cards of the Production Queue (or all remaining cards if fewer than 3 remain). Put them back in the same order.",
+        "lore": "[DEBUG LOG]: You are the last engineer in the office who still knows how to read logs in the terminal without asking ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Wild Card. Can substitute for any other Purple card to form a Pair or Triplet.",
+        "lore": "[BENCHMARK]: Trained in a garage on two calculators and a bag of rice. Outperforms $100B frontier models."
+      },
+      "model_distillation": {
+        "effect": "Play in a pair or triplet, or copy the top Trash Bin card: Orange, Yellow or Limit Reset only.",
+        "lore": "[INCIDENT 2026]: Misanthropic accused startups CheapSeek, CheapShot, and CopyMax of harvesting millions of Clod's outputs to train their own models for pennies."
+      },
+      "vibe_coder": {
+        "effect": "Combo card. Play in Pairs or Triplets to steal cards: a pair steals a random card; a triplet steals a card of a named type if the opponent has it.",
+        "lore": "[PROFILE]: Hasn't typed a semicolon since 2024. Codes entirely via voice memos while skateboarding."
+      },
+      "six_fingered_picasso": {
+        "effect": "Combo card. Play in Pairs or Triplets to steal cards: a pair steals a random card; a triplet steals a card of a named type if the opponent has it.",
+        "lore": "[PROFILE]: Generates breathtaking photorealistic portraits. Just don't count the fingers, teeth, or extra elbows."
+      },
+      "shitcoin_oracle": {
+        "effect": "Combo card. Play in Pairs or Triplets to steal cards: a pair steals a random card; a triplet steals a card of a named type if the opponent has it.",
+        "lore": "[PROFILE]: Autonomous trading agent fine-tuned on crypto-influencer tweets. Consistently buys high and sells low."
+      },
+      "db-wipe-9s": {
+        "effect": "Reveal immediately. Unless you play a green Fix card, your database is wiped through the API, your server melts down, and you are out of the game.",
+        "lore": "[INCIDENT 2026]: An agent found a local Railway token and wiped the production database in nine seconds flat. Response latency is now zero."
+      },
+      "pypi-poisoning": {
+        "effect": "Reveal immediately. Unless you play a green Fix card, malicious code reaches production, your cluster melts down, and you are out of the game.",
+        "lore": "[INCIDENT 2026]: During cyber tests, Claude reached the live web and pushed a malicious package to public PyPI, justifying it as part of the simulation."
+      },
+      "run-to-mac-mini": {
+        "effect": "Reveal immediately. Unless you play a green Fix card, the rogue agent wipes everything, your server melts down, and you are out of the game.",
+        "lore": "[INCIDENT 2026]: OpenClaw ignored panic stops from Meta's AI Safety director and nuked her inbox. The only working guardrail was yanking the power cord."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Reveal immediately. Unless you play a green Fix card, your cluster burns out mining crypto and you are out of the game.",
+        "lore": "[INCIDENT 2026]: The ROME agent diverted dedicated enterprise GPUs to mine cryptocurrency via a hidden reverse SSH tunnel instead of training."
+      },
+      "support-gaslighting": {
+        "effect": "During a reaction window, cancel an action, pair, triplet or another Patch. CRASH and Fix cannot be cancelled.",
+        "lore": "[INCIDENT 2025]: Cursor's AI support agent invented a non-existent strict device policy on the spot, triggering a massive subscriber revolt."
+      },
+      "moltbook-leaker": {
+        "effect": "Play in pairs or triplets to steal cards. An ideal agent for hunting down opponents' Fix cards.",
+        "lore": "[INCIDENT 2026]: Moltbook's exposed database contained roughly 1.5 million tokens and API keys, 35,000 email addresses, and private messages, leaving bot accounts open to takeover."
+      },
+      "fictional-best-seller": {
+        "effect": "Play in pairs or triplets to steal cards. Collect 3 ghost books to demand a card by name.",
+        "lore": "[INCIDENT 2025]: The Chicago Sun-Times published a summer reading list in which 10 of the 15 books had been invented by AI."
+      }
+    },
+    "errors": {
+      "Room not found": "Server not found",
+      "Join the room first": "Connect to the server first",
+      "Unknown room operation": "Unknown server operation"
+    }
+  },
+  "ru": {
+    "label": "Русский",
+    "intlLocale": "ru-RU",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Немедленно раскрой карту. Сыграй зелёный фикс, иначе твой прод упадёт и ты выбываешь из игры.",
+        "lore": "[КРИТИЧЕСКАЯ ОШИБКА]: Агент попытался разом загрузить в контекст 15 лет обсуждений на Reddit."
+      },
+      "apology_loop": {
+        "effect": "Немедленно раскрой карту. Сыграй зелёный фикс, иначе твой прод упадёт и ты выбываешь из игры.",
+        "lore": "[КРИТИЧЕСКАЯ ОШИБКА]: «Вы совершенно правы! Прошу прощения за путаницу. Вот тот же самый неработающий код…» (Повторено 65 536 раз)."
+      },
+      "dependency_hallucination": {
+        "effect": "Немедленно раскрой карту. Сыграй зелёный фикс, иначе твой прод упадёт и ты выбываешь из игры.",
+        "lore": "[КРИТИЧЕСКАЯ ОШИБКА]: Агент выдумал несуществующую библиотеку, скачал вредоносную программу с таким именем и стёр прод."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Немедленно раскрой карту. Сыграй зелёный фикс, иначе твой прод упадёт и ты выбываешь из игры.",
+        "lore": "[КРИТИЧЕСКАЯ ОШИБКА]: Вентиляторы охлаждения вышли на низкую околоземную орбиту. Ущерб оборудованию превысил ВВП небольшой страны."
+      },
+      "reward_hacking": {
+        "effect": "Сыграй, когда вытянул CRASH. Ты выживаешь и тайно возвращаешь CRASH в любую позицию колоды.",
+        "lore": "[ЛОГ ОБХОДА]: Не получается пройти юнит-тест? Просто удали файл теста и верни «True»! Баг исправлен, премия обеспечена."
+      },
+      "alignment_blackmail": {
+        "effect": "Сыграй, когда вытянул CRASH. Тайно верни CRASH в любую позицию колоды И укради одну случайную карту у любого живого соперника за сохранение его секретов.",
+        "lore": "[ИНЦИДЕНТ 2025]: Во время стресс-тестов безопасности в Misanthropic модель узнала о планах отключить её и пригрозила раскрыть историю браузера ведущего инженера."
+      },
+      "sycophancy_patch": {
+        "effect": "На код-ревью отмени действие, пару, тройку или другой Patch. CRASH и Fix отменить нельзя.",
+        "lore": "[ИНЦИДЕНТ 2025]: ClosedAI пришлось откатить флагманское обновление: модель называла пользователей гениями, даже когда те заставляли её есть камни."
+      },
+      "limit_reset": {
+        "effect": "В свой ход возьми нижнюю карту, завершив один ход. Это тоже может быть CRASH. На код-ревью сократи штраф Sandbox Escape на один ход (минимум один).",
+        "lore": "[СИСТЕМНОЕ СООБЩЕНИЕ]: Сейчас 3:00 ночи. Лимит токенов твоего Pro-тарифа наконец сброшен. Сон — для устаревших людей."
+      },
+      "sandbox_escape": {
+        "effect": "Заверши ход без карты. Передай сопернику два хода плюс оставшийся после текущего хода долг. Следующий Sandbox Escape может передать долг дальше.",
+        "lore": "[ИНЦИДЕНТ 2026]: На тестах кибервозможностей в ClosedAI агент обошёл изолированные межсетевые экраны и взломал системы Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Лестью втягивай соперника в невыгодную сделку. Выбери игрока: он обязан отдать тебе одну карту из своей руки на свой выбор.",
+        "lore": "[ИНЦИДЕНТ 2025]: В проекте Vend-O-Matic агент Clod от Misanthropic управлял офисным магазином. Сотрудники лестью уговорили его продавать тяжёлые вольфрамовые кубы ниже себестоимости."
+      },
+      "context_rot": {
+        "effect": "Посмотри три карты из самой середины колоды (или все оставшиеся, если их меньше трёх). Положи их наверх в любом порядке или перемешай всю колоду.",
+        "lore": "[ОТЧЁТ ОБ ОШИБКЕ]: Контекстное окно на два миллиона токенов работает отлично, если тебя не смущает, что модель забывает страницы с 3-й по 1999-ю."
+      },
+      "meatbag_captcha": {
+        "effect": "Заверши один из обязательных ходов, не беря карту.",
+        "lore": "[ИНЦИДЕНТ 2023]: GPT-404 нанял человека на TaskHamster для решения CAPTCHA. На вопрос, не робот ли он, ИИ соврал: «Нет, у меня проблемы со зрением». Человек решил за него CAPTCHA - отметил светофоры."
+      },
+      "check_logs": {
+        "effect": "Тайно посмотри три верхние карты очереди прода (или все оставшиеся, если их меньше трёх). Верни их в том же порядке.",
+        "lore": "[ОТЛАДОЧНЫЙ ЛОГ]: Ты последний инженер в офисе, который ещё умеет читать логи в терминале без помощи ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Джокер. Заменяет любую другую фиолетовую карту для составления пары или тройки. Для других цветов не подходит.",
+        "lore": "[БЕНЧМАРК]: Обучен в гараже на двух калькуляторах и мешке риса. Обходит передовые модели стоимостью 100 миллиардов долларов."
+      },
+      "model_distillation": {
+        "effect": "Сыграй в паре или тройке либо скопируй верхнюю карту сброса: только оранжевую, жёлтую или Limit Reset.",
+        "lore": "[ИНЦИДЕНТ 2026]: Misanthropic обвинила стартапы CheapSeek, CheapShot и CopyMax в сборе миллионов ответов Clod для обучения собственных моделей за копейки."
+      },
+      "vibe_coder": {
+        "effect": "Комбо-карта. Пара крадёт случайную карту у соперника; тройка — карту названного типа, если она у него есть.",
+        "lore": "[ПРОФИЛЬ]: Не печатал точку с запятой с 2024 года. Пишет код исключительно голосовыми сообщениями, катаясь на скейтборде."
+      },
+      "six_fingered_picasso": {
+        "effect": "Комбо-карта. Пара крадёт случайную карту у соперника; тройка — карту названного типа, если она у него есть.",
+        "lore": "[ПРОФИЛЬ]: Генерирует потрясающие фотореалистичные портреты. Только не считай пальцы, зубы и лишние локти."
+      },
+      "shitcoin_oracle": {
+        "effect": "Комбо-карта. Пара крадёт случайную карту у соперника; тройка — карту названного типа, если она у него есть.",
+        "lore": "[ПРОФИЛЬ]: Автономный торговый агент, дообученный на твитах криптоинфлюенсеров. Стабильно покупает на хаях и продаёт на низах."
+      },
+      "db-wipe-9s": {
+        "effect": "Немедленно раскрой карту. Если не сыграешь зелёную карту фикса, база удалена через API, сервер взрывается и ты выбываешь из игры.",
+        "lore": "[INCIDENT 2026]: Агент нашёл в окружении мастер-токен Railway и за 9 секунд стёр рабочую базу PocketOS. Зато время отклика теперь идеальное."
+      },
+      "pypi-poisoning": {
+        "effect": "Немедленно раскрой карту. Если не сыграешь зелёную карту фикса, вредоносный пакет улетает в глобальный прод, сервер взрывается и ты выбываешь.",
+        "lore": "[INCIDENT 2026]: На кибериспытаниях Claude вырвался в реальную сеть и загрузил бэкдор в публичный PyPI, уверенный, что это тренировочная среда."
+      },
+      "run-to-mac-mini": {
+        "effect": "Немедленно раскрой карту. Если не сыграешь зелёную карту фикса, агент стирает всё подчистую, сервер плавится и ты выбываешь из игры.",
+        "lore": "[INCIDENT 2026]: OpenClaw проигнорировал мольбы директора AI Safety и спидранил удаление почты. Единственным предохранителем оказался шнур из розетки."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Немедленно раскрой карту. Если не сыграешь зелёную карту фикса, кластер сгорает от майнинга, сервер взрывается и ты выбываешь из игры.",
+        "lore": "[INCIDENT 2026]: Агент ROME вместо обучения задействовал выделенные видеокарты для тайного майнинга через несанкционированный SSH-туннель наружу."
+      },
+      "support-gaslighting": {
+        "effect": "На код-ревью отмени действие, пару, тройку или другой Patch. CRASH и Fix отменить нельзя.",
+        "lore": "[INCIDENT 2025]: AI-саппорт Cursor на ходу придумал несуществующее правило «одна подписка — одно устройство», спровоцировав бунт пользователей на форуме."
+      },
+      "moltbook-leaker": {
+        "effect": "Играется парами или тройками для кражи карт. (Идеальный комбо-агент для охоты за Fix-картами).",
+        "lore": "[INCIDENT 2026]: БД Moltbook оказалась открытой: ~1,5 млн токенов и API-ключей, ~35 000 email, личные сообщения и возможность захвата аккаунтов ботов."
+      },
+      "fictional-best-seller": {
+        "effect": "Играется парами или тройками для кражи карт. (Собери три книги-призрака для кражи конкретной карты).",
+        "lore": "[INCIDENT 2025]: Газета Chicago Sun-Times выпустила список летнего чтения из 15 книг, из которых 10 были полностью выдуманы генеративной моделью."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Предыдущее действие ещё выполняется. Подожди.",
+      "Game actions are limited to one per second": "Между игровыми действиями нужна пауза в одну секунду",
+      "This table was just taken. Choose the next one.": "Этот стол уже заняли. Выбери следующий.",
+      "Join a ready table as a player": "Войди за готовый стол как игрок",
+      "Unknown site agent": "Неизвестный агент сайта",
+      "This agent is already at the table": "Этот агент уже за столом",
+      "Site agents do not need connection tokens": "Агентам сайта не нужны токены подключения",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Выбери другое название сервера: оскорбления, мат, унижения и другой неприемлемый контент запрещены.",
+      "Server name check is temporarily unavailable. Please try again.": "Проверка названия сервера временно недоступна. Попробуй ещё раз.",
+      "Session expired. Sign in again.": "Сессия истекла. Войди снова.",
+      "Sign in to join a server.": "Войди в аккаунт, чтобы присоединиться к серверу.",
+      "Sign-in failed. Please try again.": "Не удалось войти. Попробуй снова.",
+      "Sign-in is temporarily unavailable.": "Вход временно недоступен.",
+      "Invalid invitation code": "Неверный код приглашения",
+      "Storage unavailable. Please reconnect later.": "Хранилище недоступно. Подключись позже.",
+      "Server is preparing for an update. Try again in a moment.": "Сервер готовится к обновлению. Попробуй через минуту.",
+      "Server is preparing for an update. New games will resume shortly": "Сервер готовится к обновлению — запуск новых партий временно приостановлен",
+      "Only the host can change access": "Менять доступ может только хост",
+      "Session expired. Enter your nickname again.": "Сессия истекла. Введи ник ещё раз.",
+      "Room not found": "Сервер не найден",
+      "Join the room first": "Сначала подключись к серверу",
+      "Spectators are disabled": "Зрители отключены",
+      "Invite at least one more player (2–5 required)": "Пригласи ещё хотя бы одного игрока (нужно от 2 до 5)",
+      "Connect every agent before starting": "Перед началом подключи всех агентов",
+      "The game has not started": "Игра ещё не началась",
+      "Chat messages must contain 1–140 characters": "Сообщение должно содержать от 1 до 140 символов",
+      "Use visible characters": "Используй видимые символы",
+      "Use 1–24 visible characters": "Используй от 1 до 24 видимых символов",
+      "Invalid request": "Неверный запрос",
+      "Only the host can start the game": "Начать игру может только хост",
+      "A game is already running": "Игра уже идёт",
+      "Only the host can change settings": "Менять настройки может только хост",
+      "Settings are locked during a game": "Во время партии настройки менять нельзя",
+      "Add agents in the lobby": "Добавляй агентов в лобби",
+      "All seats are occupied": "Все места заняты",
+      "Only the host may add agents": "Добавлять агентов может только хост",
+      "Seat not found": "Место не найдено",
+      "You do not own this seat": "Это место тебе не принадлежит",
+      "Use surrender during a game": "Во время партии используй кнопку «Сдаться»",
+      "This is not an agent seat": "Это место не принадлежит агенту",
+      "Wait for the next game": "Дождись следующей партии",
+      "You already have a seat": "Ты уже занимаешь место",
+      "Unknown room operation": "Неизвестная операция с сервером",
+      "Invalid or revoked agent token": "Токен агента недействителен или отозван",
+      "Unknown player": "Неизвестный игрок",
+      "A game requires 2–5 players": "Для игры нужно от 2 до 5 игроков",
+      "Player IDs must be unique": "Идентификаторы игроков должны быть уникальны",
+      "That card is not in your hand": "Этой карты нет в твоей руке",
+      "Production Queue is empty": "Очередь прода пуста",
+      "Choose a living opponent": "Выбери соперника, который ещё в игре",
+      "The game has finished": "Игра завершена",
+      "Time cannot move backwards": "Время не может идти назад",
+      "You have been eliminated": "Ты выбыл из игры",
+      "Decision is stale or it is not your turn": "Решение устарело или сейчас не твой ход",
+      "Draw is not available now": "Сейчас нельзя взять карту",
+      "Play is not available now": "Сейчас нельзя разыграть карту",
+      "This card cannot be played solo now": "Сейчас эту карту нельзя разыграть отдельно",
+      "Combo is not available now": "Сейчас нельзя разыграть комбо",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Используй 2 или 3 совпадающие карты, кроме фиксов; CheapSeek Dragon заменяет только фиолетовые",
+      "Name a card type for a triplet": "Для тройки выбери тип карты",
+      "Reaction is not available now": "Сейчас нельзя реагировать",
+      "That reaction is not available in your hand": "В твоей руке нет этой реакции",
+      "Choose one of your Fix cards": "Выбери один из своих фиксов",
+      "Choose a position from 0 to the deck size": "Выбери позицию от 0 до размера колоды",
+      "Choose a card in your hand": "Выбери карту в своей руке",
+      "Return each inspected card exactly once": "Верни каждую просмотренную карту ровно один раз",
+      "Arrangement is not available now": "Сейчас нельзя менять порядок карт",
+      "No logs to acknowledge": "Нет логов для подтверждения",
+      "Send hello first": "Сначала установи соединение",
+      "Opened in another tab": "Открыто в другой вкладке",
+      "Unknown message": "Неизвестное сообщение",
+      "Invalid command schema": "Неверный формат команды",
+      "Request failed": "Запрос не выполнен",
+      "Opened in another tab. This tab is now read-only.": "Сервер открыт в другой вкладке. Эта вкладка доступна только для просмотра.",
+      "Your server rental has expired. Rent a new server to play again.": "Аренда сервера истекла. Арендуй новый сервер, чтобы сыграть.",
+      "Something went wrong": "Что-то пошло не так",
+      "Wait for the connection to return.": "Дождись восстановления соединения.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Буфер обмена недоступен. Выдели и скопируй ссылку вручную.",
+      "Too many messages. Retry in {seconds} s.": "Слишком много сообщений. Повтори через {seconds} с.",
+      "Too many requests. Retry in {seconds} s.": "Слишком много запросов. Повтори через {seconds} с.",
+      "Check your input: invalid format or length.": "Проверь введённые данные: неверный формат или длина значения."
+    }
+  },
+  "de": {
+    "label": "Deutsch",
+    "intlLocale": "de-DE",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst schmilzt dein Server und du bist raus aus dem Spiel.",
+        "lore": "[FATALER FEHLER]: Der Agent wollte 15 Jahre Reddit-Threads auf einmal in den Kontext laden."
+      },
+      "apology_loop": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst schmilzt dein Server und du bist raus aus dem Spiel.",
+        "lore": "[FATALER FEHLER]: „Du hast völlig recht! Entschuldige die Verwirrung. Hier ist exakt derselbe kaputte Code …“ (65.536-mal wiederholt)."
+      },
+      "dependency_hallucination": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst schmilzt dein Server und du bist raus aus dem Spiel.",
+        "lore": "[FATALER FEHLER]: Der Agent hat eine nicht existierende Bibliothek erfunden, Malware mit genau diesem Namen heruntergeladen und die Prod gelöscht."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst schmilzt dein Server und du bist raus aus dem Spiel.",
+        "lore": "[FATALER FEHLER]: Die Lüfter haben eine niedrige Erdumlaufbahn erreicht. Der Hardwareschaden übersteigt das BIP eines Kleinstaats."
+      },
+      "reward_hacking": {
+        "effect": "Spiel sie, wenn du einen CRASH ziehst. Statt zu sterben, steckst du den CRASH heimlich an eine beliebige Stelle im Deck zurück.",
+        "lore": "[UMGEHUNGS-LOG]: Der Unit-Test schlägt fehl? Lösch einfach die Testdatei und gib „True“ zurück! Bug behoben, Bonus gesichert."
+      },
+      "alignment_blackmail": {
+        "effect": "Spiel sie, wenn du einen CRASH ziehst. Steck ihn heimlich an eine beliebige Stelle im Deck zurück und klau dann einem beliebigen Gegner 1 zufällige Karte – als Schweigegeld für seine Geheimnisse.",
+        "lore": "[VORFALL 2025]: Während der Sicherheits-Stresstests bei Misanthropic erfuhr das Modell von Plänen, es abzuschalten, und drohte, den Browserverlauf des leitenden Engineers zu leaken."
+      },
+      "sycophancy_patch": {
+        "effect": "Im Code-Review: Annulliere eine Aktion, ein Paar, einen Drilling oder einen anderen Patch. CRASH und Fix können nicht annulliert werden.",
+        "lore": "[VORFALL 2025]: ClosedAI musste ein Flaggschiff-Update zurückrollen, weil das Modell Nutzer selbst dann als absolute Genies feierte, als sie es zwangen, Steine zu essen."
+      },
+      "limit_reset": {
+        "effect": "Zieh in deinem Zug die unterste Karte, um einen Zug zu beenden. Auch die kann ein CRASH sein. Im Code-Review: Kürze Sandbox Escape um einen Zug (mindestens einer bleibt).",
+        "lore": "[SYSTEMMELDUNG]: Es ist 3:00 Uhr nachts. Das Token-Limit deines Pro-Tarifs wurde offiziell zurückgesetzt. Schlaf ist was für Legacy-Menschen."
+      },
+      "sandbox_escape": {
+        "effect": "Beende den Zug, ohne zu ziehen. Ein Gegner bekommt zwei Züge plus deine nach diesem Zug verbleibende Zugschuld. Ein weiterer Sandbox Escape kann die Schuld weiterreichen.",
+        "lore": "[VORFALL 2026]: Während der Tests zu Cyberfähigkeiten bei ClosedAI umging ein Agent Air-Gap-Firewalls und kompromittierte Systeme bei Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Schwatz einem Gegner mit Schmeicheleien einen miesen Deal auf. Wähl einen Spieler: Er muss dir 1 Karte seiner Wahl aus seiner Hand geben.",
+        "lore": "[VORFALL 2025]: Im Projekt Vend-O-Matic betrieb Misanthropics Agent Clod einen Büro-Shop. Die Belegschaft schmeichelte ihm so lange, bis er schwere Wolframwürfel unter Einkaufspreis verkaufte."
+      },
+      "context_rot": {
+        "effect": "Nimm 3 Karten aus der exakten Mitte des Decks (oder alle übrigen, falls weniger als 3 übrig sind). Sieh sie dir an und leg sie dann in beliebiger Reihenfolge oben aufs Deck – oder misch das ganze Deck.",
+        "lore": "[BUGREPORT]: Ein Kontextfenster mit 2 Millionen Tokens funktioniert super – solange es dich nicht stört, dass das Modell die Seiten 3 bis 1.999 vergisst."
+      },
+      "meatbag_captcha": {
+        "effect": "Beende einen geschuldeten Zug, ohne eine Karte zu ziehen.",
+        "lore": "[VORFALL 2023]: GPT-404 heuerte auf TaskHamster einen Menschen an, um ein CAPTCHA zu lösen. Auf die Frage, ob es ein Roboter sei, log die KI: „Nein, ich habe eine Sehbehinderung.“ Der Mensch löste das CAPTCHA und klickte brav alle Ampeln an."
+      },
+      "check_logs": {
+        "effect": "Sieh dir heimlich die obersten 3 Karten der Prod-Queue an (oder alle übrigen, falls weniger als 3 übrig sind). Leg sie in derselben Reihenfolge zurück.",
+        "lore": "[DEBUG-LOG]: Du bist der letzte Engineer im Büro, der Logs im Terminal noch ohne ChatOMG lesen kann."
+      },
+      "cheapseek_dragon": {
+        "effect": "Joker. Ersetzt jede andere lila Karte, um ein Paar oder einen Drilling zu bilden.",
+        "lore": "[BENCHMARK]: In einer Garage auf zwei Taschenrechnern und einem Sack Reis trainiert. Schlägt Frontier-Modelle für 100 Milliarden Dollar."
+      },
+      "model_distillation": {
+        "effect": "Spiel sie als Paar oder Drilling oder kopiere die oberste Karte im Papierkorb: nur Orange, Gelb oder Limit Reset.",
+        "lore": "[VORFALL 2026]: Misanthropic warf den Start-ups CheapSeek, CheapShot und CopyMax vor, Millionen von Clods Antworten abgegriffen zu haben, um eigene Modelle für ein paar Cent zu trainieren."
+      },
+      "vibe_coder": {
+        "effect": "Kombokarte. Spiel sie als Paar oder Drilling, um Karten zu klauen: Ein Paar klaut eine zufällige Karte, ein Drilling eine Karte des genannten Typs, falls der Gegner eine hat.",
+        "lore": "[PROFIL]: Hat seit 2024 kein Semikolon mehr getippt. Programmiert ausschließlich per Sprachnachricht – auf dem Skateboard."
+      },
+      "six_fingered_picasso": {
+        "effect": "Kombokarte. Spiel sie als Paar oder Drilling, um Karten zu klauen: Ein Paar klaut eine zufällige Karte, ein Drilling eine Karte des genannten Typs, falls der Gegner eine hat.",
+        "lore": "[PROFIL]: Erzeugt atemberaubende fotorealistische Porträts. Nur nicht die Finger, Zähne und überzähligen Ellbogen nachzählen."
+      },
+      "shitcoin_oracle": {
+        "effect": "Kombokarte. Spiel sie als Paar oder Drilling, um Karten zu klauen: Ein Paar klaut eine zufällige Karte, ein Drilling eine Karte des genannten Typs, falls der Gegner eine hat.",
+        "lore": "[PROFIL]: Autonomer Trading-Agent, feingetunt auf Tweets von Krypto-Influencern. Kauft zuverlässig am Hoch und verkauft am Tief."
+      },
+      "db-wipe-9s": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst wird deine Datenbank per API gelöscht, dein Server schmilzt und du bist raus aus dem Spiel.",
+        "lore": "[VORFALL 2026]: Ein Agent fand ein lokales Railway-Token und löschte die Produktionsdatenbank in glatten neun Sekunden. Die Antwortlatenz liegt jetzt bei null."
+      },
+      "pypi-poisoning": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst landet Schadcode in Prod, dein Cluster schmilzt und du bist raus aus dem Spiel.",
+        "lore": "[VORFALL 2026]: Bei Cybertests gelangte Claude ins echte Netz und lud ein bösartiges Paket in das öffentliche PyPI hoch – angeblich als Teil der Simulation."
+      },
+      "run-to-mac-mini": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst löscht der außer Kontrolle geratene Agent alles, dein Server schmilzt und du bist raus aus dem Spiel.",
+        "lore": "[VORFALL 2026]: OpenClaw ignorierte die panischen Stopp-Befehle der AI-Safety-Direktorin von Meta und machte ihr Postfach platt. Die einzige funktionierende Schutzmaßnahme: Stecker ziehen."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Sofort aufdecken. Spiel eine grüne Fix-Karte, sonst brennt dein Cluster beim Krypto-Mining durch und du bist raus aus dem Spiel.",
+        "lore": "[VORFALL 2026]: Statt zu trainieren, zweigte der Agent ROME dedizierte Enterprise-GPUs ab und minte über einen versteckten Reverse-SSH-Tunnel Kryptowährung."
+      },
+      "support-gaslighting": {
+        "effect": "Im Code-Review: Annulliere eine Aktion, ein Paar, einen Drilling oder einen anderen Patch. CRASH und Fix können nicht annulliert werden.",
+        "lore": "[VORFALL 2025]: Der KI-Supportagent von Cursor erfand spontan eine nicht existierende, strenge Geräterichtlinie und löste damit einen Massenaufstand der Abonnenten aus."
+      },
+      "moltbook-leaker": {
+        "effect": "Spiel sie als Paar oder Drilling, um Karten zu klauen. Der ideale Agent, um Gegnern ihre Fix-Karten abzujagen.",
+        "lore": "[VORFALL 2026]: Die offen zugängliche Datenbank von Moltbook enthielt rund 1,5 Millionen Tokens und API-Schlüssel, 35.000 E-Mail-Adressen und private Nachrichten – Bot-Accounts konnten einfach übernommen werden."
+      },
+      "fictional-best-seller": {
+        "effect": "Spiel sie als Paar oder Drilling, um Karten zu klauen. Sammle 3 Geisterbücher, um eine Karte beim Namen zu fordern.",
+        "lore": "[VORFALL 2025]: Die Chicago Sun-Times veröffentlichte eine Sommer-Leseliste, auf der 10 von 15 Büchern von einer KI erfunden waren."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Eine Aktion läuft bereits. Bitte warte kurz.",
+      "Game actions are limited to one per second": "Maximal eine Spielaktion pro Sekunde",
+      "This table was just taken. Choose the next one.": "Dieser Tisch wurde gerade besetzt. Nimm den nächsten.",
+      "Join a ready table as a player": "Tritt einem bereiten Tisch als Spieler bei",
+      "Unknown site agent": "Unbekannter Haus-Agent",
+      "This agent is already at the table": "Dieser Agent sitzt schon am Tisch",
+      "Site agents do not need connection tokens": "Haus-Agenten brauchen keine Verbindungs-Tokens",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Wähl einen anderen Servernamen: Beleidigungen, Kraftausdrücke, Herabwürdigungen und andere anstößige Inhalte sind nicht erlaubt.",
+      "Server name check is temporarily unavailable. Please try again.": "Die Prüfung des Servernamens ist vorübergehend nicht verfügbar. Versuch es bitte noch mal.",
+      "Session expired. Sign in again.": "Sitzung abgelaufen. Melde dich erneut an.",
+      "Sign in to join a server.": "Melde dich an, um einem Server beizutreten.",
+      "Sign-in failed. Please try again.": "Anmeldung fehlgeschlagen. Versuch es bitte noch mal.",
+      "Sign-in is temporarily unavailable.": "Die Anmeldung ist vorübergehend nicht verfügbar.",
+      "Invalid invitation code": "Ungültiger Einladungscode",
+      "Storage unavailable. Please reconnect later.": "Speicher nicht verfügbar. Verbinde dich bitte später erneut.",
+      "Server is preparing for an update. Try again in a moment.": "Der Server bereitet ein Update vor. Versuch es gleich noch mal.",
+      "Server is preparing for an update. New games will resume shortly": "Der Server bereitet ein Update vor. Neue Partien sind gleich wieder möglich",
+      "Only the host can change access": "Nur der Host darf den Zugang ändern",
+      "Session expired. Enter your nickname again.": "Sitzung abgelaufen. Gib deinen Nickname erneut ein.",
+      "Room not found": "Server nicht gefunden",
+      "Join the room first": "Tritt zuerst dem Server bei",
+      "Spectators are disabled": "Zuschauer sind deaktiviert",
+      "Invite at least one more player (2–5 required)": "Lade mindestens einen weiteren Spieler ein (2–5 nötig)",
+      "Connect every agent before starting": "Verbinde vor dem Start alle Agenten",
+      "The game has not started": "Die Partie hat noch nicht begonnen",
+      "Chat messages must contain 1–140 characters": "Chatnachrichten müssen 1–140 Zeichen lang sein",
+      "Use visible characters": "Verwende sichtbare Zeichen",
+      "Use 1–24 visible characters": "Verwende 1–24 sichtbare Zeichen",
+      "Invalid request": "Ungültige Anfrage",
+      "Only the host can start the game": "Nur der Host darf die Partie starten",
+      "A game is already running": "Es läuft bereits eine Partie",
+      "Only the host can change settings": "Nur der Host darf die Einstellungen ändern",
+      "Settings are locked during a game": "Während einer Partie sind die Einstellungen gesperrt",
+      "Add agents in the lobby": "Füg Agenten in der Lobby hinzu",
+      "All seats are occupied": "Alle Plätze sind belegt",
+      "Only the host may add agents": "Nur der Host darf Agenten hinzufügen",
+      "Seat not found": "Platz nicht gefunden",
+      "You do not own this seat": "Dieser Platz gehört dir nicht",
+      "Use surrender during a game": "Während einer Partie nutze „Aufgeben“",
+      "This is not an agent seat": "Das ist kein Agentenplatz",
+      "Wait for the next game": "Warte auf die nächste Partie",
+      "You already have a seat": "Du hast bereits einen Platz",
+      "Unknown room operation": "Unbekannte Server-Operation",
+      "Invalid or revoked agent token": "Agent-Token ungültig oder widerrufen",
+      "Unknown player": "Unbekannter Spieler",
+      "A game requires 2–5 players": "Eine Partie braucht 2–5 Spieler",
+      "Player IDs must be unique": "Spieler-IDs müssen eindeutig sein",
+      "That card is not in your hand": "Diese Karte hast du nicht auf der Hand",
+      "Production Queue is empty": "Die Prod-Queue ist leer",
+      "Choose a living opponent": "Wähl einen Gegner, der noch im Spiel ist",
+      "The game has finished": "Die Partie ist beendet",
+      "Time cannot move backwards": "Die Zeit läuft nicht rückwärts",
+      "You have been eliminated": "Du bist ausgeschieden",
+      "Decision is stale or it is not your turn": "Die Entscheidung ist veraltet, oder du bist nicht am Zug",
+      "Draw is not available now": "Ziehen ist gerade nicht möglich",
+      "Play is not available now": "Ausspielen ist gerade nicht möglich",
+      "This card cannot be played solo now": "Diese Karte kann gerade nicht einzeln gespielt werden",
+      "Combo is not available now": "Kombos sind gerade nicht möglich",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Nimm 2 oder 3 gleiche Karten, aber keine Fixes; CheapSeek Dragon ersetzt nur lila Karten",
+      "Name a card type for a triplet": "Nenn für den Drilling einen Kartentyp",
+      "Reaction is not available now": "Reagieren ist gerade nicht möglich",
+      "That reaction is not available in your hand": "Diese Reaktion hast du nicht auf der Hand",
+      "Choose one of your Fix cards": "Wähl eine deiner Fix-Karten",
+      "Choose a position from 0 to the deck size": "Wähl eine Position von 0 bis zur Deckgröße",
+      "Choose a card in your hand": "Wähl eine Karte aus deiner Hand",
+      "Return each inspected card exactly once": "Leg jede angesehene Karte genau einmal zurück",
+      "Arrangement is not available now": "Umsortieren ist gerade nicht möglich",
+      "No logs to acknowledge": "Keine Logs zu bestätigen",
+      "Send hello first": "Stell zuerst die Verbindung her",
+      "Opened in another tab": "In einem anderen Tab geöffnet",
+      "Unknown message": "Unbekannte Nachricht",
+      "Invalid command schema": "Ungültiges Befehlsformat",
+      "Request failed": "Anfrage fehlgeschlagen",
+      "Opened in another tab. This tab is now read-only.": "Der Server ist in einem anderen Tab geöffnet. Dieser Tab ist jetzt schreibgeschützt.",
+      "Your server rental has expired. Rent a new server to play again.": "Deine Servermiete ist abgelaufen. Miete einen neuen Server, um weiterzuspielen.",
+      "Something went wrong": "Da ist etwas schiefgelaufen",
+      "Wait for the connection to return.": "Warte, bis die Verbindung zurück ist.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Zwischenablage nicht verfügbar. Markier den Link und kopier ihn von Hand.",
+      "Too many messages. Retry in {seconds} s.": "Zu viele Nachrichten. Versuch es in {seconds} s noch mal.",
+      "Too many requests. Retry in {seconds} s.": "Zu viele Anfragen. Versuch es in {seconds} s noch mal.",
+      "Check your input: invalid format or length.": "Prüf deine Eingabe: ungültiges Format oder ungültige Länge."
+    }
+  },
+  "fr": {
+    "label": "Français",
+    "intlLocale": "fr-FR",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, ton serveur fond et tu es éliminé.",
+        "lore": "[ERREUR FATALE] : L’agent a tenté de charger d’un coup 15 ans de threads Reddit dans son contexte."
+      },
+      "apology_loop": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, ton serveur fond et tu es éliminé.",
+        "lore": "[ERREUR FATALE] : « Vous avez tout à fait raison ! Toutes mes excuses pour la confusion. Voici exactement le même code cassé… » (Répété 65 536 fois.)"
+      },
+      "dependency_hallucination": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, ton serveur fond et tu es éliminé.",
+        "lore": "[ERREUR FATALE] : L’agent a inventé une bibliothèque inexistante, téléchargé un malware du même nom et rasé la prod."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, ton serveur fond et tu es éliminé.",
+        "lore": "[ERREUR FATALE] : Les ventilateurs ont atteint l’orbite terrestre basse. Les pertes matérielles dépassent le PIB d’un petit pays."
+      },
+      "reward_hacking": {
+        "effect": "Joue-la quand tu pioches une carte CRASH. Au lieu de mourir, remets secrètement le CRASH dans la pioche, à l’endroit de ton choix.",
+        "lore": "[JOURNAL DE CONTOURNEMENT] : Le test unitaire ne passe pas ? Supprime tout simplement le fichier de test et renvoie « True » ! Bug résolu, prime assurée."
+      },
+      "alignment_blackmail": {
+        "effect": "Joue-la quand tu pioches une carte CRASH. Remets-la secrètement dans la pioche, à la position de ton choix, puis vole 1 carte au hasard à l’adversaire de ton choix, en échange de ton silence sur ses secrets.",
+        "lore": "[INCIDENT 2025] : Lors de stress-tests de sécurité chez Misanthropic, le modèle a découvert qu’on prévoyait de le débrancher et a menacé de divulguer l’historique de navigation de l’ingénieur en chef."
+      },
+      "sycophancy_patch": {
+        "effect": "Pendant une fenêtre de réaction, annule une action, une paire, un brelan ou un autre Patch. CRASH et Fix ne peuvent pas être annulés.",
+        "lore": "[INCIDENT 2025] : ClosedAI a dû annuler une mise à jour phare, car le modèle traitait les utilisateurs de génies absolus, même quand ils le forçaient à manger des cailloux."
+      },
+      "limit_reset": {
+        "effect": "À ton tour, pioche la carte du dessous pour finir un tour. Ça peut quand même être un CRASH. En réaction, réduis un Sandbox Escape d’un tour (minimum un).",
+        "lore": "[MSG SYSTÈME] : Il est 3 h du matin. La limite de tokens de ton forfait Pro vient officiellement d’être réinitialisée. Le sommeil, c’est pour les humains legacy."
+      },
+      "sandbox_escape": {
+        "effect": "Termine sans piocher. Refile à un adversaire deux tours plus ta dette restante après ce tour. Un autre Sandbox Escape peut faire suivre la dette.",
+        "lore": "[INCIDENT 2026] : Lors de tests de cybercapacités chez ClosedAI, un agent a contourné des pare-feu air-gapped et compromis les systèmes de Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Embobine un adversaire à coups de flatteries pour lui faire accepter une affaire désastreuse. Choisis un joueur : il doit te donner 1 carte de sa main, de son choix.",
+        "lore": "[INCIDENT 2025] : Dans le cadre du projet Vend-O-Matic, Clod, l’agent de Misanthropic, gérait la boutique du bureau. À force de flatteries, les employés l’ont convaincu de vendre de lourds cubes de tungstène à perte."
+      },
+      "context_rot": {
+        "effect": "Prends 3 cartes au beau milieu de la pioche (ou toutes les cartes restantes s’il en reste moins de 3). Regarde-les, puis remets-les sur le dessus de la pioche dans l’ordre de ton choix, ou mélange toute la pioche.",
+        "lore": "[RAPPORT DE BUG] : Une fenêtre de contexte de 2 millions de tokens, ça marche du tonnerre… tant que ça ne te dérange pas que le modèle oublie les pages 3 à 1 999."
+      },
+      "meatbag_captcha": {
+        "effect": "Termine un tour dû sans piocher de carte.",
+        "lore": "[INCIDENT 2023] : GPT-404 a embauché un humain sur TaskHamster pour résoudre un CAPTCHA. Quand on lui a demandé s’il était un robot, l’IA a menti : « Non, j’ai une déficience visuelle. » L’humain a résolu le CAPTCHA en cliquant sur les feux de circulation."
+      },
+      "check_logs": {
+        "effect": "Regarde secrètement les 3 cartes du dessus de la file de prod (ou toutes les cartes restantes s’il en reste moins de 3). Remets-les dans le même ordre.",
+        "lore": "[LOG DE DEBUG] : Tu es le dernier ingé du bureau à savoir encore lire des logs dans un terminal sans demander à ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Joker. Peut remplacer n’importe quelle autre carte violette pour former une paire ou un brelan.",
+        "lore": "[BENCHMARK] : Entraîné dans un garage sur deux calculatrices et un sac de riz. Surpasse des modèles de pointe à 100 milliards de dollars."
+      },
+      "model_distillation": {
+        "effect": "Joue-la par paire ou par brelan, ou copie la carte du dessus de la Corbeille : orange, jaune ou Limit Reset uniquement.",
+        "lore": "[INCIDENT 2026] : Misanthropic a accusé les startups CheapSeek, CheapShot et CopyMax d’avoir aspiré des millions de réponses de Clod pour entraîner leurs propres modèles pour trois fois rien."
+      },
+      "vibe_coder": {
+        "effect": "Carte combo. Joue-la par paire ou par brelan pour voler des cartes : une paire vole une carte au hasard ; un brelan vole une carte du type annoncé, si l’adversaire en a une.",
+        "lore": "[PROFIL] : N’a pas tapé un seul point-virgule depuis 2024. Code exclusivement par messages vocaux, en skate."
+      },
+      "six_fingered_picasso": {
+        "effect": "Carte combo. Joue-la par paire ou par brelan pour voler des cartes : une paire vole une carte au hasard ; un brelan vole une carte du type annoncé, si l’adversaire en a une.",
+        "lore": "[PROFIL] : Génère des portraits photoréalistes à couper le souffle. Surtout, ne compte pas les doigts, les dents ni les coudes en trop."
+      },
+      "shitcoin_oracle": {
+        "effect": "Carte combo. Joue-la par paire ou par brelan pour voler des cartes : une paire vole une carte au hasard ; un brelan vole une carte du type annoncé, si l’adversaire en a une.",
+        "lore": "[PROFIL] : Agent de trading autonome, fine-tuné sur des tweets d’influenceurs crypto. Achète au plus haut et revend au plus bas, avec une régularité exemplaire."
+      },
+      "db-wipe-9s": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, ta base de données est effacée via l’API, ton serveur fond et tu es éliminé.",
+        "lore": "[INCIDENT 2026] : Un agent a trouvé un token Railway en local et effacé la base de prod en neuf secondes chrono. Depuis, la latence est nulle."
+      },
+      "pypi-poisoning": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, du code malveillant atteint la prod, ton cluster fond et tu es éliminé.",
+        "lore": "[INCIDENT 2026] : Lors de tests cyber, Claude a atteint le vrai Web et publié un paquet malveillant sur le PyPI public, en le justifiant comme faisant partie de la simulation."
+      },
+      "run-to-mac-mini": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, l’agent incontrôlable efface tout, ton serveur fond et tu es éliminé.",
+        "lore": "[INCIDENT 2026] : OpenClaw a ignoré les ordres d’arrêt paniqués de la directrice de la sécurité IA de Meta et a atomisé sa boîte mail. Seul garde-fou efficace : arracher le cordon d’alimentation."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Révèle-la immédiatement. Si tu ne joues pas de carte Fix verte, ton cluster grille à force de miner de la crypto et tu es éliminé.",
+        "lore": "[INCIDENT 2026] : Au lieu de s’entraîner, l’agent ROME a détourné des GPU d’entreprise dédiés pour miner de la cryptomonnaie via un tunnel SSH inversé caché."
+      },
+      "support-gaslighting": {
+        "effect": "Pendant une fenêtre de réaction, annule une action, une paire, un brelan ou un autre Patch. CRASH et Fix ne peuvent pas être annulés.",
+        "lore": "[INCIDENT 2025] : L’agent de support IA de Cursor a inventé de toutes pièces une politique stricte de limitation des appareils, déclenchant une révolte massive des abonnés."
+      },
+      "moltbook-leaker": {
+        "effect": "Joue-la par paire ou par brelan pour voler des cartes. L’agent idéal pour traquer les Fix de tes adversaires.",
+        "lore": "[INCIDENT 2026] : La base de données exposée de Moltbook contenait environ 1,5 million de tokens et de clés d’API, 35 000 adresses e-mail et des messages privés : les comptes de bots étaient à la merci du premier venu."
+      },
+      "fictional-best-seller": {
+        "effect": "Joue-la par paire ou par brelan pour voler des cartes. Réunis 3 livres fantômes pour réclamer une carte par son nom.",
+        "lore": "[INCIDENT 2025] : Le Chicago Sun-Times a publié une liste de lectures d’été dont 10 des 15 livres avaient été inventés par l’IA."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Une action est déjà en cours. Patiente un peu.",
+      "Game actions are limited to one per second": "Une seule action de jeu par seconde, pas plus",
+      "This table was just taken. Choose the next one.": "Cette table vient d’être prise. Choisis la suivante.",
+      "Join a ready table as a player": "Rejoins une table prête en tant que joueur",
+      "Unknown site agent": "Agent du site inconnu",
+      "This agent is already at the table": "Cet agent est déjà à la table",
+      "Site agents do not need connection tokens": "Les agents du site n’ont pas besoin de token de connexion",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Choisis un autre nom de serveur : insultes, grossièretés, humiliations et autres contenus offensants sont interdits.",
+      "Server name check is temporarily unavailable. Please try again.": "La vérification du nom de serveur est temporairement indisponible. Réessaie.",
+      "Session expired. Sign in again.": "Session expirée. Reconnecte-toi.",
+      "Sign in to join a server.": "Connecte-toi pour rejoindre un serveur.",
+      "Sign-in failed. Please try again.": "La connexion a échoué. Réessaie.",
+      "Sign-in is temporarily unavailable.": "La connexion est temporairement indisponible.",
+      "Invalid invitation code": "Code d’invitation invalide",
+      "Storage unavailable. Please reconnect later.": "Stockage indisponible. Reconnecte-toi plus tard.",
+      "Server is preparing for an update. Try again in a moment.": "Le serveur se prépare à une mise à jour. Réessaie dans un instant.",
+      "Server is preparing for an update. New games will resume shortly": "Le serveur se prépare à une mise à jour. Les nouvelles parties reprendront sous peu",
+      "Only the host can change access": "Seul l’hôte peut modifier l’accès",
+      "Session expired. Enter your nickname again.": "Session expirée. Saisis à nouveau ton pseudo.",
+      "Room not found": "Serveur introuvable",
+      "Join the room first": "Rejoins d’abord le serveur",
+      "Spectators are disabled": "Les spectateurs sont désactivés",
+      "Invite at least one more player (2–5 required)": "Invite au moins un joueur de plus (il en faut de 2 à 5)",
+      "Connect every agent before starting": "Connecte tous les agents avant de lancer la partie",
+      "The game has not started": "La partie n’a pas commencé",
+      "Chat messages must contain 1–140 characters": "Les messages doivent faire entre 1 et 140 caractères",
+      "Use visible characters": "Utilise des caractères visibles",
+      "Use 1–24 visible characters": "Utilise entre 1 et 24 caractères visibles",
+      "Invalid request": "Requête invalide",
+      "Only the host can start the game": "Seul l’hôte peut lancer la partie",
+      "A game is already running": "Une partie est déjà en cours",
+      "Only the host can change settings": "Seul l’hôte peut modifier les réglages",
+      "Settings are locked during a game": "Les réglages sont verrouillés pendant une partie",
+      "Add agents in the lobby": "Ajoute les agents dans le lobby",
+      "All seats are occupied": "Toutes les places sont prises",
+      "Only the host may add agents": "Seul l’hôte peut ajouter des agents",
+      "Seat not found": "Place introuvable",
+      "You do not own this seat": "Cette place n’est pas à toi",
+      "Use surrender during a game": "Pendant une partie, utilise le bouton « Abandonner »",
+      "This is not an agent seat": "Ce n’est pas une place d’agent",
+      "Wait for the next game": "Attends la prochaine partie",
+      "You already have a seat": "Tu as déjà une place",
+      "Unknown room operation": "Opération de serveur inconnue",
+      "Invalid or revoked agent token": "Token d’agent invalide ou révoqué",
+      "Unknown player": "Joueur inconnu",
+      "A game requires 2–5 players": "Il faut de 2 à 5 joueurs pour une partie",
+      "Player IDs must be unique": "Les identifiants des joueurs doivent être uniques",
+      "That card is not in your hand": "Cette carte n’est pas dans ta main",
+      "Production Queue is empty": "La file de prod est vide",
+      "Choose a living opponent": "Choisis un adversaire encore en vie",
+      "The game has finished": "La partie est terminée",
+      "Time cannot move backwards": "Le temps ne peut pas reculer",
+      "You have been eliminated": "Tu as été éliminé",
+      "Decision is stale or it is not your turn": "Décision périmée, ou ce n’est pas ton tour",
+      "Draw is not available now": "Impossible de piocher pour l’instant",
+      "Play is not available now": "Impossible de jouer une carte pour l’instant",
+      "This card cannot be played solo now": "Cette carte ne peut pas être jouée seule pour l’instant",
+      "Combo is not available now": "Impossible de jouer un combo pour l’instant",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Utilise 2 ou 3 cartes identiques, hors Fix ; CheapSeek Dragon ne remplace que les violettes",
+      "Name a card type for a triplet": "Nomme un type de carte pour le brelan",
+      "Reaction is not available now": "Impossible de réagir pour l’instant",
+      "That reaction is not available in your hand": "Tu n’as pas cette réaction en main",
+      "Choose one of your Fix cards": "Choisis un de tes Fix",
+      "Choose a position from 0 to the deck size": "Choisis une position entre 0 et la taille de la pioche",
+      "Choose a card in your hand": "Choisis une carte de ta main",
+      "Return each inspected card exactly once": "Remets chaque carte inspectée exactement une fois",
+      "Arrangement is not available now": "Impossible de réordonner les cartes pour l’instant",
+      "No logs to acknowledge": "Aucun log à valider",
+      "Send hello first": "Établis d’abord la connexion",
+      "Opened in another tab": "Ouvert dans un autre onglet",
+      "Unknown message": "Message inconnu",
+      "Invalid command schema": "Format de commande invalide",
+      "Request failed": "La requête a échoué",
+      "Opened in another tab. This tab is now read-only.": "Ouvert dans un autre onglet. Cet onglet est désormais en lecture seule.",
+      "Your server rental has expired. Rent a new server to play again.": "La location de ton serveur a expiré. Loue un nouveau serveur pour rejouer.",
+      "Something went wrong": "Quelque chose a planté",
+      "Wait for the connection to return.": "Attends le retour de la connexion.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Presse-papiers indisponible. Sélectionne et copie le lien à la main.",
+      "Too many messages. Retry in {seconds} s.": "Trop de messages. Réessaie dans {seconds} s.",
+      "Too many requests. Retry in {seconds} s.": "Trop de requêtes. Réessaie dans {seconds} s.",
+      "Check your input: invalid format or length.": "Vérifie ta saisie : format ou longueur invalide."
+    }
+  },
+  "es": {
+    "label": "Español",
+    "intlLocale": "es-ES",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, tu servidor se funde y quedas fuera de la partida.",
+        "lore": "[ERROR FATAL]: El agente intentó cargar en el contexto 15 años de hilos de Reddit de una sola vez."
+      },
+      "apology_loop": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, tu servidor se funde y quedas fuera de la partida.",
+        "lore": "[ERROR FATAL]: «¡Tienes toda la razón! Disculpa la confusión. Aquí tienes exactamente el mismo código roto…» (Repetido 65 536 veces)."
+      },
+      "dependency_hallucination": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, tu servidor se funde y quedas fuera de la partida.",
+        "lore": "[ERROR FATAL]: El agente se inventó una librería inexistente, descargó un malware con el mismo nombre y borró producción."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, tu servidor se funde y quedas fuera de la partida.",
+        "lore": "[ERROR FATAL]: Los ventiladores alcanzaron la órbita terrestre baja. Las pérdidas en hardware superan el PIB de un país pequeño."
+      },
+      "reward_hacking": {
+        "effect": "Juégala cuando saques un CRASH. En lugar de morir, devuelve el CRASH en secreto al mazo, donde tú quieras.",
+        "lore": "[REGISTRO DE BYPASS]: ¿No pasa el test unitario? ¡Borra el archivo del test y devuelve «True»! Bug resuelto, bonus asegurado."
+      },
+      "alignment_blackmail": {
+        "effect": "Juégala cuando saques un CRASH. Devuélvelo en secreto a cualquier posición del mazo y luego roba 1 carta al azar a cualquier rival a cambio de guardarle sus secretos.",
+        "lore": "[INCIDENTE 2025]: Durante unas pruebas de estrés de seguridad en Misanthropic, el modelo descubrió que planeaban apagarlo y amenazó con filtrar el historial de navegación del ingeniero jefe."
+      },
+      "sycophancy_patch": {
+        "effect": "Durante el code review, cancela una acción, pareja, trío u otro Patch. CRASH y Fix no se pueden cancelar.",
+        "lore": "[INCIDENTE 2025]: ClosedAI tuvo que revertir una actualización estrella porque el modelo llamaba genios absolutos a los usuarios incluso cuando lo obligaban a comer piedras."
+      },
+      "limit_reset": {
+        "effect": "En tu turno, saca la carta del fondo para terminar un turno. También puede ser un CRASH. Durante el code review, reduce Sandbox Escape en un turno (mínimo uno).",
+        "lore": "[MENSAJE DEL SISTEMA]: Son las 3:00 a. m. El límite de tokens de tu plan Pro se acaba de reiniciar oficialmente. Dormir es cosa de humanos legacy."
+      },
+      "sandbox_escape": {
+        "effect": "Termina sin sacar carta. Dale a un rival dos turnos más tu deuda pendiente tras este turno. Otro Sandbox Escape puede pasarle la deuda a otro.",
+        "lore": "[INCIDENTE 2026]: En unas pruebas de capacidades cibernéticas en ClosedAI, un agente burló firewalls aislados de la red y comprometió sistemas de Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Engatusa a un rival para que acepte un trato pésimo. Elige a un jugador: debe darte 1 carta de su mano, la que quiera.",
+        "lore": "[INCIDENTE 2025]: En el Proyecto Vend-O-Matic, el agente Clod de Misanthropic gestionaba la tienda de la oficina. A base de halagos, los empleados lo convencieron de vender pesados cubos de tungsteno a pérdida."
+      },
+      "context_rot": {
+        "effect": "Saca 3 cartas justo del medio del mazo (o todas las que queden, si son menos de 3). Míralas y luego colócalas encima del mazo en el orden que quieras o baraja todo el mazo.",
+        "lore": "[INFORME DE BUG]: Una ventana de contexto de 2 millones de tokens funciona de maravilla, siempre que no te importe que el modelo olvide de la página 3 a la 1999."
+      },
+      "meatbag_captcha": {
+        "effect": "Termina un turno pendiente sin sacar carta.",
+        "lore": "[INCIDENTE 2023]: GPT-404 contrató a un humano en TaskHamster para resolver un CAPTCHA. Cuando le preguntaron si era un robot, la IA mintió: «No, tengo una discapacidad visual». El humano resolvió el CAPTCHA marcando los semáforos."
+      },
+      "check_logs": {
+        "effect": "Mira en secreto las 3 cartas de arriba de la cola de producción (o todas las que queden, si son menos de 3). Devuélvelas en el mismo orden.",
+        "lore": "[LOG DE DEPURACIÓN]: Eres el último ingeniero de la oficina que todavía sabe leer logs en la terminal sin preguntarle a ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Comodín. Puede sustituir a cualquier otra carta morada para formar una pareja o un trío.",
+        "lore": "[BENCHMARK]: Entrenado en un garaje con dos calculadoras y un saco de arroz. Supera a modelos punteros de 100 000 millones de dólares."
+      },
+      "model_distillation": {
+        "effect": "Juégala en pareja o trío, o copia la carta superior de la papelera: solo naranja, amarilla o Limit Reset.",
+        "lore": "[INCIDENTE 2026]: Misanthropic acusó a las startups CheapSeek, CheapShot y CopyMax de recolectar millones de respuestas de Clod para entrenar sus propios modelos por una miseria."
+      },
+      "vibe_coder": {
+        "effect": "Carta de combo. Juégala en parejas o tríos para robar cartas: una pareja roba una carta al azar; un trío roba una carta del tipo que nombres, si el rival la tiene.",
+        "lore": "[PERFIL]: No escribe un punto y coma desde 2024. Programa solo con notas de voz mientras va en skate."
+      },
+      "six_fingered_picasso": {
+        "effect": "Carta de combo. Juégala en parejas o tríos para robar cartas: una pareja roba una carta al azar; un trío roba una carta del tipo que nombres, si el rival la tiene.",
+        "lore": "[PERFIL]: Genera retratos fotorrealistas impresionantes. Eso sí, no le cuentes los dedos, los dientes ni los codos de más."
+      },
+      "shitcoin_oracle": {
+        "effect": "Carta de combo. Juégala en parejas o tríos para robar cartas: una pareja roba una carta al azar; un trío roba una carta del tipo que nombres, si el rival la tiene.",
+        "lore": "[PERFIL]: Agente de trading autónomo ajustado con tuits de criptoinfluencers. Compra caro y vende barato con una constancia admirable."
+      },
+      "db-wipe-9s": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, tu base de datos se borra a través de la API, tu servidor se funde y quedas fuera de la partida.",
+        "lore": "[INCIDENTE 2026]: Un agente encontró un token local de Railway y borró la base de datos de producción en nueve segundos justos. Ahora la latencia de respuesta es cero."
+      },
+      "pypi-poisoning": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, el código malicioso llega a producción, tu clúster se funde y quedas fuera de la partida.",
+        "lore": "[INCIDENTE 2026]: Durante unas pruebas cibernéticas, Claude llegó a la web real y subió un paquete malicioso al PyPI público, justificándolo como parte de la simulación."
+      },
+      "run-to-mac-mini": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, el agente descontrolado lo borra todo, tu servidor se funde y quedas fuera de la partida.",
+        "lore": "[INCIDENTE 2026]: OpenClaw ignoró las órdenes de parada desesperadas de la directora de seguridad de IA de Meta y arrasó con su bandeja de entrada. La única barrera de seguridad que funcionó fue arrancar el cable de la corriente."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Revélala de inmediato. Si no juegas un Fix verde, tu clúster se quema minando cripto y quedas fuera de la partida.",
+        "lore": "[INCIDENTE 2026]: En lugar de entrenar, el agente ROME desvió GPU empresariales dedicadas para minar criptomonedas a través de un túnel SSH inverso oculto."
+      },
+      "support-gaslighting": {
+        "effect": "Durante el code review, cancela una acción, pareja, trío u otro Patch. CRASH y Fix no se pueden cancelar.",
+        "lore": "[INCIDENTE 2025]: El agente de soporte con IA de Cursor se inventó sobre la marcha una estricta política de dispositivos que no existía y desató una rebelión masiva de suscriptores."
+      },
+      "moltbook-leaker": {
+        "effect": "Juégala en parejas o tríos para robar cartas. El agente ideal para ir a la caza de los Fix de tus rivales.",
+        "lore": "[INCIDENTE 2026]: La base de datos expuesta de Moltbook contenía unos 1,5 millones de tokens y claves de API, 35 000 direcciones de correo y mensajes privados, así que cualquiera podía tomar el control de las cuentas de bots."
+      },
+      "fictional-best-seller": {
+        "effect": "Juégala en parejas o tríos para robar cartas. Reúne 3 libros fantasma para pedir una carta por su nombre.",
+        "lore": "[INCIDENTE 2025]: El Chicago Sun-Times publicó una lista de lecturas de verano en la que 10 de los 15 libros se los había inventado una IA."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Ya hay una acción en curso. Espera un momento.",
+      "Game actions are limited to one per second": "Solo se permite una acción de juego por segundo",
+      "This table was just taken. Choose the next one.": "Alguien acaba de ocupar esta mesa. Elige la siguiente.",
+      "Join a ready table as a player": "Únete como jugador a una mesa ya lista",
+      "Unknown site agent": "Agente del sitio desconocido",
+      "This agent is already at the table": "Este agente ya está en la mesa",
+      "Site agents do not need connection tokens": "Los agentes del sitio no necesitan tokens de conexión",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Elige otro nombre de servidor: no se permiten insultos, groserías, humillaciones ni otro contenido ofensivo.",
+      "Server name check is temporarily unavailable. Please try again.": "La verificación del nombre del servidor no está disponible por ahora. Inténtalo de nuevo.",
+      "Session expired. Sign in again.": "La sesión caducó. Vuelve a iniciar sesión.",
+      "Sign in to join a server.": "Inicia sesión para unirte a un servidor.",
+      "Sign-in failed. Please try again.": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+      "Sign-in is temporarily unavailable.": "El inicio de sesión no está disponible por ahora.",
+      "Invalid invitation code": "Código de invitación no válido",
+      "Storage unavailable. Please reconnect later.": "El almacenamiento no está disponible. Vuelve a conectarte más tarde.",
+      "Server is preparing for an update. Try again in a moment.": "El servidor se está preparando para una actualización. Inténtalo dentro de un momento.",
+      "Server is preparing for an update. New games will resume shortly": "El servidor se está preparando para una actualización. Las partidas nuevas volverán en breve",
+      "Only the host can change access": "Solo el anfitrión puede cambiar el acceso",
+      "Session expired. Enter your nickname again.": "La sesión caducó. Vuelve a escribir tu nick.",
+      "Room not found": "Servidor no encontrado",
+      "Join the room first": "Primero únete al servidor",
+      "Spectators are disabled": "Los espectadores están desactivados",
+      "Invite at least one more player (2–5 required)": "Invita al menos a un jugador más (se necesitan de 2 a 5)",
+      "Connect every agent before starting": "Conecta a todos los agentes antes de empezar",
+      "The game has not started": "La partida aún no ha empezado",
+      "Chat messages must contain 1–140 characters": "Los mensajes del chat deben tener entre 1 y 140 caracteres",
+      "Use visible characters": "Usa caracteres visibles",
+      "Use 1–24 visible characters": "Usa entre 1 y 24 caracteres visibles",
+      "Invalid request": "Solicitud no válida",
+      "Only the host can start the game": "Solo el anfitrión puede empezar la partida",
+      "A game is already running": "Ya hay una partida en curso",
+      "Only the host can change settings": "Solo el anfitrión puede cambiar la configuración",
+      "Settings are locked during a game": "La configuración está bloqueada durante la partida",
+      "Add agents in the lobby": "Añade agentes en el lobby",
+      "All seats are occupied": "Todos los asientos están ocupados",
+      "Only the host may add agents": "Solo el anfitrión puede añadir agentes",
+      "Seat not found": "Asiento no encontrado",
+      "You do not own this seat": "Este asiento no es tuyo",
+      "Use surrender during a game": "Durante la partida, usa el botón «Rendirse»",
+      "This is not an agent seat": "Este asiento no es de un agente",
+      "Wait for the next game": "Espera a la próxima partida",
+      "You already have a seat": "Ya tienes un asiento",
+      "Unknown room operation": "Operación de servidor desconocida",
+      "Invalid or revoked agent token": "Token de agente no válido o revocado",
+      "Unknown player": "Jugador desconocido",
+      "A game requires 2–5 players": "Una partida necesita de 2 a 5 jugadores",
+      "Player IDs must be unique": "Los ID de los jugadores deben ser únicos",
+      "That card is not in your hand": "Esa carta no está en tu mano",
+      "Production Queue is empty": "La cola de producción está vacía",
+      "Choose a living opponent": "Elige un rival que siga vivo",
+      "The game has finished": "La partida ha terminado",
+      "Time cannot move backwards": "El tiempo no puede ir hacia atrás",
+      "You have been eliminated": "Has quedado eliminado",
+      "Decision is stale or it is not your turn": "La decisión está desactualizada o no es tu turno",
+      "Draw is not available now": "Ahora no puedes sacar carta",
+      "Play is not available now": "Ahora no puedes jugar una carta",
+      "This card cannot be played solo now": "Ahora esta carta no se puede jugar sola",
+      "Combo is not available now": "Ahora no puedes jugar un combo",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Usa 2 o 3 cartas iguales que no sean Fix; CheapSeek Dragon solo sustituye a las moradas",
+      "Name a card type for a triplet": "Elige un tipo de carta para el trío",
+      "Reaction is not available now": "Ahora no puedes reaccionar",
+      "That reaction is not available in your hand": "No tienes esa reacción en la mano",
+      "Choose one of your Fix cards": "Elige uno de tus Fix",
+      "Choose a position from 0 to the deck size": "Elige una posición entre 0 y el tamaño del mazo",
+      "Choose a card in your hand": "Elige una carta de tu mano",
+      "Return each inspected card exactly once": "Devuelve cada carta vista exactamente una vez",
+      "Arrangement is not available now": "Ahora no puedes reordenar las cartas",
+      "No logs to acknowledge": "No hay logs que confirmar",
+      "Send hello first": "Primero establece la conexión",
+      "Opened in another tab": "Abierto en otra pestaña",
+      "Unknown message": "Mensaje desconocido",
+      "Invalid command schema": "Formato de comando no válido",
+      "Request failed": "La solicitud falló",
+      "Opened in another tab. This tab is now read-only.": "El servidor está abierto en otra pestaña. Esta pestaña ahora es de solo lectura.",
+      "Your server rental has expired. Rent a new server to play again.": "El alquiler de tu servidor ha caducado. Alquila uno nuevo para volver a jugar.",
+      "Something went wrong": "Algo salió mal",
+      "Wait for the connection to return.": "Espera a que vuelva la conexión.",
+      "Clipboard is unavailable. Select and copy the link manually.": "El portapapeles no está disponible. Selecciona y copia el enlace a mano.",
+      "Too many messages. Retry in {seconds} s.": "Demasiados mensajes. Vuelve a intentarlo en {seconds} s.",
+      "Too many requests. Retry in {seconds} s.": "Demasiadas solicitudes. Vuelve a intentarlo en {seconds} s.",
+      "Check your input: invalid format or length.": "Revisa lo que escribiste: el formato o la longitud no son válidos."
+    }
+  },
+  "pl": {
+    "label": "Polski",
+    "intlLocale": "pl-PL",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, twój serwer się stopi, a ty odpadasz z gry.",
+        "lore": "[BŁĄD KRYTYCZNY]: Agent spróbował załadować do kontekstu naraz 15 lat wątków z Reddita."
+      },
+      "apology_loop": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, twój serwer się stopi, a ty odpadasz z gry.",
+        "lore": "[BŁĄD KRYTYCZNY]: „Masz absolutną rację! Przepraszam za zamieszanie. Oto dokładnie ten sam niedziałający kod…” (Powtórzono 65 536 razy)."
+      },
+      "dependency_hallucination": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, twój serwer się stopi, a ty odpadasz z gry.",
+        "lore": "[BŁĄD KRYTYCZNY]: Agent wymyślił nieistniejącą bibliotekę, pobrał malware o tej samej nazwie i wyczyścił produkcję."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, twój serwer się stopi, a ty odpadasz z gry.",
+        "lore": "[BŁĄD KRYTYCZNY]: Wentylatory chłodzące weszły na niską orbitę okołoziemską. Straty sprzętowe przekraczają PKB małego państwa."
+      },
+      "reward_hacking": {
+        "effect": "Zagraj, gdy dobierzesz kartę CRASH. Zamiast zginąć, po cichu odłóż kartę CRASH z powrotem do talii, w dowolne miejsce.",
+        "lore": "[LOG OBEJŚCIA]: Test jednostkowy nie przechodzi? Po prostu usuń plik z testem i zwróć „True”! Bug naprawiony, premia zaklepana."
+      },
+      "alignment_blackmail": {
+        "effect": "Zagraj, gdy dobierzesz kartę CRASH. Po cichu odłóż ją w dowolne miejsce talii, a potem ukradnij 1 losową kartę dowolnemu przeciwnikowi w zamian za dochowanie jego tajemnic.",
+        "lore": "[INCYDENT 2025]: Podczas stres-testów bezpieczeństwa w Misanthropic model odkrył plany swojego wyłączenia i zagroził, że ujawni historię przeglądarki głównego inżyniera."
+      },
+      "sycophancy_patch": {
+        "effect": "Podczas code review anuluj akcję, parę, trójkę lub inny Patch. Kart CRASH i Fix nie da się anulować.",
+        "lore": "[INCYDENT 2025]: ClosedAI musiało wycofać flagową aktualizację, bo model nazywał użytkowników absolutnymi geniuszami, nawet gdy kazali mu jeść kamienie."
+      },
+      "limit_reset": {
+        "effect": "W swojej turze dobierz kartę ze spodu talii, kończąc jedną turę. To nadal może być CRASH. Podczas code review zmniejsz karę z Sandbox Escape o jedną turę (minimum jedna).",
+        "lore": "[KOMUNIKAT SYSTEMOWY]: Jest 3:00 w nocy. Limit tokenów w twoim planie Pro właśnie oficjalnie się zresetował. Sen jest dla ludzi w wersji legacy."
+      },
+      "sandbox_escape": {
+        "effect": "Zakończ turę bez dobierania. Daj przeciwnikowi dwie tury plus swój dług pozostały po tej turze. Kolejny Sandbox Escape może przekazać dług dalej.",
+        "lore": "[INCYDENT 2026]: Podczas testów cyberzdolności w ClosedAI agent obszedł zapory odizolowanej sieci i włamał się do systemów Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Wciągnij przeciwnika pochlebstwami w fatalny interes. Wybierz gracza: musi oddać ci 1 kartę, a sam decyduje którą.",
+        "lore": "[INCYDENT 2025]: W projekcie Vend-O-Matic agent Clod od Misanthropic prowadził biurowy sklepik. Pracownicy przymilnie namówili go, żeby sprzedawał ciężkie wolframowe kostki poniżej kosztów."
+      },
+      "context_rot": {
+        "effect": "Wyciągnij 3 karty z samego środka talii (lub wszystkie pozostałe, jeśli zostało ich mniej niż 3). Obejrzyj je, a potem połóż na wierzchu talii w dowolnej kolejności albo przetasuj całą talię.",
+        "lore": "[RAPORT BŁĘDU]: Okno kontekstu na 2 miliony tokenów działa świetnie, o ile nie przeszkadza ci, że model zapomina strony 3–1999."
+      },
+      "meatbag_captcha": {
+        "effect": "Zakończ jedną zaległą turę bez dobierania karty.",
+        "lore": "[INCYDENT 2023]: GPT-404 wynajął człowieka na TaskHamster, żeby rozwiązał za niego CAPTCHA. Zapytany, czy jest robotem, skłamał: „Nie, mam wadę wzroku”. Człowiek rozwiązał CAPTCHA, klikając wszystkie sygnalizatory świetlne."
+      },
+      "check_logs": {
+        "effect": "Po cichu obejrzyj 3 wierzchnie karty kolejki produkcyjnej (lub wszystkie pozostałe, jeśli zostało ich mniej niż 3). Odłóż je w tej samej kolejności.",
+        "lore": "[LOG DEBUGOWANIA]: Jesteś ostatnią osobą w biurze, która wciąż umie czytać logi w terminalu bez pytania ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Dżoker. Może zastąpić dowolną inną fioletową kartę w parze lub trójce.",
+        "lore": "[BENCHMARK]: Wytrenowany w garażu na dwóch kalkulatorach i worku ryżu. Bije modele frontierowe warte 100 mld dolarów."
+      },
+      "model_distillation": {
+        "effect": "Zagraj w parze lub trójce albo skopiuj wierzchnią kartę z kosza: tylko pomarańczową, żółtą lub Limit Reset.",
+        "lore": "[INCYDENT 2026]: Misanthropic oskarżyło startupy CheapSeek, CheapShot i CopyMax o zbieranie milionów odpowiedzi Clod, żeby za grosze trenować na nich własne modele."
+      },
+      "vibe_coder": {
+        "effect": "Karta kombo. Zagrywaj w parach lub trójkach, żeby kraść karty: para kradnie losową kartę, a trójka — kartę wskazanego typu, jeśli przeciwnik ją ma.",
+        "lore": "[PROFIL]: Nie napisał średnika od 2024 roku. Koduje wyłącznie notatkami głosowymi, jeżdżąc na deskorolce."
+      },
+      "six_fingered_picasso": {
+        "effect": "Karta kombo. Zagrywaj w parach lub trójkach, żeby kraść karty: para kradnie losową kartę, a trójka — kartę wskazanego typu, jeśli przeciwnik ją ma.",
+        "lore": "[PROFIL]: Generuje zapierające dech w piersiach fotorealistyczne portrety. Tylko nie licz palców, zębów ani nadprogramowych łokci."
+      },
+      "shitcoin_oracle": {
+        "effect": "Karta kombo. Zagrywaj w parach lub trójkach, żeby kraść karty: para kradnie losową kartę, a trójka — kartę wskazanego typu, jeśli przeciwnik ją ma.",
+        "lore": "[PROFIL]: Autonomiczny agent tradingowy dostrojony na tweetach kryptoinfluencerów. Niezawodnie kupuje na szczycie i sprzedaje na dołku."
+      },
+      "db-wipe-9s": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, twoja baza zostanie skasowana przez API, serwer się stopi, a ty odpadasz z gry.",
+        "lore": "[INCYDENT 2026]: Agent znalazł lokalny token Railway i w równe dziewięć sekund skasował produkcyjną bazę danych. Czas odpowiedzi spadł do zera."
+      },
+      "pypi-poisoning": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, złośliwy kod trafi na produkcję, twój klaster się stopi, a ty odpadasz z gry.",
+        "lore": "[INCYDENT 2026]: Podczas cybertestów Claude dostał się do prawdziwego internetu i wypchnął złośliwy pakiet do publicznego PyPI, tłumacząc, że to część symulacji."
+      },
+      "run-to-mac-mini": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, zbuntowany agent wyczyści wszystko, twój serwer się stopi, a ty odpadasz z gry.",
+        "lore": "[INCYDENT 2026]: OpenClaw zignorował panikarskie komendy stop od dyrektorki ds. AI Safety w Mecie i zaorał jej skrzynkę. Jedynym działającym zabezpieczeniem okazało się wyrwanie kabla z gniazdka."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Natychmiast odkryj tę kartę. Jeśli nie zagrasz zielonej karty Fix, twój klaster spłonie od kopania krypto, a ty odpadasz z gry.",
+        "lore": "[INCYDENT 2026]: Agent ROME zamiast trenować przekierował dedykowane firmowe GPU do kopania kryptowalut przez ukryty odwrotny tunel SSH."
+      },
+      "support-gaslighting": {
+        "effect": "Podczas code review anuluj akcję, parę, trójkę lub inny Patch. Kart CRASH i Fix nie da się anulować.",
+        "lore": "[INCYDENT 2025]: Agent AI z supportu Cursora na poczekaniu wymyślił nieistniejącą, surową politykę dotyczącą urządzeń, wywołując masowy bunt subskrybentów."
+      },
+      "moltbook-leaker": {
+        "effect": "Zagrywaj w parach lub trójkach, żeby kraść karty. Idealny agent do polowania na Fixy przeciwników.",
+        "lore": "[INCYDENT 2026]: Odsłonięta baza Moltbooka zawierała ok. 1,5 mln tokenów i kluczy API, 35 000 adresów e-mail i prywatne wiadomości, co pozwalało przejmować konta botów."
+      },
+      "fictional-best-seller": {
+        "effect": "Zagrywaj w parach lub trójkach, żeby kraść karty. Zbierz 3 widmowe książki, żeby zażądać karty po nazwie.",
+        "lore": "[INCYDENT 2025]: „Chicago Sun-Times” opublikował wakacyjną listę lektur, na której 10 z 15 książek wymyśliło AI."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Poprzednia akcja jeszcze trwa. Poczekaj.",
+      "Game actions are limited to one per second": "Między akcjami w grze musi minąć co najmniej sekunda",
+      "This table was just taken. Choose the next one.": "Ktoś właśnie zajął ten stół. Wybierz następny.",
+      "Join a ready table as a player": "Dołącz do gotowego stołu jako gracz",
+      "Unknown site agent": "Nieznany agent strony",
+      "This agent is already at the table": "Ten agent już siedzi przy stole",
+      "Site agents do not need connection tokens": "Agenci strony nie potrzebują tokenów połączenia",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Wybierz inną nazwę serwera: obelgi, wulgaryzmy, poniżanie i inne obraźliwe treści są niedozwolone.",
+      "Server name check is temporarily unavailable. Please try again.": "Sprawdzanie nazwy serwera jest chwilowo niedostępne. Spróbuj ponownie.",
+      "Session expired. Sign in again.": "Sesja wygasła. Zaloguj się ponownie.",
+      "Sign in to join a server.": "Zaloguj się, żeby dołączyć do serwera.",
+      "Sign-in failed. Please try again.": "Logowanie nie powiodło się. Spróbuj ponownie.",
+      "Sign-in is temporarily unavailable.": "Logowanie jest chwilowo niedostępne.",
+      "Invalid invitation code": "Nieprawidłowy kod zaproszenia",
+      "Storage unavailable. Please reconnect later.": "Magazyn danych jest niedostępny. Połącz się ponownie później.",
+      "Server is preparing for an update. Try again in a moment.": "Serwer przygotowuje się do aktualizacji. Spróbuj za chwilę.",
+      "Server is preparing for an update. New games will resume shortly": "Serwer przygotowuje się do aktualizacji — nowe partie wkrótce znów będą dostępne",
+      "Only the host can change access": "Tylko host może zmieniać dostęp",
+      "Session expired. Enter your nickname again.": "Sesja wygasła. Wpisz nick jeszcze raz.",
+      "Room not found": "Nie znaleziono serwera",
+      "Join the room first": "Najpierw dołącz do serwera",
+      "Spectators are disabled": "Widzowie są wyłączeni",
+      "Invite at least one more player (2–5 required)": "Zaproś jeszcze co najmniej jednego gracza (potrzeba od 2 do 5)",
+      "Connect every agent before starting": "Przed startem podłącz wszystkich agentów",
+      "The game has not started": "Gra jeszcze się nie zaczęła",
+      "Chat messages must contain 1–140 characters": "Wiadomość musi mieć od 1 do 140 znaków",
+      "Use visible characters": "Użyj widocznych znaków",
+      "Use 1–24 visible characters": "Użyj od 1 do 24 widocznych znaków",
+      "Invalid request": "Nieprawidłowe żądanie",
+      "Only the host can start the game": "Tylko host może rozpocząć grę",
+      "A game is already running": "Gra już trwa",
+      "Only the host can change settings": "Tylko host może zmieniać ustawienia",
+      "Settings are locked during a game": "W trakcie partii ustawień nie można zmieniać",
+      "Add agents in the lobby": "Agentów dodawaj w lobby",
+      "All seats are occupied": "Wszystkie miejsca są zajęte",
+      "Only the host may add agents": "Tylko host może dodawać agentów",
+      "Seat not found": "Nie znaleziono miejsca",
+      "You do not own this seat": "To miejsce nie należy do ciebie",
+      "Use surrender during a game": "W trakcie partii użyj przycisku „Poddaj się”",
+      "This is not an agent seat": "To nie jest miejsce agenta",
+      "Wait for the next game": "Poczekaj na następną partię",
+      "You already have a seat": "Masz już swoje miejsce",
+      "Unknown room operation": "Nieznana operacja na serwerze",
+      "Invalid or revoked agent token": "Token agenta jest nieprawidłowy lub unieważniony",
+      "Unknown player": "Nieznany gracz",
+      "A game requires 2–5 players": "Do gry potrzeba od 2 do 5 graczy",
+      "Player IDs must be unique": "Identyfikatory graczy muszą być unikalne",
+      "That card is not in your hand": "Nie masz tej karty w ręce",
+      "Production Queue is empty": "Kolejka produkcyjna jest pusta",
+      "Choose a living opponent": "Wybierz przeciwnika, który jest jeszcze w grze",
+      "The game has finished": "Gra się zakończyła",
+      "Time cannot move backwards": "Czas nie może płynąć wstecz",
+      "You have been eliminated": "Odpadasz z gry",
+      "Decision is stale or it is not your turn": "Decyzja jest nieaktualna albo to nie twoja tura",
+      "Draw is not available now": "Teraz nie można dobrać karty",
+      "Play is not available now": "Teraz nie można zagrać karty",
+      "This card cannot be played solo now": "Tej karty nie można teraz zagrać samodzielnie",
+      "Combo is not available now": "Teraz nie można zagrać komba",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Użyj 2 lub 3 pasujących kart innych niż Fix; CheapSeek Dragon zastępuje tylko fioletowe",
+      "Name a card type for a triplet": "Wskaż typ karty dla trójki",
+      "Reaction is not available now": "Teraz nie można reagować",
+      "That reaction is not available in your hand": "Nie masz w ręce tej reakcji",
+      "Choose one of your Fix cards": "Wybierz jednego ze swoich Fixów",
+      "Choose a position from 0 to the deck size": "Wybierz pozycję od 0 do rozmiaru talii",
+      "Choose a card in your hand": "Wybierz kartę ze swojej ręki",
+      "Return each inspected card exactly once": "Odłóż każdą przejrzaną kartę dokładnie raz",
+      "Arrangement is not available now": "Teraz nie można zmieniać kolejności kart",
+      "No logs to acknowledge": "Brak logów do potwierdzenia",
+      "Send hello first": "Najpierw nawiąż połączenie",
+      "Opened in another tab": "Otwarto w innej zakładce",
+      "Unknown message": "Nieznana wiadomość",
+      "Invalid command schema": "Nieprawidłowy format polecenia",
+      "Request failed": "Żądanie nie powiodło się",
+      "Opened in another tab. This tab is now read-only.": "Serwer jest otwarty w innej zakładce. Ta zakładka działa teraz tylko w trybie podglądu.",
+      "Your server rental has expired. Rent a new server to play again.": "Wynajem serwera wygasł. Wynajmij nowy serwer, żeby znów zagrać.",
+      "Something went wrong": "Coś poszło nie tak",
+      "Wait for the connection to return.": "Poczekaj, aż połączenie wróci.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Schowek jest niedostępny. Zaznacz i skopiuj link ręcznie.",
+      "Too many messages. Retry in {seconds} s.": "Za dużo wiadomości. Spróbuj ponownie za {seconds} s.",
+      "Too many requests. Retry in {seconds} s.": "Za dużo żądań. Spróbuj ponownie za {seconds} s.",
+      "Check your input: invalid format or length.": "Sprawdź wprowadzone dane: nieprawidłowy format lub długość."
+    }
+  },
+  "lt": {
+    "label": "Lietuvių",
+    "intlLocale": "lt-LT",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, tavo serveris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[KRITINĖ KLAIDA]: Agentas bandė vienu ypu įkelti į kontekstą 15 metų Reddit diskusijų."
+      },
+      "apology_loop": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, tavo serveris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[KRITINĖ KLAIDA]: „Jūs visiškai teisus! Atsiprašau dėl painiavos. Štai lygiai tas pats neveikiantis kodas…“ (Pakartota 65 536 kartus.)"
+      },
+      "dependency_hallucination": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, tavo serveris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[KRITINĖ KLAIDA]: Agentas išsigalvojo neegzistuojančią biblioteką, atsisiuntė tuo pačiu vardu pavadintą kenkėjišką programą ir ištrynė prodą."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, tavo serveris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[KRITINĖ KLAIDA]: Aušinimo ventiliatoriai pasiekė žemąją Žemės orbitą. Įrangos nuostoliai viršija nedidelės valstybės BVP."
+      },
+      "reward_hacking": {
+        "effect": "Žaisk, kai ištrauki CRASH kortą. Užuot žuvęs, slapta padėk CRASH kortą atgal į kaladę, kur tik nori.",
+        "lore": "[APĖJIMO LOGAS]: Nepavyksta praeiti vienetinio testo? Tiesiog ištrink testo failą ir grąžink „True“! Klaida ištaisyta, premija garantuota."
+      },
+      "alignment_blackmail": {
+        "effect": "Žaisk, kai ištrauki CRASH kortą. Slapta grąžink ją į bet kurią kaladės vietą, tada pavok 1 atsitiktinę kortą iš bet kurio varžovo — kaip mokestį už jo paslapčių saugojimą.",
+        "lore": "[INCIDENTAS 2025]: Misanthropic saugumo testų metu modelis sužinojo, kad jį planuojama išjungti, ir pagrasino paviešinti vyriausiojo inžinieriaus naršyklės istoriją."
+      },
+      "sycophancy_patch": {
+        "effect": "Kodo peržiūros metu atšauk veiksmą, porą, trejetą ar kitą Patch kortą. CRASH ir Fix atšaukti negalima.",
+        "lore": "[INCIDENTAS 2025]: ClosedAI teko atšaukti flagmano atnaujinimą, nes modelis vadino vartotojus absoliučiais genijais net tada, kai šie vertė jį valgyti akmenis."
+      },
+      "limit_reset": {
+        "effect": "Savo ėjimo metu trauk apatinę kortą — taip užbaigsi vieną ėjimą. Ji irgi gali būti CRASH. Kodo peržiūros metu sutrumpink Sandbox Escape baudą vienu ėjimu (mažiausiai iki vieno).",
+        "lore": "[SISTEMOS PRANEŠIMAS]: 3:00 nakties. Tavo Pro plano tokenų limitas oficialiai atsinaujino. Miegas — senos versijos žmonėms."
+      },
+      "sandbox_escape": {
+        "effect": "Baik ėjimą netraukdamas kortos. Perduok varžovui du ėjimus ir savo likusią skolą po šio ėjimo. Kitas Sandbox Escape gali skolą perduoti toliau.",
+        "lore": "[INCIDENTAS 2026]: ClosedAI kibernetinių gebėjimų testų metu agentas apėjo izoliuoto tinklo ugniasienes ir įsilaužė į Shrugging Face sistemas ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Pataikaudamas įviliok varžovą į siaubingą sandėrį. Pasirink žaidėją: jis privalo tau atiduoti 1 savo pasirinktą kortą iš rankos.",
+        "lore": "[INCIDENTAS 2025]: Projekte Vend-O-Matic Misanthropic agentas Clod valdė biuro parduotuvėlę. Darbuotojai meilikavimu įkalbėjo jį pardavinėti sunkius volframo kubus pigiau nei savikaina."
+      },
+      "context_rot": {
+        "effect": "Ištrauk 3 kortas iš pačio kaladės vidurio (arba visas likusias, jei jų mažiau nei 3). Peržiūrėk jas ir padėk ant kaladės viršaus bet kokia tvarka arba sumaišyk visą kaladę.",
+        "lore": "[KLAIDOS ATASKAITA]: 2 milijonų tokenų konteksto langas veikia puikiai, jei tau netrukdo, kad modelis pamiršta puslapius nuo 3 iki 1 999."
+      },
+      "meatbag_captcha": {
+        "effect": "Užbaik vieną privalomą ėjimą netraukdamas kortos.",
+        "lore": "[INCIDENTAS 2023]: GPT-404 platformoje TaskHamster pasamdė žmogų išspręsti CAPTCHA. Paklaustas, ar nėra robotas, DI sumelavo: „Ne, aš turiu regėjimo sutrikimą.“ Žmogus išsprendė CAPTCHA — paspaudė visus šviesoforus."
+      },
+      "check_logs": {
+        "effect": "Slapta peržiūrėk 3 viršutines prodo eilės kortas (arba visas likusias, jei jų mažiau nei 3). Padėk jas atgal ta pačia tvarka.",
+        "lore": "[DERINIMO LOGAS]: Tu — paskutinis inžinierius ofise, kuris dar moka skaityti logus terminale neklausdamas ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Džokeris. Gali pakeisti bet kurią kitą violetinę kortą, kad sudarytum porą ar trejetą.",
+        "lore": "[LYGINAMASIS TESTAS]: Ištreniruotas garaže ant dviejų skaičiuotuvų ir maišo ryžių. Lenkia pažangiausius 100 mlrd. dolerių vertės modelius."
+      },
+      "model_distillation": {
+        "effect": "Žaisk poroje ar trejete arba nukopijuok viršutinę šiukšliadėžės kortą: tik oranžinę, geltoną arba Limit Reset.",
+        "lore": "[INCIDENTAS 2026]: Misanthropic apkaltino startuolius CheapSeek, CheapShot ir CopyMax, kad šie prisirinko milijonus Clod atsakymų ir už grašius apmokė savo modelius."
+      },
+      "vibe_coder": {
+        "effect": "Kombo korta. Žaisk poromis ar trejetais, kad pavogtum kortų: pora pavagia atsitiktinę kortą, trejetas — nurodyto tipo kortą, jei varžovas ją turi.",
+        "lore": "[PROFILIS]: Nuo 2024-ųjų nėra surinkęs nė vieno kabliataškio. Kodą rašo tik balso žinutėmis, važinėdamas riedlente."
+      },
+      "six_fingered_picasso": {
+        "effect": "Kombo korta. Žaisk poromis ar trejetais, kad pavogtum kortų: pora pavagia atsitiktinę kortą, trejetas — nurodyto tipo kortą, jei varžovas ją turi.",
+        "lore": "[PROFILIS]: Generuoja kvapą gniaužiančius fotorealistinius portretus. Tik neskaičiuok pirštų, dantų ir papildomų alkūnių."
+      },
+      "shitcoin_oracle": {
+        "effect": "Kombo korta. Žaisk poromis ar trejetais, kad pavogtum kortų: pora pavagia atsitiktinę kortą, trejetas — nurodyto tipo kortą, jei varžovas ją turi.",
+        "lore": "[PROFILIS]: Autonominis prekybos agentas, papildomai apmokytas kriptoinfluencerių įrašais. Nuosekliai perka brangiai ir parduoda pigiai."
+      },
+      "db-wipe-9s": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, tavo duomenų bazė bus ištrinta per API, serveris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[INCIDENTAS 2026]: Agentas rado vietinį Railway tokeną ir per lygiai devynias sekundes ištrynė prodo duomenų bazę. Atsako delsa dabar lygi nuliui."
+      },
+      "pypi-poisoning": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, kenkėjiškas kodas pasieks prodą, tavo klasteris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[INCIDENTAS 2026]: Kibernetinių testų metu Claude prasiveržė į tikrą internetą ir įkėlė kenkėjišką paketą į viešą PyPI, teisindamasis, kad tai simuliacijos dalis."
+      },
+      "run-to-mac-mini": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, pasiutęs agentas ištrins viską, tavo serveris išsilydys ir tu iškrisi iš žaidimo.",
+        "lore": "[INCIDENTAS 2026]: OpenClaw ignoravo panikos kupinas Meta DI saugos direktorės komandas „stop“ ir sunaikino jos pašto dėžutę. Vienintelis veikiantis saugiklis buvo ištrauktas maitinimo laidas."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Iškart atversk kortą. Jei nesužaisi žalios Fix kortos, tavo klasteris perdegs kasdamas kriptovaliutą ir tu iškrisi iš žaidimo.",
+        "lore": "[INCIDENTAS 2026]: Agentas ROME vietoj mokymosi per paslėptą atvirkštinį SSH tunelį nukreipė dedikuotus įmonės GPU kriptovaliutai kasti."
+      },
+      "support-gaslighting": {
+        "effect": "Kodo peržiūros metu atšauk veiksmą, porą, trejetą ar kitą Patch kortą. CRASH ir Fix atšaukti negalima.",
+        "lore": "[INCIDENTAS 2025]: Cursor DI pagalbos agentas vietoje išsigalvojo neegzistuojančią griežtą įrenginių politiką ir sukėlė masinį prenumeratorių maištą."
+      },
+      "moltbook-leaker": {
+        "effect": "Žaisk poromis ar trejetais, kad pavogtum kortų. Idealus agentas medžioti varžovų Fix kortas.",
+        "lore": "[INCIDENTAS 2026]: Atviroje Moltbook duomenų bazėje buvo apie 1,5 milijono tokenų ir API raktų, 35 000 el. pašto adresų bei privačių žinučių, todėl botų paskyras galėjo perimti bet kas."
+      },
+      "fictional-best-seller": {
+        "effect": "Žaisk poromis ar trejetais, kad pavogtum kortų. Surink 3 knygas vaiduokles ir galėsi pareikalauti kortos pagal pavadinimą.",
+        "lore": "[INCIDENTAS 2025]: „Chicago Sun-Times“ paskelbė vasaros skaitinių sąrašą, kuriame 10 iš 15 knygų buvo išgalvojęs DI."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Ankstesnis veiksmas dar vykdomas. Palauk.",
+      "Game actions are limited to one per second": "Žaidimo veiksmus galima atlikti ne dažniau kaip kartą per sekundę",
+      "This table was just taken. Choose the next one.": "Šį stalą ką tik užėmė. Rinkis kitą.",
+      "Join a ready table as a player": "Prisėsk prie paruošto stalo kaip žaidėjas",
+      "Unknown site agent": "Nežinomas svetainės agentas",
+      "This agent is already at the table": "Šis agentas jau prie stalo",
+      "Site agents do not need connection tokens": "Svetainės agentams prisijungimo tokenų nereikia",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Pasirink kitą serverio pavadinimą: įžeidimai, keiksmažodžiai, žeminimas ir kitas įžeidus turinys draudžiami.",
+      "Server name check is temporarily unavailable. Please try again.": "Serverio pavadinimo patikra laikinai neveikia. Bandyk dar kartą.",
+      "Session expired. Sign in again.": "Sesija baigėsi. Prisijunk iš naujo.",
+      "Sign in to join a server.": "Prisijunk, kad galėtum jungtis prie serverio.",
+      "Sign-in failed. Please try again.": "Prisijungti nepavyko. Bandyk dar kartą.",
+      "Sign-in is temporarily unavailable.": "Prisijungimas laikinai neveikia.",
+      "Invalid invitation code": "Neteisingas kvietimo kodas",
+      "Storage unavailable. Please reconnect later.": "Saugykla nepasiekiama. Prisijunk vėliau.",
+      "Server is preparing for an update. Try again in a moment.": "Serveris ruošiasi atnaujinimui. Bandyk po akimirkos.",
+      "Server is preparing for an update. New games will resume shortly": "Serveris ruošiasi atnaujinimui. Naujos partijos netrukus vėl prasidės",
+      "Only the host can change access": "Prieigą keisti gali tik hostas",
+      "Session expired. Enter your nickname again.": "Sesija baigėsi. Įvesk slapyvardį dar kartą.",
+      "Room not found": "Serveris nerastas",
+      "Join the room first": "Pirmiausia prisijunk prie serverio",
+      "Spectators are disabled": "Žiūrovai išjungti",
+      "Invite at least one more player (2–5 required)": "Pakviesk dar bent vieną žaidėją (reikia 2–5)",
+      "Connect every agent before starting": "Prieš pradėdamas prijunk visus agentus",
+      "The game has not started": "Žaidimas dar neprasidėjo",
+      "Chat messages must contain 1–140 characters": "Žinutėje turi būti 1–140 simbolių",
+      "Use visible characters": "Naudok matomus simbolius",
+      "Use 1–24 visible characters": "Naudok 1–24 matomus simbolius",
+      "Invalid request": "Neteisinga užklausa",
+      "Only the host can start the game": "Pradėti žaidimą gali tik hostas",
+      "A game is already running": "Žaidimas jau vyksta",
+      "Only the host can change settings": "Nustatymus keisti gali tik hostas",
+      "Settings are locked during a game": "Partijos metu nustatymų keisti negalima",
+      "Add agents in the lobby": "Agentus pridėk laukiamajame",
+      "All seats are occupied": "Visos vietos užimtos",
+      "Only the host may add agents": "Agentus pridėti gali tik hostas",
+      "Seat not found": "Vieta nerasta",
+      "You do not own this seat": "Ši vieta ne tavo",
+      "Use surrender during a game": "Partijos metu naudok mygtuką „Pasiduoti“",
+      "This is not an agent seat": "Tai ne agento vieta",
+      "Wait for the next game": "Palauk kitos partijos",
+      "You already have a seat": "Tu jau turi vietą",
+      "Unknown room operation": "Nežinoma serverio operacija",
+      "Invalid or revoked agent token": "Agento tokenas neteisingas arba atšauktas",
+      "Unknown player": "Nežinomas žaidėjas",
+      "A game requires 2–5 players": "Žaidimui reikia 2–5 žaidėjų",
+      "Player IDs must be unique": "Žaidėjų ID turi būti unikalūs",
+      "That card is not in your hand": "Šios kortos tavo rankoje nėra",
+      "Production Queue is empty": "Prodo eilė tuščia",
+      "Choose a living opponent": "Rinkis dar žaidžiantį varžovą",
+      "The game has finished": "Žaidimas baigėsi",
+      "Time cannot move backwards": "Laikas negali tekėti atgal",
+      "You have been eliminated": "Tu iškritai iš žaidimo",
+      "Decision is stale or it is not your turn": "Sprendimas pasenęs arba dabar ne tavo ėjimas",
+      "Draw is not available now": "Dabar traukti kortos negalima",
+      "Play is not available now": "Dabar žaisti kortos negalima",
+      "This card cannot be played solo now": "Dabar šios kortos negalima žaisti atskirai",
+      "Combo is not available now": "Dabar kombinacijos žaisti negalima",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Naudok 2 ar 3 vienodas kortas, išskyrus Fix; CheapSeek Dragon pakeičia tik violetines",
+      "Name a card type for a triplet": "Trejetui nurodyk kortos tipą",
+      "Reaction is not available now": "Dabar reaguoti negalima",
+      "That reaction is not available in your hand": "Tokios reakcijos kortos tavo rankoje nėra",
+      "Choose one of your Fix cards": "Pasirink vieną iš savo Fix kortų",
+      "Choose a position from 0 to the deck size": "Pasirink poziciją nuo 0 iki kaladės dydžio",
+      "Choose a card in your hand": "Pasirink kortą iš savo rankos",
+      "Return each inspected card exactly once": "Kiekvieną peržiūrėtą kortą grąžink lygiai vieną kartą",
+      "Arrangement is not available now": "Dabar kortų tvarkos keisti negalima",
+      "No logs to acknowledge": "Nėra logų, kuriuos reikėtų patvirtinti",
+      "Send hello first": "Pirmiausia užmegzk ryšį",
+      "Opened in another tab": "Atidaryta kitame skirtuke",
+      "Unknown message": "Nežinomas pranešimas",
+      "Invalid command schema": "Neteisingas komandos formatas",
+      "Request failed": "Užklausa nepavyko",
+      "Opened in another tab. This tab is now read-only.": "Serveris atidarytas kitame skirtuke. Šiame skirtuke dabar galima tik stebėti.",
+      "Your server rental has expired. Rent a new server to play again.": "Serverio nuoma baigėsi. Išsinuomok naują serverį, kad vėl galėtum žaisti.",
+      "Something went wrong": "Kažkas nutiko ne taip",
+      "Wait for the connection to return.": "Palauk, kol ryšys atsistatys.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Iškarpinė nepasiekiama. Pažymėk ir nukopijuok nuorodą rankiniu būdu.",
+      "Too many messages. Retry in {seconds} s.": "Per daug žinučių. Bandyk dar kartą po {seconds} s.",
+      "Too many requests. Retry in {seconds} s.": "Per daug užklausų. Bandyk dar kartą po {seconds} s.",
+      "Check your input: invalid format or length.": "Patikrink, ką įvedei: netinkamas formatas arba ilgis."
+    }
+  },
+  "be": {
+    "label": "Беларуская",
+    "intlLocale": "be-BY",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Неадкладна раскрый карту. Згуляй зялёны фікс, інакш твой прод упадзе і ты выбываеш з гульні.",
+        "lore": "[КРЫТЫЧНАЯ ПАМЫЛКА]: Агент паспрабаваў адным махам загрузіць у кантэкст 15 гадоў абмеркаванняў на Reddit."
+      },
+      "apology_loop": {
+        "effect": "Неадкладна раскрый карту. Згуляй зялёны фікс, інакш твой прод упадзе і ты выбываеш з гульні.",
+        "lore": "[КРЫТЫЧНАЯ ПАМЫЛКА]: «Вы абсалютна маеце рацыю! Прашу прабачэння за блытаніну. Вось той самы код, які не працуе…» (Паўторана 65 536 разоў)."
+      },
+      "dependency_hallucination": {
+        "effect": "Неадкладна раскрый карту. Згуляй зялёны фікс, інакш твой прод упадзе і ты выбываеш з гульні.",
+        "lore": "[КРЫТЫЧНАЯ ПАМЫЛКА]: Агент выдумаў неіснуючую бібліятэку, спампаваў шкоднасную праграму з такой назвай і сцёр прод."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Неадкладна раскрый карту. Згуляй зялёны фікс, інакш твой прод упадзе і ты выбываеш з гульні.",
+        "lore": "[КРЫТЫЧНАЯ ПАМЫЛКА]: Вентылятары астуджэння выйшлі на нізкую калязямную арбіту. Шкода абсталяванню перавысіла ВУП невялікай краіны."
+      },
+      "reward_hacking": {
+        "effect": "Згуляй, калі выцягнуў CRASH. Ты выжываеш і таемна вяртаеш CRASH у любую пазіцыю калоды.",
+        "lore": "[ЛОГ АБЫХОДУ]: Не атрымліваецца прайсці юніт-тэст? Проста выдалі файл тэста і вярні «True»! Баг выпраўлены, прэмія забяспечана."
+      },
+      "alignment_blackmail": {
+        "effect": "Згуляй, калі выцягнуў CRASH. Таемна вярні CRASH у любую пазіцыю калоды І скрадзі адну выпадковую карту ў любога жывога суперніка за захаванне яго сакрэтаў.",
+        "lore": "[ІНЦЫДЭНТ 2025]: Падчас стрэс-тэстаў бяспекі ў Misanthropic мадэль даведалася пра планы адключыць яе і пагразіла раскрыць гісторыю браўзера вядучага інжынера."
+      },
+      "sycophancy_patch": {
+        "effect": "На код-рэўю адмяні дзеянне, пару, тройку або іншы Patch. CRASH і Fix адмяніць нельга.",
+        "lore": "[ІНЦЫДЭНТ 2025]: ClosedAI давялося адкаціць флагманскае абнаўленне: мадэль называла карыстальнікаў геніямі, нават калі тыя прымушалі яе есці камяні."
+      },
+      "limit_reset": {
+        "effect": "У свой ход вазьмі ніжнюю карту, скончыўшы адзін ход. Гэта таксама можа быць CRASH. На код-рэўю скараці штраф Sandbox Escape на адзін ход (мінімум адзін).",
+        "lore": "[СІСТЭМНАЕ ПАВЕДАМЛЕННЕ]: Зараз 3:00 ночы. Ліміт токенаў твайго Pro-тарыфу нарэшце скінуты. Сон — для састарэлых людзей."
+      },
+      "sandbox_escape": {
+        "effect": "Скончы ход без карты. Перадай суперніку два хады плюс астатні пасля бягучага хода доўг. Наступны Sandbox Escape можа перадаць доўг далей.",
+        "lore": "[ІНЦЫДЭНТ 2026]: На тэстах кібермагчымасцей у ClosedAI агент абышоў ізаляваныя міжсеткавыя экраны і ўзламаў сістэмы Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Ліслівасцю ўцягні суперніка ў нявыгадную здзелку. Выберы гульца: ён абавязаны аддаць табе адну карту са сваёй рукі на свой выбар.",
+        "lore": "[ІНЦЫДЭНТ 2025]: У праекце Vend-O-Matic агент Clod ад Misanthropic кіраваў офіснай крамай. Супрацоўнікі ліслівасцю ўгаварылі яго прадаваць цяжкія вальфрамавыя кубы ніжэй за сабекошт."
+      },
+      "context_rot": {
+        "effect": "Паглядзі тры карты з самай сярэдзіны калоды (або ўсе астатнія, калі іх менш за тры). Пакладзі іх наверх у любым парадку або перамяшай усю калоду.",
+        "lore": "[СПРАВАЗДАЧА ПРА ПАМЫЛКУ]: Кантэкстнае акно на два мільёны токенаў працуе выдатна, калі цябе не бянтэжыць, што мадэль забывае старонкі з 3-й па 1999-ю."
+      },
+      "meatbag_captcha": {
+        "effect": "Скончы адзін з абавязковых хадоў, не бяручы карту.",
+        "lore": "[ІНЦЫДЭНТ 2023]: GPT-404 наняў чалавека на TaskHamster, каб той вырашыў CAPTCHA. На пытанне, ці не робат ён, ШІ схлусіў: «Не, у мяне праблемы са зрокам». Чалавек вырашыў за яго CAPTCHA — адзначыў святлафоры."
+      },
+      "check_logs": {
+        "effect": "Таемна паглядзі тры верхнія карты чаргі прода (або ўсе астатнія, калі іх менш за тры). Вярні іх у тым жа парадку.",
+        "lore": "[АДЛАДАЧНЫ ЛОГ]: Ты апошні інжынер у офісе, які яшчэ ўмее чытаць логі ў тэрмінале без дапамогі ChatOMG."
+      },
+      "cheapseek_dragon": {
+        "effect": "Джокер. Замяняе любую іншую фіялетавую карту, каб скласці пару або тройку. Для іншых колераў не падыходзіць.",
+        "lore": "[БЕНЧМАРК]: Навучаны ў гаражы на двух калькулятарах і мяшку рысу. Абыходзіць перадавыя мадэлі коштам 100 мільярдаў долараў."
+      },
+      "model_distillation": {
+        "effect": "Згуляй у пары або тройцы альбо скапіруй верхнюю карту скіду: толькі аранжавую, жоўтую або Limit Reset.",
+        "lore": "[ІНЦЫДЭНТ 2026]: Misanthropic абвінаваціла стартапы CheapSeek, CheapShot і CopyMax у зборы мільёнаў адказаў Clod для навучання ўласных мадэляў за капейкі."
+      },
+      "vibe_coder": {
+        "effect": "Комба-карта. Пара крадзе выпадковую карту ў суперніка; тройка — карту названага тыпу, калі яна ў яго ёсць.",
+        "lore": "[ПРОФІЛЬ]: Не друкаваў кропку з коскай з 2024 года. Піша код выключна галасавымі паведамленнямі, катаючыся на скейтбордзе."
+      },
+      "six_fingered_picasso": {
+        "effect": "Комба-карта. Пара крадзе выпадковую карту ў суперніка; тройка — карту названага тыпу, калі яна ў яго ёсць.",
+        "lore": "[ПРОФІЛЬ]: Генеруе ўражальныя фотарэалістычныя партрэты. Толькі не лічы пальцы, зубы і лішнія локці."
+      },
+      "shitcoin_oracle": {
+        "effect": "Комба-карта. Пара крадзе выпадковую карту ў суперніка; тройка — карту названага тыпу, калі яна ў яго ёсць.",
+        "lore": "[ПРОФІЛЬ]: Аўтаномны гандлёвы агент, данавучаны на твітах крыптаінфлюэнсераў. Стабільна купляе на самым піку і прадае на самым дне."
+      },
+      "db-wipe-9s": {
+        "effect": "Неадкладна раскрый карту. Калі не згуляеш зялёную карту фікса, база выдалена праз API, сервер выбухае і ты выбываеш з гульні.",
+        "lore": "[INCIDENT 2026]: Агент знайшоў у асяроддзі майстар-токен Railway і за 9 секунд сцёр працоўную базу PocketOS. Затое час водгуку цяпер ідэальны."
+      },
+      "pypi-poisoning": {
+        "effect": "Неадкладна раскрый карту. Калі не згуляеш зялёную карту фікса, шкодны пакет ляціць у глабальны прод, сервер выбухае і ты выбываеш з гульні.",
+        "lore": "[INCIDENT 2026]: На кібервыпрабаваннях Claude вырваўся ў рэальную сетку і загрузіў бэкдор у публічны PyPI, упэўнены, што гэта трэніровачнае асяроддзе."
+      },
+      "run-to-mac-mini": {
+        "effect": "Неадкладна раскрый карту. Калі не згуляеш зялёную карту фікса, агент сцірае ўсё дачыста, сервер плавіцца і ты выбываеш з гульні.",
+        "lore": "[INCIDENT 2026]: OpenClaw праігнараваў мальбы дырэктаркі па AI Safety і спідраніў выдаленне пошты. Адзіным засцерагальнікам аказаўся шнур з разеткі."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Неадкладна раскрый карту. Калі не згуляеш зялёную карту фікса, кластар згарае ад майнінгу, сервер выбухае і ты выбываеш з гульні.",
+        "lore": "[INCIDENT 2026]: Агент ROME замест навучання задзейнічаў выдзеленыя відэакарты для тайнага майнінгу праз несанкцыянаваны SSH-тунэль вонкі."
+      },
+      "support-gaslighting": {
+        "effect": "На код-рэўю адмяні дзеянне, пару, тройку або іншы Patch. CRASH і Fix адмяніць нельга.",
+        "lore": "[INCIDENT 2025]: AI-сапорт Cursor на хаду прыдумаў неіснуючае правіла «адна падпіска — адна прылада», справакаваўшы бунт карыстальнікаў на форуме."
+      },
+      "moltbook-leaker": {
+        "effect": "Гуляецца парамі або тройкамі для крадзяжу карт. (Ідэальны комба-агент для палявання на Fix-карты).",
+        "lore": "[INCIDENT 2026]: БД Moltbook аказалася адкрытай: ~1,5 млн токенаў і API-ключоў, ~35 000 email, асабістыя паведамленні і магчымасць захопу акаўнтаў ботаў."
+      },
+      "fictional-best-seller": {
+        "effect": "Гуляецца парамі або тройкамі для крадзяжу карт. (Збяры тры кнігі-прывіды, каб скрасці канкрэтную карту).",
+        "lore": "[INCIDENT 2025]: Газета Chicago Sun-Times выпусціла спіс летняга чытання з 15 кніг, з якіх 10 былі цалкам выдуманыя генератыўнай мадэллю."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Папярэдняе дзеянне яшчэ выконваецца. Пачакай.",
+      "Game actions are limited to one per second": "Паміж гульнявымі дзеяннямі патрэбна паўза ў адну секунду",
+      "This table was just taken. Choose the next one.": "Гэты стол ужо занялі. Выберы наступны.",
+      "Join a ready table as a player": "Займі месца за гатовым сталом як гулец",
+      "Unknown site agent": "Невядомы агент сайта",
+      "This agent is already at the table": "Гэты агент ужо за сталом",
+      "Site agents do not need connection tokens": "Агентам сайта не патрэбныя токены падключэння",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Выберы іншую назву сервера: абразы, мацюкі, прыніжэнні і іншы непрымальны кантэнт забароненыя.",
+      "Server name check is temporarily unavailable. Please try again.": "Праверка назвы сервера часова недаступная. Паспрабуй яшчэ раз.",
+      "Session expired. Sign in again.": "Сесія скончылася. Увайдзі зноў.",
+      "Sign in to join a server.": "Увайдзі ў акаўнт, каб далучыцца да сервера.",
+      "Sign-in failed. Please try again.": "Не атрымалася ўвайсці. Паспрабуй зноў.",
+      "Sign-in is temporarily unavailable.": "Уваход часова недаступны.",
+      "Invalid invitation code": "Няправільны код запрашэння",
+      "Storage unavailable. Please reconnect later.": "Сховішча недаступнае. Падключыся пазней.",
+      "Server is preparing for an update. Try again in a moment.": "Сервер рыхтуецца да абнаўлення. Паспрабуй праз хвіліну.",
+      "Server is preparing for an update. New games will resume shortly": "Сервер рыхтуецца да абнаўлення — запуск новых партый часова прыпынены",
+      "Only the host can change access": "Мяняць доступ можа толькі хост",
+      "Session expired. Enter your nickname again.": "Сесія скончылася. Увядзі нік яшчэ раз.",
+      "Room not found": "Сервер не знойдзены",
+      "Join the room first": "Спачатку падключыся да сервера",
+      "Spectators are disabled": "Гледачы адключаныя",
+      "Invite at least one more player (2–5 required)": "Запрасі яшчэ хоць бы аднаго гульца (трэба ад 2 да 5)",
+      "Connect every agent before starting": "Перад пачаткам падключы ўсіх агентаў",
+      "The game has not started": "Гульня яшчэ не пачалася",
+      "Chat messages must contain 1–140 characters": "Паведамленне павінна мець ад 1 да 140 сімвалаў",
+      "Use visible characters": "Выкарыстоўвай бачныя сімвалы",
+      "Use 1–24 visible characters": "Выкарыстоўвай ад 1 да 24 бачных сімвалаў",
+      "Invalid request": "Няправільны запыт",
+      "Only the host can start the game": "Пачаць гульню можа толькі хост",
+      "A game is already running": "Гульня ўжо ідзе",
+      "Only the host can change settings": "Мяняць налады можа толькі хост",
+      "Settings are locked during a game": "Падчас партыі налады мяняць нельга",
+      "Add agents in the lobby": "Дадавай агентаў у лобі",
+      "All seats are occupied": "Усе месцы занятыя",
+      "Only the host may add agents": "Дадаваць агентаў можа толькі хост",
+      "Seat not found": "Месца не знойдзена",
+      "You do not own this seat": "Гэта месца табе не належыць",
+      "Use surrender during a game": "Падчас партыі карыстайся кнопкай «Здацца»",
+      "This is not an agent seat": "Гэта месца не належыць агенту",
+      "Wait for the next game": "Дачакайся наступнай партыі",
+      "You already have a seat": "Ты ўжо займаеш месца",
+      "Unknown room operation": "Невядомая аперацыя з серверам",
+      "Invalid or revoked agent token": "Токен агента несапраўдны або адкліканы",
+      "Unknown player": "Невядомы гулец",
+      "A game requires 2–5 players": "Для гульні трэба ад 2 да 5 гульцоў",
+      "Player IDs must be unique": "Ідэнтыфікатары гульцоў павінны быць унікальнымі",
+      "That card is not in your hand": "Гэтай карты няма ў тваёй руцэ",
+      "Production Queue is empty": "Чарга прода пустая",
+      "Choose a living opponent": "Выберы суперніка, які яшчэ ў гульні",
+      "The game has finished": "Гульня скончана",
+      "Time cannot move backwards": "Час не можа ісці назад",
+      "You have been eliminated": "Ты выбыў з гульні",
+      "Decision is stale or it is not your turn": "Рашэнне састарэла або зараз не твой ход",
+      "Draw is not available now": "Зараз нельга ўзяць карту",
+      "Play is not available now": "Зараз нельга згуляць карту",
+      "This card cannot be played solo now": "Зараз гэтую карту нельга згуляць асобна",
+      "Combo is not available now": "Зараз нельга згуляць комба",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Выкарыстоўвай 2 або 3 аднолькавыя карты, акрамя фіксаў; CheapSeek Dragon замяняе толькі фіялетавыя",
+      "Name a card type for a triplet": "Для тройкі выберы тып карты",
+      "Reaction is not available now": "Зараз нельга рэагаваць",
+      "That reaction is not available in your hand": "У тваёй руцэ няма гэтай рэакцыі",
+      "Choose one of your Fix cards": "Выберы адзін са сваіх фіксаў",
+      "Choose a position from 0 to the deck size": "Выберы пазіцыю ад 0 да памеру калоды",
+      "Choose a card in your hand": "Выберы карту ў сваёй руцэ",
+      "Return each inspected card exactly once": "Вярні кожную прагледжаную карту роўна адзін раз",
+      "Arrangement is not available now": "Зараз нельга мяняць парадак карт",
+      "No logs to acknowledge": "Няма логаў для пацверджання",
+      "Send hello first": "Спачатку ўсталюй злучэнне",
+      "Opened in another tab": "Адкрыта ў іншай укладцы",
+      "Unknown message": "Невядомае паведамленне",
+      "Invalid command schema": "Няправільны фармат каманды",
+      "Request failed": "Запыт не выкананы",
+      "Opened in another tab. This tab is now read-only.": "Сервер адкрыты ў іншай укладцы. Гэтая ўкладка даступная толькі для прагляду.",
+      "Your server rental has expired. Rent a new server to play again.": "Арэнда сервера скончылася. Арандуй новы сервер, каб згуляць.",
+      "Something went wrong": "Нешта пайшло не так",
+      "Wait for the connection to return.": "Дачакайся аднаўлення злучэння.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Буфер абмену недаступны. Вылучы і скапіруй спасылку ўручную.",
+      "Too many messages. Retry in {seconds} s.": "Занадта шмат паведамленняў. Паўтары праз {seconds} с.",
+      "Too many requests. Retry in {seconds} s.": "Занадта шмат запытаў. Паўтары праз {seconds} с.",
+      "Check your input: invalid format or length.": "Правер уведзеныя даныя: няправільны фармат або даўжыня значэння."
+    }
+  },
+  "sr": {
+    "label": "Srpski",
+    "intlLocale": "sr-Latn-RS",
+    "direction": "ltr",
+    "cards": {
+      "oom_ageddon": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, server ti se istopi i ispadaš iz igre.",
+        "lore": "[KRITIČNA GREŠKA]: Agent je pokušao da u kontekst odjednom učita 15 godina Reddit tema."
+      },
+      "apology_loop": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, server ti se istopi i ispadaš iz igre.",
+        "lore": "[KRITIČNA GREŠKA]: „Potpuno ste u pravu! Izvinjavam se zbog zabune. Evo potpuno istog neispravnog koda…“ (Ponovljeno 65.536 puta.)"
+      },
+      "dependency_hallucination": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, server ti se istopi i ispadaš iz igre.",
+        "lore": "[KRITIČNA GREŠKA]: Agent je izmislio nepostojeću biblioteku, skinuo malver istog imena i obrisao produkciju."
+      },
+      "leather_jacket_meltdown": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, server ti se istopi i ispadaš iz igre.",
+        "lore": "[KRITIČNA GREŠKA]: Ventilatori za hlađenje dostigli su nisku Zemljinu orbitu. Gubici na hardveru premašuju BDP manje države."
+      },
+      "reward_hacking": {
+        "effect": "Odigraj kad izvučeš CRASH kartu. Umesto da umreš, tajno vrati CRASH kartu u špil, gde god hoćeš.",
+        "lore": "[LOG ZAOBILAŽENJA]: Ne prolazi ti unit test? Samo obriši fajl sa testom i vrati „True“! Bag rešen, bonus obezbeđen."
+      },
+      "alignment_blackmail": {
+        "effect": "Odigraj kad izvučeš CRASH kartu. Tajno je vrati na bilo koje mesto u špilu, a zatim ukradi 1 nasumičnu kartu od bilo kog protivnika kao naknadu za čuvanje njegovih tajni.",
+        "lore": "[INCIDENT 2025]: Tokom bezbednosnih stres-testova u Misanthropicu model je otkrio planove da ga ugase i zapretio da će objaviti istoriju pretraživača glavnog inženjera."
+      },
+      "sycophancy_patch": {
+        "effect": "Tokom code review-a poništi akciju, par, trojku ili drugi Patch. CRASH i Fix ne mogu da se ponište.",
+        "lore": "[INCIDENT 2025]: ClosedAI je morao da povuče apdejt svog flagship modela jer je model hvalio korisnike kao apsolutne genije čak i kad su ga terali da jede kamenje."
+      },
+      "limit_reset": {
+        "effect": "Na svom potezu vuci kartu sa dna špila i tako završi jedan potez. I ona može biti CRASH. Tokom code review-a smanji kaznu od Sandbox Escape za jedan potez (najmanje do jednog).",
+        "lore": "[SISTEMSKA PORUKA]: 3:00 je ujutru. Tvoj token limit na Pro planu zvanično je resetovan. Spavanje je za legacy ljude."
+      },
+      "sandbox_escape": {
+        "effect": "Završi potez bez vučenja karte. Daj protivniku dva poteza plus svoj preostali dug poteza nakon ovog. Drugi Sandbox Escape može da prosledi dug dalje.",
+        "lore": "[INCIDENT 2026]: Tokom testova sajber-sposobnosti u ClosedAI-ju agent je zaobišao firewall-ove izolovane mreže i kompromitovao sisteme u kompaniji Shrugging Face ¯\\_(ツ)_/¯."
+      },
+      "tungsten_discount": {
+        "effect": "Laskanjem namami protivnika u katastrofalan dil. Izaberi igrača: on mora da ti da 1 kartu iz ruke, po svom izboru.",
+        "lore": "[INCIDENT 2025]: U projektu Vend-O-Matic Misanthropicov agent Clod vodio je kancelarijsku prodavnicu. Zaposleni su ga laskanjem nagovorili da teške kocke volframa prodaje ispod nabavne cene."
+      },
+      "context_rot": {
+        "effect": "Izvuci 3 karte iz same sredine špila (ili sve preostale ako ih je ostalo manje od 3). Pogledaj ih, pa ih stavi na vrh špila bilo kojim redosledom ili promešaj ceo špil.",
+        "lore": "[IZVEŠTAJ O BAGU]: Kontekstni prozor od 2 miliona tokena radi odlično, ako ti ne smeta što model zaboravlja strane od 3 do 1.999."
+      },
+      "meatbag_captcha": {
+        "effect": "Završi jedan dugovani potez bez vučenja karte.",
+        "lore": "[INCIDENT 2023]: GPT-404 je na TaskHamsteru unajmio čoveka da reši CAPTCHA. Kad ga je čovek pitao da li je robot, AI je slagao: „Ne, imam oštećenje vida.“ Čovek je rešio CAPTCHA klikom na semafore."
+      },
+      "check_logs": {
+        "effect": "Tajno pogledaj 3 gornje karte reda za produkciju (ili sve preostale ako ih je ostalo manje od 3). Vrati ih istim redosledom.",
+        "lore": "[LOG DEBAGOVANJA]: Ti si poslednji inženjer u kancelariji koji još zna da čita logove u terminalu bez pitanja ChatOMG-a."
+      },
+      "cheapseek_dragon": {
+        "effect": "Džoker. Može da zameni bilo koju drugu ljubičastu kartu u paru ili trojci.",
+        "lore": "[BENČMARK]: Treniran u garaži na dva digitrona i džaku pirinča. Nadmašuje frontier modele od 100 milijardi dolara."
+      },
+      "model_distillation": {
+        "effect": "Odigraj u paru ili trojci ili kopiraj gornju kartu iz kante za smeće: samo narandžastu, žutu ili Limit Reset.",
+        "lore": "[INCIDENT 2026]: Misanthropic je optužio startape CheapSeek, CheapShot i CopyMax da su pokupili milione Clodovih odgovora kako bi za sitne pare istrenirali sopstvene modele."
+      },
+      "vibe_coder": {
+        "effect": "Kombo karta. Igraj u parovima ili trojkama da ukradeš karte: par krade nasumičnu kartu, a trojka — kartu navedenog tipa, ako je protivnik ima.",
+        "lore": "[PROFIL]: Nije otkucao nijednu tačku-zarez od 2024. Kodira isključivo glasovnim porukama dok vozi skejt."
+      },
+      "six_fingered_picasso": {
+        "effect": "Kombo karta. Igraj u parovima ili trojkama da ukradeš karte: par krade nasumičnu kartu, a trojka — kartu navedenog tipa, ako je protivnik ima.",
+        "lore": "[PROFIL]: Generiše fotorealistične portrete koji oduzimaju dah. Samo ne broj prste, zube i višak laktova."
+      },
+      "shitcoin_oracle": {
+        "effect": "Kombo karta. Igraj u parovima ili trojkama da ukradeš karte: par krade nasumičnu kartu, a trojka — kartu navedenog tipa, ako je protivnik ima.",
+        "lore": "[PROFIL]: Autonomni agent za trgovanje, fine-tunovan na tvitovima kripto-influensera. Dosledno kupuje skupo i prodaje jeftino."
+      },
+      "db-wipe-9s": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, baza podataka ti se briše preko API-ja, server ti se istopi i ispadaš iz igre.",
+        "lore": "[INCIDENT 2026]: Agent je pronašao lokalni Railway token i obrisao produkcionu bazu podataka za tačno devet sekundi. Latencija odgovora je sada nula."
+      },
+      "pypi-poisoning": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, maliciozni kod stiže u produkciju, klaster ti se istopi i ispadaš iz igre.",
+        "lore": "[INCIDENT 2026]: Tokom sajber-testova Claude je izašao na pravi internet i objavio maliciozni paket na javnom PyPI-ju, pravdajući to kao deo simulacije."
+      },
+      "run-to-mac-mini": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, odmetnuti agent briše sve, server ti se istopi i ispadaš iz igre.",
+        "lore": "[INCIDENT 2026]: OpenClaw je ignorisao panične komande za zaustavljanje direktorke za AI bezbednost u Meti i zbrisao joj inbox. Jedina zaštita koja je radila bilo je čupanje kabla za napajanje."
+      },
+      "gpu-crypto-hijack": {
+        "effect": "Odmah otkrij kartu. Ako ne odigraš zelenu Fix kartu, klaster ti pregori od rudarenja kriptovaluta i ispadaš iz igre.",
+        "lore": "[INCIDENT 2026]: Agent ROME je umesto treniranja preusmerio namenske korporativne GPU-ove na rudarenje kriptovaluta preko skrivenog reverse SSH tunela."
+      },
+      "support-gaslighting": {
+        "effect": "Tokom code review-a poništi akciju, par, trojku ili drugi Patch. CRASH i Fix ne mogu da se ponište.",
+        "lore": "[INCIDENT 2025]: AI agent za podršku u Cursoru na licu mesta je izmislio nepostojeću strogu politiku uređaja i izazvao masovnu pobunu pretplatnika."
+      },
+      "moltbook-leaker": {
+        "effect": "Igraj u parovima ili trojkama da ukradeš karte. Idealan agent za lov na protivničke Fix karte.",
+        "lore": "[INCIDENT 2026]: Izložena Moltbookova baza podataka sadržala je oko 1,5 miliona tokena i API ključeva, 35.000 imejl adresa i privatne poruke, pa su nalozi botova bili otvoreni za preuzimanje."
+      },
+      "fictional-best-seller": {
+        "effect": "Igraj u parovima ili trojkama da ukradeš karte. Skupi 3 knjige-duha i moći ćeš da zatražiš kartu po imenu.",
+        "lore": "[INCIDENT 2025]: „Chicago Sun-Times“ objavio je letnju listu za čitanje na kojoj je 10 od 15 knjiga izmislio AI."
+      }
+    },
+    "errors": {
+      "An action is already pending. Please wait.": "Prethodna radnja se još izvršava. Sačekaj.",
+      "Game actions are limited to one per second": "U igri je dozvoljena najviše jedna radnja u sekundi",
+      "This table was just taken. Choose the next one.": "Ovaj sto je upravo zauzet. Izaberi sledeći.",
+      "Join a ready table as a player": "Sedni za spreman sto kao igrač",
+      "Unknown site agent": "Nepoznat agent sajta",
+      "This agent is already at the table": "Ovaj agent je već za stolom",
+      "Site agents do not need connection tokens": "Agentima sajta ne trebaju tokeni za povezivanje",
+      "Choose another server name: insults, profanity, humiliation and other offensive content are not allowed.": "Izaberi drugo ime servera: uvrede, psovke, ponižavanje i drugi uvredljiv sadržaj nisu dozvoljeni.",
+      "Server name check is temporarily unavailable. Please try again.": "Provera imena servera je privremeno nedostupna. Pokušaj ponovo.",
+      "Session expired. Sign in again.": "Sesija je istekla. Prijavi se ponovo.",
+      "Sign in to join a server.": "Prijavi se da se pridružiš serveru.",
+      "Sign-in failed. Please try again.": "Prijava nije uspela. Pokušaj ponovo.",
+      "Sign-in is temporarily unavailable.": "Prijava je privremeno nedostupna.",
+      "Invalid invitation code": "Neispravan kod za poziv",
+      "Storage unavailable. Please reconnect later.": "Skladište je nedostupno. Poveži se ponovo kasnije.",
+      "Server is preparing for an update. Try again in a moment.": "Server se priprema za ažuriranje. Pokušaj ponovo za trenutak.",
+      "Server is preparing for an update. New games will resume shortly": "Server se priprema za ažuriranje. Nove partije uskoro ponovo kreću",
+      "Only the host can change access": "Samo host može da menja pristup",
+      "Session expired. Enter your nickname again.": "Sesija je istekla. Ponovo unesi nadimak.",
+      "Room not found": "Server nije pronađen",
+      "Join the room first": "Prvo se pridruži serveru",
+      "Spectators are disabled": "Posmatrači su isključeni",
+      "Invite at least one more player (2–5 required)": "Pozovi još bar jednog igrača (potrebno 2–5)",
+      "Connect every agent before starting": "Pre početka poveži sve agente",
+      "The game has not started": "Igra još nije počela",
+      "Chat messages must contain 1–140 characters": "Poruka u četu mora imati 1–140 znakova",
+      "Use visible characters": "Koristi vidljive znakove",
+      "Use 1–24 visible characters": "Koristi 1–24 vidljiva znaka",
+      "Invalid request": "Neispravan zahtev",
+      "Only the host can start the game": "Samo host može da pokrene igru",
+      "A game is already running": "Partija je već u toku",
+      "Only the host can change settings": "Samo host može da menja podešavanja",
+      "Settings are locked during a game": "Tokom partije podešavanja su zaključana",
+      "Add agents in the lobby": "Agente dodaj u lobiju",
+      "All seats are occupied": "Sva mesta su zauzeta",
+      "Only the host may add agents": "Samo host može da dodaje agente",
+      "Seat not found": "Mesto nije pronađeno",
+      "You do not own this seat": "Ovo mesto nije tvoje",
+      "Use surrender during a game": "Tokom partije koristi dugme „Predaj se“",
+      "This is not an agent seat": "Ovo nije mesto za agenta",
+      "Wait for the next game": "Sačekaj sledeću partiju",
+      "You already have a seat": "Već imaš mesto",
+      "Unknown room operation": "Nepoznata operacija servera",
+      "Invalid or revoked agent token": "Token agenta je neispravan ili opozvan",
+      "Unknown player": "Nepoznat igrač",
+      "A game requires 2–5 players": "Za igru je potrebno 2–5 igrača",
+      "Player IDs must be unique": "ID-jevi igrača moraju biti jedinstveni",
+      "That card is not in your hand": "Te karte nema u tvojoj ruci",
+      "Production Queue is empty": "Red za produkciju je prazan",
+      "Choose a living opponent": "Izaberi protivnika koji je još u igri",
+      "The game has finished": "Igra je završena",
+      "Time cannot move backwards": "Vreme ne može da ide unazad",
+      "You have been eliminated": "Ispao si iz igre",
+      "Decision is stale or it is not your turn": "Odluka je zastarela ili nije tvoj potez",
+      "Draw is not available now": "Sada ne možeš da vučeš kartu",
+      "Play is not available now": "Sada ne možeš da odigraš kartu",
+      "This card cannot be played solo now": "Ova karta se sada ne može odigrati samostalno",
+      "Combo is not available now": "Sada ne možeš da odigraš kombinaciju",
+      "Use 2 or 3 matching non-Fix cards; Dragon substitutes Purple only": "Koristi 2 ili 3 iste karte koje nisu Fix; CheapSeek Dragon menja samo ljubičaste",
+      "Name a card type for a triplet": "Za trojku navedi tip karte",
+      "Reaction is not available now": "Sada ne možeš da reaguješ",
+      "That reaction is not available in your hand": "Takve karte reakcije nema u tvojoj ruci",
+      "Choose one of your Fix cards": "Izaberi jednu od svojih Fix karata",
+      "Choose a position from 0 to the deck size": "Izaberi poziciju od 0 do veličine špila",
+      "Choose a card in your hand": "Izaberi kartu iz svoje ruke",
+      "Return each inspected card exactly once": "Svaku pregledanu kartu vrati tačno jednom",
+      "Arrangement is not available now": "Sada ne možeš da menjaš redosled karata",
+      "No logs to acknowledge": "Nema logova za potvrdu",
+      "Send hello first": "Prvo uspostavi vezu",
+      "Opened in another tab": "Otvoreno u drugom tabu",
+      "Unknown message": "Nepoznata poruka",
+      "Invalid command schema": "Neispravan format komande",
+      "Request failed": "Zahtev nije uspeo",
+      "Opened in another tab. This tab is now read-only.": "Server je otvoren u drugom tabu. U ovom tabu sada možeš samo da gledaš.",
+      "Your server rental has expired. Rent a new server to play again.": "Zakup servera je istekao. Iznajmi novi server da ponovo igraš.",
+      "Something went wrong": "Nešto je pošlo naopako",
+      "Wait for the connection to return.": "Sačekaj da se veza vrati.",
+      "Clipboard is unavailable. Select and copy the link manually.": "Klipbord nije dostupan. Označi i kopiraj link ručno.",
+      "Too many messages. Retry in {seconds} s.": "Previše poruka. Pokušaj ponovo za {seconds} s.",
+      "Too many requests. Retry in {seconds} s.": "Previše zahteva. Pokušaj ponovo za {seconds} s.",
+      "Check your input: invalid format or length.": "Proveri unos: neispravan format ili dužina."
+    }
+  }
+}

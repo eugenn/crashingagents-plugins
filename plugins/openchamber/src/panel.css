@@ -1,0 +1,72 @@
+/*
+ * OpenChamber host adapter for @crashing/panel-ui.
+ * Maps OpenChamber's --oc-* theme tokens (written by applyHostReady)
+ * onto the shared panel CSS custom properties.
+ */
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--oc-bg, transparent);
+  color: var(--oc-fg, inherit);
+  font-family: var(--oc-font, system-ui, -apple-system, sans-serif);
+}
+
+.oc-root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding-top: var(--oc-inset-top, 0px);
+  padding-right: var(--oc-inset-right, 0px);
+  padding-bottom: var(--oc-inset-bottom, 0px);
+  padding-left: var(--oc-inset-left, 0px);
+
+  /* Bridge OpenChamber host tokens -> @crashing/panel-ui neutral tokens */
+  --background: var(--oc-bg);
+  --foreground: var(--oc-fg);
+  --muted-foreground: var(--oc-muted);
+  /* Note: OpenChamber's --oc-subtle maps to --surface-subtle (a background color), not text. */
+  --subtle-foreground: var(--oc-muted);
+  --border: var(--oc-border);
+  --border-seam: var(--oc-border);
+  --surface-raised-solid: var(--oc-elevated);
+  --surface-recessed-solid: var(--oc-muted-surface);
+  --state-hover: var(--oc-hover);
+  --primary: var(--oc-primary);
+  --primary-foreground: var(--oc-primary-fg);
+  --destructive-text: var(--oc-error-text);
+  --success: var(--oc-success);
+  --attention: var(--oc-warning);
+  --radius: var(--oc-radius, 0.5rem);
+}
+
+.oc-root .ca-language-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.oc-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: var(--oc-muted, #9a9a9a);
+  font-size: 0.875rem;
+}
+
+.oc-fallback strong {
+  color: var(--oc-fg, inherit);
+  font-size: 0.95rem;
+}
