@@ -39,6 +39,7 @@ export {
   evaluateHandSelection,
   getPrimaryDecision,
   getTurnOrder,
+  handComboGroups,
   hasPlayableReaction,
 } from './game-types';
 
@@ -46,6 +47,7 @@ export interface Binding {
   code: string;
   autoStart?: boolean;
   prompts?: Record<string, string>;
+  connectedInvites?: Record<string, ConnectedInvite>;
   playerToken?: string;
   agentToken?: string;
   inviteCode?: string;
@@ -57,6 +59,28 @@ export interface ReadyRoom {
   personas: string[];
 }
 
+export interface AgentTarget {
+  providerId: string;
+  model: string;
+}
+
+export interface ConnectedAgent extends AgentTarget {
+  label: string;
+  providerLabel: string;
+  recommended: boolean;
+}
+
+export interface ConnectedInvite extends AgentTarget {
+  requestId: string;
+  threadId?: string;
+}
+
+export interface AgentInvitation extends AgentTarget {
+  requestId: string;
+  roomCode: string;
+  name?: string;
+}
+
 export interface TableSnapshot {
   room: RoomView & { siteAgents?: { id: string; name: string }[] };
   owner: boolean;
@@ -66,6 +90,7 @@ export interface TableSnapshot {
   inviteUrl?: string;
   invite?: string;
   prompts?: Record<string, string>;
+  connectedInvites?: Record<string, ConnectedInvite>;
 }
 
 export type MovePayload = Record<string, unknown>;
@@ -101,6 +126,19 @@ export type PanelCommand =
  * Every IDE or harness plugin only needs to implement this bridge (or forward it over postMessage).
  */
 export interface PanelBridge {
+  connectedAgents?: {
+    hostName: string;
+    list(
+      refresh?: boolean,
+    ): Promise<{
+      agents: ConnectedAgent[];
+      unavailable: string[];
+      loading: boolean;
+      failed?: boolean;
+    }>;
+    invite(invitation: AgentInvitation): Promise<void>;
+    openThread?(threadId: string): void;
+  };
   getConfig(): Promise<PanelConfig>;
   getState(): Promise<TableSnapshot | null>;
   getReadyRooms(): Promise<ReadyRoom[]>;

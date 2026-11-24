@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import test from 'node:test';
-import { createFakePluginHost } from '@get-bb/plugin-sdk/testing';
+import { createFakePluginHost, makeThreadResponse } from '@get-bb/plugin-sdk/testing';
 import type { RoomView } from '@crashing/plugin-core';
 import plugin from './server';
 
@@ -64,7 +64,10 @@ test('a BB invitation can be retried, plays through a duel and rematch, and hand
       });
     }
 
-    if ((url === '/api/bb/rooms/BBDUEL' || url === '/api/client/rooms/BBDUEL') && req.method === 'POST') {
+    if (
+      (url === '/api/bb/rooms/BBDUEL' || url === '/api/client/rooms/BBDUEL') &&
+      req.method === 'POST'
+    ) {
       if (expired) return json(404, { error: 'Room not found' });
       if (body.op === 'add_agent') {
         return json(200, { agentToken: 'a_tok_1234567890123456789012345678901234567' });
@@ -97,7 +100,9 @@ test('a BB invitation can be retried, plays through a duel and rematch, and hand
           jsonrpc: '2.0',
           id: body.id ?? 1,
           result: {
-            content: [{ type: 'text', text: JSON.stringify({ seatId: 'p2', state: buildRoom('p2') }) }],
+            content: [
+              { type: 'text', text: JSON.stringify({ seatId: 'p2', state: buildRoom('p2') }) },
+            ],
           },
         });
       }
@@ -131,8 +136,21 @@ test('a BB invitation can be retried, plays through a duel and rematch, and hand
     pluginId: 'crashing-agents',
     settings: { localPreview: true },
     sdk: {
+      providers: {
+        models: async (args) => {
+          assert.equal(args?.environmentId, 'env-game');
+          assert.equal(args?.providerId, 'codex');
+          return {
+            models: [{ model: 'test-player', displayName: 'Test player' }],
+            modelLoadError: null,
+          };
+        },
+      },
       threads: {
-        send: async () => {
+        get: async () => makeThreadResponse({ environmentId: 'env-game', providerId: 'codex' }),
+        send: async (args) => {
+          assert.equal(args.model, invitations === 0 ? undefined : 'test-player');
+          assert.equal(args.input[0]?.visibility, 'agent-only');
           if (++invitations === 1) throw new Error('Thread temporarily unavailable');
           return { status: 'queued' };
         },
@@ -154,6 +172,12 @@ test('a BB invitation can be retried, plays through a duel and rematch, and hand
   await assert.rejects(rpc('duel'), /temporarily unavailable/);
   assert.equal((await state())?.waitingForAgent, true);
 
+  assert.deepEqual(await rpc('models'), {
+    selected: null,
+    models: [{ model: 'test-player', label: 'Test player' }],
+  });
+  await assert.rejects(rpc('selectModel', { model: 'missing' }), /Model unavailable/);
+  await rpc('selectModel', { model: 'test-player' });
   await rpc('inviteAgent');
   const joined = await cli('join-room', { model: 'test-player' });
   assert.equal(joined.state.phase, 'playing');
@@ -176,6 +200,9 @@ test('a BB invitation can be retried, plays through a duel and rematch, and hand
   const rematch = await cli('join-room');
   assert.equal(rematch.state.phase, 'playing');
   assert.notEqual(rematch.state.gameId, joined.state.gameId);
+
+  await rpc('selectModel', { model: null });
+  assert.equal(((await rpc('models')) as { selected: string | null }).selected, null);
 
   // Transient 503 does not wipe stored binding.
   requests.mock.mockImplementationOnce(async () => new Response('Unavailable', { status: 503 }));

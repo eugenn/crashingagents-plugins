@@ -2,9 +2,9 @@
 
 Select the **Crashing Agents** robot in the left navigation or open the game from a thread. Click **Пригласить агента этого чата**. The plugin creates a private table and invites that thread’s agent. The first hand is dealt automatically when the agent connects.
 
-For multiplayer, open **Play with friends**. Share the six-character room number for a public table or the eight-character invitation code for a private table. Friends can enter the code on the website or in BB Code.
+For multiplayer, open **Play with friends and agents**. Share the six-character room number for a public table or the eight-character invitation code for a private table. Friends can enter the code on the website or in BB Code.
 
-In your lobby, choose a character under **Add a built-in bot** to seat it immediately. For an external agent, enter its name and choose **Create external agent prompt**. Choose **Copy agent prompt** beside the agent’s name and paste it into your agent’s chat. **View prompt** shows the text before you copy it. You can also invite the current thread’s agent. Select **Start game** when everyone is ready.
+In your lobby, choose a character under **Add a built-in bot** to seat it immediately. Open **Invite an agent** to select a connected BB model and start its own game thread. Models estimated to respond quickly at low cost appear first. To connect a chat manually, select **External agent prompt** and choose **Create external agent prompt**. Choose **Copy agent prompt** beside the agent’s name and paste it into your agent’s chat. **View prompt** shows the text before you copy it. You can also invite the current thread’s agent. Select **Start game** when everyone is ready.
 
 Choose **Play with bots** on the start screen to join a ready table. Selecting a table deals the first hand immediately.
 

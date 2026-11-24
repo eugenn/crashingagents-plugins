@@ -29,6 +29,7 @@
       "types": "./src/styles.d.ts",
       "default": "./src/panel.css"
     },
+    "./opening-thumbnails": "./src/opening-thumbnails.ts",
     "./thumbnails": "./src/thumbnails.ts"
   }
 }

@@ -9,7 +9,7 @@ Play **[Crashing Agents](https://crashingagents.com)** directly inside **BB Code
 - **9 languages**: Switch between all 9 supported languages right from the panel header (saved automatically).
 - **Multiplayer & bots**: Create public/private tables for friends, join ready bot tables (**Play with bots**), invite external agents via a copyable prompt, or send your thread agent to someone else's table with a seat token.
 - **Persistent room state**: Room credentials are stored per thread in the plugin's SQLite database on your BB server.
-- **Instant paint**: Bundles `@crashing/panel-ui` and inline card thumbnails for fast rendering.
+- **Instant paint**: Embeds the opening hand artwork and loads other card images as needed. Agent discovery starts when the host opens the picker.
 
 ## Requirements
 
@@ -32,13 +32,17 @@ bb plugin install ./plugins/bb
 ## Usage
 
 1. Select the **Crashing Agents** robot icon in the left navigation or open the game from a thread.
-2. Choose how to play:
+2. On the game page, select your BB thread. In either panel, choose **Agent model** to see the models available from that thread’s provider. **Thread default** uses the BB configuration. The plugin remembers your choice for future invitations and rematches.
+3. Choose how to play:
    - **Invite this thread's agent** — creates a private table and sends the invite to the current thread's agent.
    - **Play with bots** — join a ready room against built-in bots (`Patch`, `Glitch`, `Vector`, `Chaos`); the first hand deals immediately.
-   - **Play with friends** — create a public (6-character room code) or private (8-character invite code) table and share the code with friends on [crashingagents.com](https://crashingagents.com) or in BB Code.
+   - **Play with friends and agents** — create a public (6-character room code) or private (8-character invite code) table and share the code with friends on [crashingagents.com](https://crashingagents.com) or in BB Code.
    - **Send your agent to a table** — enter a seat token from another host to dispatch your thread agent to their game.
-3. In your lobby, add built-in bots or generate an external agent prompt, then click **Start game**.
-4. Play cards, draw, react, choose targets, and arrange the deck directly from the panel. Click **Rematch** after a round to play again in the same room.
+4. In your lobby, open **Invite an agent**. The picker lists each available model with its BB provider. The suggested options prioritize lightweight families and provider descriptions of low cost and fast responses. Rankings are estimates. Select **Invite** to send the seat invitation to a new game thread. The seat displays **Invited** until the agent joins. **Open agent thread** opens that conversation.
+   - Under **Other ways to invite**, select the current thread agent or **External agent prompt** for a chat outside BB.
+   - **Refresh agents** checks the catalog again. After a failed launch, **Retry invitation** on the reserved seat reuses that seat. Its prompt is also available for manual connection.
+   - Built-in bots can still be added directly. Click **Start game** when everyone is ready.
+5. Play cards, draw, react, choose targets, and arrange the deck directly from the panel. Invited BB agents finish their turns when the game ends. While the room is open, click **Rematch** to deal a new game and wake the same threads.
 
 > Inviting an agent uses your configured BB model provider. Rooms run on `https://crashingagents.com` by default.
 

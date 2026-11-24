@@ -397,6 +397,18 @@ function isCombo(selected: Card[]): boolean {
   );
 }
 
+/** Candidate groups for planning while the server has not offered this player a turn. */
+export function handComboGroups(hand: Card[]): string[][] {
+  const groups: string[][] = [];
+  for (const type of new Set(hand.map((card) => card.type))) {
+    const face = CARDS[type];
+    if (!face || face.fix || face.crash) continue;
+    const matches = hand.filter((card) => card.type === type || (face.combo && CARDS[card.type]?.wild));
+    if (matches.length >= 2) groups.push(matches.map((card) => card.id));
+  }
+  return groups;
+}
+
 function getValidTripletTypes(
   deckProfile: DeckProfileId,
   profiles: Record<DeckProfileId, DeckProfile> = DECK_PROFILES,

@@ -20,6 +20,7 @@ const DEFAULT_CAPABILITIES: HostCapabilities = {
 
 export interface CrashingPanelProps {
   bridge: PanelBridge;
+  settingsControls?: ReactNode;
   /** Compact layout (e.g. narrow sidebar / inline thread tab). */
   compact?: boolean;
   /** Custom mascot element rendered in the panel header (defaults to site mascot image). */
@@ -37,6 +38,7 @@ export interface CrashingPanelProps {
 }
 
 function PanelBody({
+  settingsControls,
   bridge,
   compact,
   mascot,
@@ -56,6 +58,7 @@ function PanelBody({
   const [network, setNetwork] = useState('');
   const [busy, setBusy] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [epoch, refresh] = useState(0);
   const lock = useRef(false);
   const acceptedMove = useRef<{ gameId?: string; decisionId: string } | null>(null);
@@ -170,6 +173,15 @@ function PanelBody({
           >
             {busy && <span className="ca-progress" aria-hidden="true" />}
             <div className="ca-wrap">
+              {!room && settingsControls && (
+                <details
+                  className="ca-settings"
+                  onToggle={(e) => setSettingsOpen(e.currentTarget.open)}
+                >
+                  <summary>{t('Table options')}</summary>
+                  {settingsOpen && settingsControls}
+                </details>
+              )}
               {room && table && (
                 <header className="ca-bar">
                   {mascot ??
@@ -191,7 +203,7 @@ function PanelBody({
                     </span>
                   </span>
                   {game && room.phase === 'playing' && game.status === 'playing' && (
-                    <span className={'ca-turn' + (turn?.mine ? ' is-mine' : '')}>
+                    <span role="status" className={'ca-turn' + (turn?.mine ? ' is-mine' : '')}>
                       {turn?.label}
                     </span>
                   )}
@@ -220,6 +232,7 @@ function PanelBody({
                       <>
                         <span className="ca-menu__scrim" onClick={() => setMenu(false)} />
                         <div className="ca-menu__pop" role="dialog" aria-label={t('Table options')}>
+                          {settingsControls}
                           {canOpenChat && !compact && (
                             <button
                               type="button"
@@ -304,13 +317,25 @@ function PanelBody({
                   onExternalAgent={(name) =>
                     void run(() => bridge.dispatch({ type: 'externalAgent', name }))
                   }
+                  onInviteConnected={
+                    bridge.connectedAgents &&
+                    (async (invite) => {
+                      let delivered = false;
+                      await run(async () => {
+                        await bridge.connectedAgents!.invite(invite);
+                        delivered = true;
+                        setTable(await bridge.getState());
+                      });
+                      return delivered;
+                    })
+                  }
                   onBot={(personaId) =>
                     void run(() => bridge.dispatch({ type: 'addBot', personaId }))
                   }
-                  onStart={() =>
-                    void run(() => bridge.dispatch({ type: 'start', rematch: false }))
+                  onStart={() => void run(() => bridge.dispatch({ type: 'start', rematch: false }))}
+                  onOpenThread={
+                    canOpenChat && !compact ? () => bridge.openAgentChat?.() : undefined
                   }
-                  onOpenThread={canOpenChat && !compact ? () => bridge.openAgentChat?.() : undefined}
                 />
               )}
 
@@ -330,9 +355,7 @@ function PanelBody({
                       typeof action.decisionId === 'string' ? action.decisionId : undefined,
                     )
                   }
-                  onAgain={() =>
-                    void run(() => bridge.dispatch({ type: 'start', rematch: true }))
-                  }
+                  onAgain={() => void run(() => bridge.dispatch({ type: 'start', rematch: true }))}
                   onLeave={() => void leave()}
                 />
               )}

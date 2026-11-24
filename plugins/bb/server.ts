@@ -11,12 +11,21 @@ import {
   type RoomView,
 } from '@crashing/plugin-core';
 import { z } from 'zod';
+import {
+  bindInvitedSeat,
+  createAgentDirectory,
+  findLaunchedThread,
+  prepareAgentLaunch,
+  rankModels,
+} from './agents';
 
 const id = z.string().min(1).max(128);
 const credentials = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
 const input = z.object({ threadId: id });
 const agentName = z.string().trim().min(1).max(24);
 const namedInput = input.extend({ name: agentName.optional() });
+const target = z.object({ providerId: id, model: z.string().min(1).max(512) });
+const invitation = target.extend({ requestId: z.uuid() });
 
 const table = z.object({
   room: z.custom<RoomView>(),
@@ -27,11 +36,38 @@ const table = z.object({
   inviteUrl: z.string().optional(),
   invite: z.string().optional(),
   prompts: z.record(z.string(), z.string()).optional(),
+  connectedInvites: z.record(z.string(), invitation.extend({ threadId: id.optional() })).optional(),
 });
 
 export const contract = defineRpcContract({
   /** Where the client loads card art from: the same game origin the rooms run on. */
   config: { input: z.object({}), output: z.object({ assets: z.string() }) },
+  connectedAgents: {
+    input: input.extend({ refresh: z.boolean().optional() }),
+    output: z.object({
+      agents: z.array(
+        target.extend({ label: z.string(), providerLabel: z.string(), recommended: z.boolean() }),
+      ),
+      unavailable: z.array(z.string()),
+      loading: z.boolean(),
+      failed: z.boolean().optional(),
+    }),
+  },
+  inviteConnectedAgent: {
+    input: namedInput.extend({ ...invitation.shape, roomCode: id }),
+    output: z.null(),
+  },
+  models: {
+    input,
+    output: z.object({
+      selected: z.string().nullable(),
+      models: z.array(z.object({ model: z.string(), label: z.string() })),
+    }),
+  },
+  selectModel: {
+    input: input.extend({ model: z.string().min(1).max(512).nullable() }),
+    output: z.null(),
+  },
   state: { input, output: table.nullable() },
   create: {
     input: input.extend({ visibility: z.enum(['private', 'public']).optional() }),
@@ -76,13 +112,15 @@ export default async function plugin(bb: BbPluginApi) {
   // Public bindings predate the local server option and use the plain thread ID.
   const bindingKey = (thread: string) => (localPreview ? 'local:' + thread : thread);
   const db = bb.storage.database();
-  bb.storage.migrate(db, ['CREATE TABLE bindings(thread TEXT PRIMARY KEY, data TEXT NOT NULL)']);
+  bb.storage.migrate(db, [
+    'CREATE TABLE bindings(thread TEXT PRIMARY KEY, data TEXT NOT NULL)',
+    'CREATE TABLE agent_catalogs(scope TEXT PRIMARY KEY, data TEXT NOT NULL, expires INTEGER NOT NULL)',
+  ]);
 
   const storage: HostStorage = {
     get(thread) {
       const row = db.prepare('SELECT data FROM bindings WHERE thread=?').get(bindingKey(thread)) as
-        | { data: string }
-        | undefined;
+        { data: string } | undefined;
       return row ? (JSON.parse(row.data) as Binding) : undefined;
     },
     set(thread, binding) {
@@ -103,6 +141,23 @@ export default async function plugin(bb: BbPluginApi) {
     },
   };
 
+  const modelKey = (threadId: string) => 'agent-model:' + threadId;
+  const selectedModel = (threadId: string) => bb.storage.kv.get<string>(modelKey(threadId));
+  const directory = createAgentDirectory(bb);
+  async function availableModels(threadId: string) {
+    const { providerId, environmentId, projectId } = await bb.sdk.threads.get({ threadId });
+    const catalog = await bb.sdk.providers.models({
+      providerId,
+      ...(environmentId ? { environmentId } : { projectId }),
+    });
+    if (catalog.modelLoadError)
+      throw new Error(catalog.modelLoadError.detail ?? catalog.modelLoadError.code);
+    return rankModels(catalog.models).map(({ model, displayName }) => ({
+      model,
+      label: displayName || model,
+    }));
+  }
+
   const controller = createPluginController({
     origin,
     storage,
@@ -111,10 +166,12 @@ export default async function plugin(bb: BbPluginApi) {
     skillName: 'crashing-agents',
     agentHost: {
       async invite(threadId, text) {
+        const model = await selectedModel(threadId);
         await bb.sdk.threads.send({
+          ...(model ? { model } : {}),
           threadId,
           mode: 'queue-if-active',
-          input: [{ type: 'text', mentions: [], text }],
+          input: [{ type: 'text', mentions: [], text, visibility: 'agent-only' }],
         });
       },
     },
@@ -122,6 +179,27 @@ export default async function plugin(bb: BbPluginApi) {
 
   bb.rpc.register(contract, {
     config: async () => ({ assets: controller.origin }),
+    connectedAgents: ({ threadId, refresh }) => directory(threadId, refresh),
+    inviteConnectedAgent: ({ threadId, ...invite }) =>
+      ok(
+        controller.inviteConnectedAgent(threadId, invite, {
+          recover: () => findLaunchedThread(bb, threadId, invite.requestId),
+          prepare: () => prepareAgentLaunch(bb, threadId, invite),
+        }),
+      ),
+    models: async ({ threadId }) => ({
+      selected: (await selectedModel(threadId)) ?? null,
+      models: await availableModels(threadId),
+    }),
+    selectModel: async ({ threadId, model }) => {
+      if (model === null) await bb.storage.kv.delete(modelKey(threadId));
+      else {
+        const models = await availableModels(threadId);
+        if (!models.some((entry) => entry.model === model)) throw new Error('Model unavailable');
+        await bb.storage.kv.set(modelKey(threadId), model);
+      }
+      return null;
+    },
     readyRooms: () => controller.getReadyRooms(),
     state: ({ threadId }) => controller.getState(threadId),
     create: ({ threadId, visibility }) => ok(controller.create(threadId, visibility)),
@@ -156,7 +234,18 @@ export default async function plugin(bb: BbPluginApi) {
           throw new Error('Run a supported game command from the connected thread.');
         }
         const args = z.record(z.string(), z.json()).parse(JSON.parse(raw || '{}'));
+        if (name === 'join_room') await bindInvitedSeat(bb, storage, ctx.threadId);
+        // A BB turn plays one game. Even an old agent cannot long-poll past its result.
+        if (name === 'wait_for_turn') delete args.wait_for_rematch;
         const result = await controller.runAgentTool(ctx.threadId, name, args);
+        const room = (result.state ?? result) as Partial<RoomView>;
+        if (
+          result.reason === 'finished' ||
+          room.phase === 'finished' ||
+          room.game?.status === 'finished'
+        ) {
+          result.instructions = 'The game is finished. Report the result and end this turn now.';
+        }
         return { exitCode: 0, stdout: JSON.stringify(result) };
       } catch (error) {
         return {

@@ -9,11 +9,22 @@ import {
   createPluginController,
   createPostMessageClientBridge,
   fromCliCommandName,
+  handComboGroups,
   toCliCommandName,
   type Binding,
   type HostStorage,
   type MessageEndpoint,
 } from './index';
+
+it('plans matching stacks and purple wilds without offering Fix or CRASH combos', () => {
+  const types = [
+    'shitcoin_oracle', 'shitcoin_oracle', 'cheapseek_dragon', 'vibe_coder',
+    'sandbox_escape', 'sandbox_escape', 'reward_hacking', 'reward_hacking',
+    'oom_ageddon', 'oom_ageddon',
+  ];
+  const hand = types.map((type, i) => ({ type, id: String(i) }));
+  expect(handComboGroups(hand)).toEqual([['0', '1', '2'], ['2', '3'], ['4', '5']]);
+});
 
 function memoryStorage(): HostStorage {
   const map = new Map<string, string>();

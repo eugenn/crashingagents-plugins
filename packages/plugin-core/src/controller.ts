@@ -1,4 +1,9 @@
-import { AGENT_TOOL_SET, buildInviteMessage, buildPlayInstructions } from './agent-tools';
+import {
+  AGENT_TOOL_SET,
+  buildInviteMessage,
+  buildPlayInstructions,
+  invitedSeatToken,
+} from './agent-tools';
 import {
   createCrashingClient,
   RoomNotFound,
@@ -8,6 +13,7 @@ import {
 } from './client';
 import type {
   AgentHost,
+  AgentInvitation,
   Binding,
   HostCapabilities,
   HostStorage,
@@ -45,6 +51,14 @@ export interface PluginController {
   joinSeat(scopeId: string, token: string): Promise<void>;
   inviteAgent(scopeId: string, name?: string): Promise<void>;
   externalAgent(scopeId: string, name: string): Promise<void>;
+  inviteConnectedAgent(
+    scopeId: string,
+    invite: AgentInvitation,
+    host: {
+      recover(): Promise<string | undefined>;
+      prepare(): Promise<{ name: string; launch(prompt: string): Promise<string> }>;
+    },
+  ): Promise<void>;
   addBot(scopeId: string, personaId: string): Promise<void>;
   start(scopeId: string, rematch: boolean): Promise<void>;
   move(scopeId: string, gameId: string, action: MovePayload): Promise<void>;
@@ -150,7 +164,10 @@ export function createPluginController(options: PluginControllerOptions): Plugin
       room.phase === 'lobby' &&
       binding.playerToken &&
       room.viewerId === room.hostId
-        ? { prompts: binding.prompts }
+        ? {
+            prompts: binding.prompts,
+            ...(binding.connectedInvites && { connectedInvites: binding.connectedInvites }),
+          }
         : {}),
       ...(binding.inviteCode
         ? {
@@ -201,14 +218,67 @@ export function createPluginController(options: PluginControllerOptions): Plugin
       await inviteLocalAgent(scopeId, await requireRoom(scopeId), name);
     });
 
+  const reserveSeat = (room: Binding, name: string) =>
+    client.host(room, 'invite_external_agent', { name }) as Promise<{
+      seatId: string;
+      prompt: string;
+    }>;
+
   const externalAgent = (scopeId: string, name: string) =>
     change(scopeId, async () => {
       const room = await requireRoom(scopeId);
-      const { seatId, prompt } = (await client.host(room, 'invite_external_agent', { name })) as {
-        seatId: string;
-        prompt: string;
-      };
+      const { seatId, prompt } = await reserveSeat(room, name);
       await storage.set(scopeId, { ...room, prompts: { ...room.prompts, [seatId]: prompt } });
+    });
+
+  const inviteConnectedAgent: PluginController['inviteConnectedAgent'] = (scopeId, invite, host) =>
+    change(scopeId, async () => {
+      let room = await requireRoom(scopeId);
+      if (!room.playerToken || room.code !== invite.roomCode) throw new Error('Room changed.');
+      const { requestId, providerId, model } = invite;
+      const existing = Object.entries(room.connectedInvites ?? {}).find(
+        ([, entry]) => entry.requestId === requestId,
+      );
+      let seatId = existing?.[0];
+      if (existing) {
+        const [id, entry] = existing;
+        if (entry.providerId !== providerId || entry.model !== model)
+          throw new Error('Invitation changed.');
+        if (entry.threadId) return;
+        const recovered = await host.recover();
+        if (recovered) return saveThread(id, recovered);
+        const state = (await client.host(room, 'state')) as ClientRoomView;
+        const seat = state.seats.find((s) => s.id === id);
+        if (state.phase !== 'lobby' || !seat || seat.connected)
+          throw new Error('Seat unavailable.');
+      }
+
+      const { name, launch } = await host.prepare();
+      if (!seatId) {
+        const seat = await reserveSeat(room, name);
+        seatId = seat.seatId;
+        room = {
+          ...room,
+          prompts: { ...room.prompts, [seatId]: seat.prompt },
+          connectedInvites: {
+            ...room.connectedInvites,
+            [seatId]: { requestId, providerId, model },
+          },
+        };
+        // Keep the reservation if the host fails. A retry and a manual invite use the same seat.
+        await storage.set(scopeId, room);
+      }
+      await saveThread(seatId, await launch(room.prompts![seatId]));
+
+      async function saveThread(id: string, threadId: string) {
+        await storage.set(scopeId, {
+          ...room,
+          connectedInvites: {
+            ...room.connectedInvites,
+            [id]: { requestId, providerId, model, threadId },
+          },
+        });
+      }
     });
 
   const addBot = (scopeId: string, personaId: string) =>
@@ -219,8 +289,23 @@ export function createPluginController(options: PluginControllerOptions): Plugin
   const start = (scopeId: string, rematch: boolean) =>
     change(scopeId, async () => {
       const room = await requireRoom(scopeId);
+      const recipients: string[] = [];
+      if (rematch && agentHost && room.connectedInvites) {
+        const state = (await client.host(room, 'state')) as ClientRoomView;
+        if (state.phase === 'finished') {
+          for (const seat of state.seats) {
+            const child = room.connectedInvites[seat.id]?.threadId;
+            if (!child) continue;
+            // The server requires connected seats to deal, even after a long break.
+            if (!seat.connected)
+              await client.agent(invitedSeatToken(room.prompts?.[seat.id]), 'get_state');
+            recipients.push(child);
+          }
+        }
+      }
       await client.host(room, rematch ? 'rematch' : 'start');
-      if (rematch && room.agentToken && agentHost) await notify(scopeId);
+      if (rematch && room.agentToken && agentHost) recipients.push(scopeId);
+      await Promise.all(recipients.map(notify));
     });
 
   const move = (scopeId: string, gameId: string, action: MovePayload) =>
@@ -306,6 +391,7 @@ export function createPluginController(options: PluginControllerOptions): Plugin
     joinSeat,
     inviteAgent,
     externalAgent,
+    inviteConnectedAgent,
     addBot,
     start,
     move,

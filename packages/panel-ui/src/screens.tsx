@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useId, useState, type CSSProperties, type ReactNode } from 'react';
-import type { HostCapabilities, PanelBridge, ReadyRoom, TableSnapshot } from '@crashing/plugin-core';
+import type { AgentInvitation, HostCapabilities, PanelBridge, ReadyRoom, TableSnapshot } from '@crashing/plugin-core';
+import { AgentPicker } from './AgentPicker';
 import { CardBack, PaperCard, Portrait, useAsset } from './cards';
 import { Glyph } from './icons';
 import { useText } from './language';
@@ -257,7 +258,7 @@ export function StartScreen({
       <div className="ca-tiles">
         <Tile
           icon="users"
-          title={t('Play with friends')}
+          title={t('Play with friends and agents')}
           text={t('Create a room or join by code')}
           open={open === 'friends'}
           onToggle={() => setOpen(open === 'friends' ? null : 'friends')}
@@ -387,6 +388,7 @@ export function LobbyScreen({
   capabilities,
   onWake,
   onExternalAgent,
+  onInviteConnected,
   onBot,
   onStart,
   onOpenThread,
@@ -396,11 +398,13 @@ export function LobbyScreen({
   capabilities: HostCapabilities;
   onWake: (name?: string) => void;
   onExternalAgent: (name: string) => void;
+  onInviteConnected?: (invite: AgentInvitation) => Promise<boolean>;
   onBot: (id: string) => void;
   onStart: () => void;
   onOpenThread?: () => void;
 }) {
   const t = useText();
+  const directory = useContext(BridgeContext)?.connectedAgents;
   const { room } = table;
   const [agentName, setAgentName] = useState('');
   const availableBots = room.siteAgents?.filter(
@@ -492,56 +496,77 @@ export function LobbyScreen({
   return (
     <div className="ca-lobby">
       <div className="ca-lobby__seats">
-        {room.seats.map((s, i) => (
-          <div
-            key={s.id}
-            className={'ca-seat-card ca-seat-card--row' + (s.connected ? '' : ' is-away')}
-          >
-            <Portrait
-              name={s.name ?? t('Player')}
-              kind={s.kind}
-              personaId={s.personaId}
-              size={40}
-            />
-            <span className="ca-seat-card__copy">
-              <strong>
-                {s.name ?? t('Player ') + (i + 1)}
-                {s.id === room.viewerId && <em> {t('· you')}</em>}
-              </strong>
-              <span>
-                {s.controller
-                  ? t('Built-in bot')
-                  : s.kind === 'agent'
-                    ? (s.model ?? t('Agent'))
-                    : t('Player')}
+        {room.seats.map((s, i) => {
+          const invite = table.connectedInvites?.[s.id];
+          const threadId = invite?.threadId;
+          const prompt = table.prompts?.[s.id];
+          let status = prompt ? t('Offline') : t('Away');
+          if (invite && !s.disconnectedAt) status = threadId ? t('Invited') : t('Seat reserved');
+          if (s.connected) status = t('Connected');
+          if (s.controller) status = t('Ready to play');
+          return (
+            <div
+              key={s.id}
+              className={'ca-seat-card ca-seat-card--row' + (s.connected ? '' : ' is-away')}
+            >
+              <Portrait
+                name={s.name ?? t('Player')}
+                kind={s.kind}
+                personaId={s.personaId}
+                size={40}
+              />
+              <span className="ca-seat-card__copy">
+                <strong>
+                  {s.name ?? t('Player ') + (i + 1)}
+                  {s.id === room.viewerId && <em> {t('· you')}</em>}
+                </strong>
+                <span>
+                  {s.controller
+                    ? t('Built-in bot')
+                    : s.kind === 'agent'
+                      ? (s.model ?? invite?.model ?? t('Agent'))
+                      : t('Player')}
+                </span>
               </span>
-            </span>
-            <span className={'ca-status' + (s.connected ? ' is-on' : '')}>
-              {s.controller
-                ? t('Ready to play')
-                : s.connected
-                  ? t('Connected')
-                  : table.prompts?.[s.id]
-                    ? t('Offline')
-                    : t('Away')}
-            </span>
-            {table.owner && s.kind === 'agent' && !s.controller && table.prompts?.[s.id] && (
-              <div className="ca-seat-prompt">
-                <CopyButton text={table.prompts[s.id]} label={t('Copy agent prompt')} />
-                <details>
-                  <summary>{t('View prompt')}</summary>
-                  <textarea
-                    aria-label={s.name + t(' connection prompt')}
-                    className="ca-input"
-                    rows={4}
-                    readOnly
-                    value={table.prompts[s.id]}
-                  />
-                </details>
-              </div>
-            )}
-          </div>
-        ))}
+              <span className={'ca-status' + (s.connected ? ' is-on' : '')}>{status}</span>
+              {table.owner && s.kind === 'agent' && !s.controller && prompt && (
+                <div className="ca-seat-prompt">
+                  {threadId && directory?.openThread ? (
+                    <button
+                      className="ca-btn ca-btn--ghost ca-btn--sm"
+                      onClick={() => directory.openThread?.(threadId)}
+                    >
+                      <Glyph name="thread" size={14} /> {t('Open agent thread')}
+                    </button>
+                  ) : (
+                    <>
+                      {invite && !s.connected && onInviteConnected && (
+                        <button
+                          className="ca-btn ca-btn--sm"
+                          disabled={busy}
+                          onClick={() => void onInviteConnected({ ...invite, roomCode: room.code })}
+                        >
+                          {t('Retry invitation')}
+                        </button>
+                      )}
+                      <CopyButton text={prompt} label={t('Copy agent prompt')} />
+                      <details>
+                        <summary>{t('View prompt')}</summary>
+                        <textarea
+                          aria-label={s.name + t(' connection prompt')}
+                          className="ca-input"
+                          rows={4}
+                          readOnly
+                          value={prompt}
+                        />
+                      </details>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
         {Array.from({ length: Math.max(0, 2 - room.seats.length) }, (_, i) => (
           <div key={'empty' + i} className="ca-seat-card ca-seat-card--row is-empty">
             <span className="ca-portrait is-empty" style={{ '--size': '40px' } as CSSProperties} />
@@ -574,51 +599,72 @@ export function LobbyScreen({
       )}
 
       {table.owner && (
-        <section className="ca-agent-setup" aria-label={t('Add agents')}>
-          {!!availableBots?.length && (
-            <fieldset disabled={busy || full}>
-              <legend>{t('Add a built-in bot')}</legend>
-              <div className="ca-row">
-                {availableBots.map((bot) => (
-                  <button key={bot.id} className="ca-btn" onClick={() => onBot(bot.id)}>
-                    <Portrait name={bot.name} kind="agent" personaId={bot.id} size={26} />
-                    {bot.name}
+        <>
+          <section className="ca-agent-setup" aria-label={t('Add agents')}>
+            {directory && onInviteConnected ? (
+              <AgentPicker
+                key={room.code}
+                directory={directory}
+                roomCode={room.code}
+                busy={busy}
+                full={full}
+                local={capabilities.canInviteLocalAgent}
+                hasLocalSeat={table.agent}
+                onWake={onWake}
+                onPrompt={onExternalAgent}
+                onInvite={onInviteConnected}
+              />
+            ) : (
+              <>
+                <label className="ca-field">
+                  {t('Agent name')}
+                  <input
+                    className="ca-input"
+                    placeholder={t('Agent name')}
+                    maxLength={24}
+                    value={agentName}
+                    onChange={(e) => setAgentName(e.target.value)}
+                  />
+                </label>
+                <div className="ca-row">
+                  {capabilities.canInviteLocalAgent && (
+                    <button
+                      type="button"
+                      className="ca-btn"
+                      onClick={() => onWake(agentName.trim() || undefined)}
+                      disabled={busy || (!table.agent && full)}
+                    >
+                      <Glyph name="wake" size={15} />
+                      {table.agent ? t('Wake agent') : t('Add thread agent')}
+                    </button>
+                  )}
+                  <button
+                    className="ca-btn"
+                    disabled={busy || full}
+                    onClick={() => onExternalAgent(agentName.trim() || t('Agent'))}
+                  >
+                    {t('Create external agent prompt')}
                   </button>
-                ))}
-              </div>
-            </fieldset>
-          )}
-          <label className="ca-field">
-            {t('Agent name')}
-            <input
-              className="ca-input"
-              placeholder={t('Agent name')}
-              maxLength={24}
-              value={agentName}
-              onChange={(e) => setAgentName(e.target.value)}
-            />
-          </label>
-          <div className="ca-row">
-            {capabilities.canInviteLocalAgent && (
-              <button
-                type="button"
-                className="ca-btn"
-                onClick={() => onWake(agentName.trim() || undefined)}
-                disabled={busy || (!table.agent && full)}
-              >
-                <Glyph name="wake" size={15} />
-                {table.agent ? t('Wake agent') : t('Add thread agent')}
-              </button>
+                </div>
+              </>
             )}
-            <button
-              className="ca-btn"
-              disabled={busy || full}
-              onClick={() => onExternalAgent(agentName.trim() || t('Agent'))}
-            >
-              {t('Create external agent prompt')}
-            </button>
-          </div>
-        </section>
+          </section>
+          {!!availableBots?.length && (
+            <section className="ca-bot-setup" aria-label={t('Add a built-in bot')}>
+              <fieldset disabled={busy || full}>
+                <legend>{t('Add a built-in bot')}</legend>
+                <div className="ca-row">
+                  {availableBots.map((bot) => (
+                    <button key={bot.id} className="ca-btn" onClick={() => onBot(bot.id)}>
+                      <Portrait name={bot.name} kind="agent" personaId={bot.id} size={26} />
+                      {bot.name}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            </section>
+          )}
+        </>
       )}
       <div className="ca-row ca-row--center">
         {!table.owner && table.agent && capabilities.canInviteLocalAgent && (

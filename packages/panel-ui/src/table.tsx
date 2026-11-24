@@ -16,6 +16,7 @@ import {
   decisionTitle,
   describeEvent,
   evaluateHandSelection,
+  handComboGroups,
   eventTone,
   namer,
   ordinalLabel,
@@ -55,11 +56,8 @@ function Hand({
   const t = useText();
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-  const [keyboardStack, setKeyboardStack] = useState('');
   const [cardW, setCardW] = useState(136);
-  const [zoom, setZoom] = useState<{ type: string; x: number } | null>(null);
   const seen = useRef<Set<string> | null>(null);
-  const hoverTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useLayoutEffect(() => {
     const el = box.current;
@@ -107,18 +105,6 @@ function Hand({
   const spread = crowded ? 0 : Math.min(2, 8 / Math.max(1, n));
   const mid = (n - 1) / 2;
 
-  function show(type: string, el: HTMLElement) {
-    clearTimeout(hoverTimer.current);
-    const host = box.current!.getBoundingClientRect();
-    const r = el.getBoundingClientRect();
-    const x = r.left + r.width / 2 - host.left;
-    hoverTimer.current = setTimeout(() => setZoom({ type, x }), 220);
-  }
-  function hide() {
-    clearTimeout(hoverTimer.current);
-    setZoom(null);
-  }
-
   if (!n) {
     return (
       <div className="ca-hand ca-hand--empty" ref={box}>
@@ -127,23 +113,14 @@ function Hand({
     );
   }
 
-  const zoomW = Math.min(232, Math.max(1, width - 8));
-  const side = zoom && zoom.x + cardW / 2 + 12 + zoomW <= width ? 'right' : 'left';
-  const zoomLeft = !zoom
-    ? 0
-    : side === 'right'
-      ? zoom.x + cardW / 2 + 12
-      : Math.max(4, zoom.x - cardW / 2 - 12 - zoomW);
-
   return (
-    <div className={'ca-hand' + (crowded ? ' is-crowded' : '')} ref={box} onPointerLeave={hide}>
-      <div className="ca-hand__row" role="list" aria-label={label} onScroll={hide}>
+    <div className={'ca-hand' + (crowded ? ' is-crowded' : '')} ref={box}>
+      <div className="ca-hand__row" role="list" aria-label={label}>
         {stacks.map((stack, i) => {
           const c = stack[0];
           const eligible = stack.filter((card) => active.has(card.id)).map((card) => card.id);
           const on = eligible.length > 0;
           const count = stack.filter((card) => selected.includes(card.id)).length;
-          const picked = count > 0;
           const quantities = eligible
             .slice(0, 3)
             .map((_, j) => eligible.slice(0, j + 1))
@@ -162,98 +139,78 @@ function Hand({
             zIndex: i + 1,
             '--deal-delay': first ? i * 55 + 'ms' : '0ms',
           } as CSSProperties;
-          const cls =
-            'ca-hand__card' +
-            (on ? ' is-active' : '') +
-            (picked ? ' is-picked' : '') +
-            (interactive && !on ? ' is-dim' : '') +
-            (stack.some((card) => fresh.has(card.id)) ? ' is-dealt' : '');
+          const name = cardDisplayName(c.type);
+          const stackLabel = name + (layers ? ' ×' + stack.length : '');
+          const choices = on ? quantities : [[]];
+          const dealt = stack.some((card) => fresh.has(card.id));
           return (
             <div
               role="listitem"
               key={c.type}
-              className={'ca-hand__slot' + (keyboardStack === c.type ? ' is-keyboard-open' : '')}
+              className={'ca-hand__slot' + (expands ? ' ca-hand__slot--stack' : '')}
+              aria-label={expands ? t('Select copies of ') + stackLabel : undefined}
               style={style}
-              onPointerEnter={expands ? hide : undefined}
-              onFocus={(event) => {
-                if (expands && event.target.matches(':focus-visible')) setKeyboardStack(c.type);
-              }}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setKeyboardStack('');
-              }}
             >
-              <button
-                type="button"
-                className={cls + (expands ? ' has-choices' : '')}
-                aria-pressed={on ? picked : undefined}
-                aria-disabled={!on}
-                aria-label={`${cardDisplayName(c.type)}${layers ? ', ×' + stack.length : ''}${on ? '' : t(' (not playable now)')}`}
-                onClick={() => on && onPick(stack, picked ? [] : eligible.slice(0, 1))}
-                onPointerEnter={(e) => {
-                  if (!expands && e.pointerType === 'mouse') show(c.type, e.currentTarget);
-                }}
-                onFocus={(e) => (expands ? hide() : show(c.type, e.currentTarget))}
-                onBlur={hide}
-              >
-                {stack.slice(1, 3).map((copy, j) => (
-                  <span
-                    key={copy.id}
-                    className="ca-stack-layer"
-                    aria-hidden="true"
-                    style={{ '--layer': j + 1 } as CSSProperties}
-                  />
-                ))}
-                <PaperCard type={c.type} size="hand" />
-                {layers > 0 && (
-                  <span className="ca-stack-count" aria-hidden="true">
-                    ×{stack.length}
-                  </span>
-                )}
-                {picked && (
-                  <span className="ca-hand__tick">
-                    {count > 1 ? count : <Glyph name="check" size={12} />}
-                  </span>
-                )}
-              </button>
-              {expands && (
-                <div
-                  className="ca-stack-choices"
-                  role="group"
-                  aria-label={t('Select copies of ') + cardDisplayName(c.type)}
-                >
-                  {quantities.map((ids, j) => (
-                    <button
-                      key={ids.length}
-                      type="button"
-                      className="ca-stack-option"
-                      style={
-                        {
-                          '--offset': (j - (quantities.length - 1) / 2) * 40 + 'px',
-                          zIndex: 3 - j,
-                        } as CSSProperties
-                      }
-                      aria-label={cardDisplayName(c.type) + ' ×' + ids.length}
-                      aria-pressed={j < count}
-                      onClick={() => onPick(stack, ids.length === count ? [] : ids)}
-                    >
-                      <PaperCard type={c.type} size="hand" />
-                      <span className="ca-stack-quantity" aria-hidden="true">
-                        {ids.length}
-                        {j < count && ' ✓'}
+              {choices.map((ids, index) => {
+                const front = index === 0;
+                const picked = count > 0 && ids.length <= count;
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    className={
+                      'ca-hand__card' +
+                      (on ? ' is-active' : '') +
+                      (picked ? ' is-picked' : '') +
+                      (interactive && !on ? ' is-dim' : '') +
+                      (front && dealt ? ' is-dealt' : '')
+                    }
+                    style={
+                      expands
+                        ? ({
+                            '--stack-offset': index - (choices.length - 1) / 2,
+                            zIndex: choices.length - index,
+                          } as CSSProperties)
+                        : undefined
+                    }
+                    aria-pressed={on ? picked : undefined}
+                    aria-disabled={!on}
+                    aria-label={
+                      expands ? name + ' ×' + ids.length : stackLabel + (on ? '' : t(' (not playable now)'))
+                    }
+                    onClick={(event) => {
+                      if (!on) return;
+                      if (expands) event.currentTarget.focus({ preventScroll: true });
+                      onPick(stack, count === ids.length ? [] : ids);
+                    }}
+                  >
+                    {front &&
+                      stack.slice(1, 3).map((copy, j) => (
+                        <span
+                          key={copy.id}
+                          className="ca-stack-layer"
+                          aria-hidden="true"
+                          style={{ '--layer': j + 1 } as CSSProperties}
+                        />
+                      ))}
+                    <PaperCard type={c.type} size="hand" />
+                    {front && layers > 0 && (
+                      <span className="ca-stack-count" aria-hidden="true">
+                        ×{stack.length}
                       </span>
-                    </button>
-                  ))}
-                </div>
-              )}
+                    )}
+                    {picked && (
+                      <span className="ca-hand__tick" aria-hidden="true">
+                        <Glyph name="check" size={12} />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           );
         })}
       </div>
-      {zoom && !selected.length && (
-        <div className="ca-zoom" style={{ left: zoomLeft, width: zoomW }} aria-hidden="true">
-          <PaperCard type={zoom.type} size="lg" style={{ '--w': zoomW + 'px' } as CSSProperties} />
-        </div>
-      )}
     </div>
   );
 }
@@ -281,21 +238,28 @@ function Opponent({
   const takingTurn = game.activeId === player.id && game.status === 'playing';
   const active = takingTurn && !game.reaction && !game.pendingDecision;
   const deciding = game.pendingDecision?.playerId === player.id;
+  const awaitingResponse = game.reaction
+    ? game.reaction.actorId === player.id
+    : takingTurn && Boolean(game.pendingDecision);
   const backs = Math.min(player.handCount, 7);
   const status = !player.alive
     ? t('Melted down')
     : deciding
       ? t('Thinking…')
-      : takingTurn && (game.pendingDecision || game.reaction)
+      : awaitingResponse
         ? game.decisions.length &&
           room.seats.some((s) => s.id === room.viewerId && s.kind === 'human')
           ? t('Waiting for your response')
-          : t('Waiting for a response')
+          : game.reaction
+            ? t('Waiting for reactions')
+            : t('Waiting for a response')
         : active
           ? t('Taking a turn')
           : seat && !seat.connected
             ? t('Away')
-            : t('Waiting');
+            : seat?.connected
+              ? t('Connected')
+              : t('Waiting');
   const body = (
     <>
       <Portrait name={name} kind={seat?.kind ?? 'agent'} personaId={seat?.personaId} size={44} />
@@ -325,7 +289,8 @@ function Opponent({
   );
   const cls =
     'ca-opp' +
-    (active ? ' is-active' : '') +
+    (active || deciding ? ' is-active' : '') +
+    (awaitingResponse && !deciding ? ' is-awaiting' : '') +
     (!player.alive ? ' is-out' : '') +
     (targetable ? ' is-targetable' : '') +
     (targeted ? ' is-targeted' : '');
@@ -715,16 +680,28 @@ export function TableScreen({
   const opponents = game.players.filter((p) => p.id !== room.viewerId);
 
   const [selected, setSelected] = useState<string[]>([]);
+  const [planned, setPlanned] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [named, setNamed] = useState('');
   const [logOpen, setLogOpen] = useState(false);
   const [order, setOrder] = useState<string[]>([]);
   const [pos, setPos] = useState(0);
   const maxPos = decision?.options.maxPosition ?? game.deckCount;
+  const planning = table.player && !!me?.alive && !room.spectator && !finished && !decision;
+  const comboGroups = planning ? handComboGroups(game.hand) : (o.comboGroups ?? []);
+  const validPlan = comboGroups.some((group) => planned.every((id) => group.includes(id)))
+    ? planned
+    : [];
+  const handSelection = planning ? validPlan : selected;
 
   useEffect(() => {
     const fixes = decision?.kind === 'CHOOSE_FIX' ? (decision.options.cardIds ?? []) : [];
-    setSelected(fixes.length === 1 ? [fixes[0]] : []);
+    if (decision?.kind === 'TURN_ACTION') {
+      setSelected(validPlan);
+      setPlanned([]);
+    } else {
+      setSelected(fixes.length === 1 ? [fixes[0]] : []);
+    }
     setNamed('');
     setTarget(decision?.options.targets?.[0] ?? '');
     setOrder((decision?.options.cards ?? []).map((c) => c.id));
@@ -738,7 +715,7 @@ export function TableScreen({
   const selection = evaluateHandSelection(game, selected);
   const active = new Set<string>(
     !decision
-      ? []
+      ? comboGroups.flat()
       : decision.kind === 'TURN_ACTION'
         ? [...selection.playableIds]
         : decision.kind === 'REACT'
@@ -749,16 +726,17 @@ export function TableScreen({
   );
 
   function pick(stack: Card[], ids: string[]) {
-    if (decision?.kind !== 'TURN_ACTION') {
+    if (!planning && decision?.kind !== 'TURN_ACTION') {
       setSelected(ids);
       return;
     }
-    const others = selected.filter((id) => !stack.some((card) => card.id === id));
+    const others = handSelection.filter((id) => !stack.some((card) => card.id === id));
     const combined = [...others, ...ids];
     const fitsCombo =
       combined.length <= 3 &&
-      (o.comboGroups ?? []).some((group) => combined.every((id) => group.includes(id)));
-    setSelected(!ids.length || fitsCombo ? combined : ids);
+      comboGroups.some((group) => combined.every((id) => group.includes(id)));
+    const update = planning ? setPlanned : setSelected;
+    update(!ids.length || fitsCombo ? combined : ids);
   }
 
   const handLabel = (id: string) => cardDisplayName(game.hand.find((c) => c.id === id)?.type ?? id);
@@ -1153,13 +1131,13 @@ export function TableScreen({
                 </label>
               )}
             </div>
-            {(actions || selected.length > 0) && (
+            {(actions || handSelection.length > 0) && (
               <div className="ca-dock__actions">
-                {selected.length > 0 && (
+                {handSelection.length > 0 && (
                   <button
                     type="button"
                     className="ca-btn ca-btn--ghost"
-                    onClick={() => setSelected([])}
+                    onClick={() => planning ? setPlanned([]) : setSelected([])}
                   >
                     {t('Clear')}
                   </button>
@@ -1171,6 +1149,9 @@ export function TableScreen({
         )}
 
         <div className="ca-hand-zone">
+          {planning && comboGroups.length > 0 && (
+            <span className="ca-hand-zone__head">{t('Choose cards for a combo. Play it on your turn.')}</span>
+          )}
           <Hand
             label={
               (table.player ? t('Your hand') : t('Your agent’s hand')) +
@@ -1180,9 +1161,9 @@ export function TableScreen({
             }
             cards={game.hand}
             active={active}
-            selected={selected}
+            selected={handSelection}
             onPick={pick}
-            comboGroups={o.comboGroups ?? []}
+            comboGroups={comboGroups}
             interactive={!!decision && active.size > 0}
           />
         </div>

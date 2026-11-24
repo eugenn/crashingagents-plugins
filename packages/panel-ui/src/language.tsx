@@ -47,9 +47,12 @@ function preferredLanguage(initial?: string): Language {
   } catch {
     /* Storage can be unavailable in an embedded panel. */
   }
-  const browser = typeof navigator !== 'undefined'
-    ? (navigator.languages?.length ? navigator.languages : [navigator.language])
-    : [];
+  const browser =
+    typeof navigator !== 'undefined'
+      ? navigator.languages?.length
+        ? navigator.languages
+        : [navigator.language]
+      : [];
   return browser.map((value) => value?.toLowerCase().split('-')[0]).find(isLanguage) ?? 'en';
 }
 
@@ -57,9 +60,11 @@ export function LanguagePanel({
   children,
   initialLanguage,
   theme,
+  showSelector = true,
 }: {
   children: ReactNode;
   initialLanguage?: string;
+  showSelector?: boolean;
   theme?: 'light' | 'dark';
 }) {
   const [language, setLanguage] = useState<Language>(() => preferredLanguage(initialLanguage));
@@ -75,7 +80,6 @@ export function LanguagePanel({
       window.removeEventListener(STORAGE_KEY, local);
     };
   }, []);
-  const t = translators.get(language)!;
   return (
     <languageContext.Provider value={language}>
       <div
@@ -84,33 +88,40 @@ export function LanguagePanel({
         data-theme={theme}
         className="ca-language-panel"
       >
-        <label className="ca-language">
-          {t('Language')}
-          <select
-            className="ca-input"
-            aria-label={t('Language')}
-            value={language}
-            onChange={(event) => {
-              const next = event.target.value;
-              if (!isLanguage(next)) return;
-              setLanguage(next);
-              try {
-                localStorage.setItem(STORAGE_KEY, next);
-              } catch {
-                /* Keep the in-session selection. */
-              }
-              window.dispatchEvent(new CustomEvent(STORAGE_KEY, { detail: next }));
-            }}
-          >
-            {languages.map((id) => (
-              <option key={id} value={id} lang={site[id].intlLocale}>
-                {site[id].label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {showSelector && <LanguageSelect />}
         {children}
       </div>
     </languageContext.Provider>
+  );
+}
+
+export function LanguageSelect() {
+  const language = useLanguage();
+  const t = useText();
+  return (
+    <label className="ca-language">
+      {t('Language')}
+      <select
+        className="ca-input"
+        aria-label={t('Language')}
+        value={language}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (!isLanguage(next)) return;
+          try {
+            localStorage.setItem(STORAGE_KEY, next);
+          } catch {
+            /* Keep the in-session selection. */
+          }
+          window.dispatchEvent(new CustomEvent(STORAGE_KEY, { detail: next }));
+        }}
+      >
+        {languages.map((id) => (
+          <option key={id} value={id} lang={site[id].intlLocale}>
+            {site[id].label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
