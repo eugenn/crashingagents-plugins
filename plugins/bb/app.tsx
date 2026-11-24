@@ -7,10 +7,10 @@ import {
   experimental_useSidebarThreads,
   experimental_Icon as Icon,
 } from '@get-bb/plugin-sdk/app';
-import type { PanelBridge, PanelCommand } from '@crashing/plugin-core';
-import { CrashingPanel, LanguageSelect, LanguagePanel, useText } from '@crashing/panel-ui';
-import thumbnails from '@crashing/panel-ui/opening-thumbnails';
-import '@crashing/panel-ui/styles.css';
+import type { PanelBridge, PanelCommand } from './vendor/plugin-core/index';
+import { CrashingPanel, LanguageSelect, LanguagePanel, useText } from './vendor/panel-ui/index';
+import thumbnails from './vendor/panel-ui/opening-thumbnails';
+import './vendor/panel-ui/panel.css';
 import type { contract } from './server';
 import { connectedInviteInput } from './agents';
 

@@ -9,7 +9,7 @@ import {
   type Binding,
   type HostStorage,
   type RoomView,
-} from '@crashing/plugin-core';
+} from './vendor/plugin-core/index';
 import { z } from 'zod';
 import {
   bindInvitedSeat,

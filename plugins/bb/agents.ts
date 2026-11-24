@@ -5,7 +5,7 @@ import {
   type AgentInvitation,
   type ConnectedAgent,
   type HostStorage,
-} from '@crashing/plugin-core';
+} from './vendor/plugin-core/index';
 
 export function connectedInviteInput(
   threadId: string,

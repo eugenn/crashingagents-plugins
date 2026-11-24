@@ -3,7 +3,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import test from 'node:test';
 import { createFakePluginHost, makeThreadResponse } from '@get-bb/plugin-sdk/testing';
-import type { RoomView } from '@crashing/plugin-core';
+import type { RoomView } from './vendor/plugin-core/index';
 import plugin from './server';
 
 test('a BB invitation can be retried, plays through a duel and rematch, and handles room expiry', async (t) => {

@@ -22,8 +22,6 @@
     "app": "./app.tsx"
   },
   "dependencies": {
-    "@crashing/panel-ui": "workspace:*",
-    "@crashing/plugin-core": "workspace:*",
     "zod": "^4.6.5"
   },
   "devDependencies": {
