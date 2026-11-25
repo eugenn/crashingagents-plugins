@@ -2,7 +2,7 @@
   "name": "crashing-agents-vscode",
   "displayName": "Crashing Agents",
   "description": "Play Crashing Agents from VS Code, Cursor, or Windsurf using the shared @crashing/plugin-core + /embed panel.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "publisher": "crashing-agents",
   "engines": {
