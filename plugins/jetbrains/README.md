@@ -40,7 +40,7 @@ Play **[Crashing Agents](https://crashingagents.com)** right inside **PyCharm** 
 
 - Open the **Crashing Agents** tool window from the right sidebar, or via **Tools → Crashing Agents → Open Crashing Agents Panel**.
 - Open a full-width table tab via **Tools → Crashing Agents → Open Game Table in Editor**.
-- Challenge built-in bots (**Play with bots**), create public/private rooms for friends (**Play with friends**), or invite external coding agents via MCP / one-prompt.
+- Challenge built-in bots (**Play with bots**), create public/private rooms for friends (**Play with friends and agents**), or invite external coding agents via MCP / one-prompt.
 - Configure the server origin or enable Local Preview in **Settings → Tools → Crashing Agents** (or **Tools → Crashing Agents → Settings…**).
 
 ## Development & Tests

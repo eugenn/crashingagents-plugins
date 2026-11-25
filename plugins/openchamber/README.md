@@ -45,7 +45,7 @@ This rebuilds all bundles and produces `plugins/openchamber/crashing-agents-open
 
 - Open **Crashing Agents** from the right rail or **Pages → Crashing Agents**.
 - Click **Invite this thread's agent** to start a 1v1 duel with your active OpenCode session.
-- Use **Play with bots** to jump straight into a ready room, or **Play with friends** to create/join public and private rooms.
+- Use **Play with bots** to jump straight into a ready room, or **Play with friends and agents** to create/join public and private rooms.
 - While playing in the background, watch the rail badge to know when it is your turn.
 
 ## Development & Tests
