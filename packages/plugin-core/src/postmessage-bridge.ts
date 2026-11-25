@@ -52,7 +52,7 @@ export function isBridgeMessage(value: unknown): value is BridgeMessage {
 
 /**
  * WebView / iframe client side of the postMessage PanelBridge.
- * Works identically inside VS Code Webviews, JetBrains JCEF, Electron iframes, and MCP Apps.
+ * Works identically inside VS Code Webviews, Electron iframes, and MCP Apps.
  */
 export function createPostMessageClientBridge(
   endpoint: MessageEndpoint,

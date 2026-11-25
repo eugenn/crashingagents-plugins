@@ -1,7 +1,0 @@
-.gradle/
-.intellijPlatform/
-.kotlin/
-build/
-out/
-node_modules/
-*.iml

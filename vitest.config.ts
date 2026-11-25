@@ -6,7 +6,7 @@ export default defineConfig({
       'packages/**/*.test.ts',
       'plugins/vscode/**/*.test.ts',
       'plugins/openchamber/**/*.test.ts',
-      'plugins/jetbrains/**/*.test.ts',
+      'plugins/orca/**/*.test.ts',
     ],
     testTimeout: 30000,
   },

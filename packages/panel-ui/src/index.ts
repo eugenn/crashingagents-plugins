@@ -1,4 +1,4 @@
-export { AgentPicker } from './AgentPicker';
+export { AgentOptions, AgentPicker, LocalAgentSelect, useAgentCatalog } from './AgentPicker';
 export { CrashingPanel, type CrashingPanelProps } from './CrashingPanel';
 export {
   LanguageSelect,

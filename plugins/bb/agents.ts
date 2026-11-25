@@ -1,6 +1,8 @@
 import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import {
   buildInviteMessage,
+  modelSuitability as suitability,
+  rankModels,
   invitedSeatToken,
   type AgentInvitation,
   type ConnectedAgent,
@@ -14,26 +16,7 @@ export function connectedInviteInput(
   return { threadId, providerId, model, roomCode, requestId, ...(name ? { name } : {}) };
 }
 
-type Model = { model: string; displayName: string; description?: string };
-
-// The provider catalog supplies descriptions, but no comparable prices or latency measurements.
-function suitability(model: Model) {
-  const family = (model.model + ' ' + model.displayName).toLowerCase();
-  const description = (model.description ?? '').toLowerCase();
-  const lightweight = /\b(nano|mini|haiku|flash|lite|luna)\b/.test(family);
-  const economical =
-    lightweight || /\b(affordable|cheaper|cheap|inexpensive|low.cost|budget)\b/.test(description);
-  const fast = lightweight || /\b(fastest|fast|quick|low.latency)\b/.test(description);
-  if (economical && fast) return 0;
-  if (economical) return 1;
-  if (fast) return 2;
-  return 3;
-}
-
-export function rankModels<T extends Model>(models: T[]) {
-  // Keep provider order within a tier. Providers typically list current models first.
-  return [...models].sort((a, b) => suitability(a) - suitability(b));
-}
+export { rankModels };
 
 type Thread = Awaited<ReturnType<BbPluginApi['sdk']['threads']['get']>>;
 type Provider = Awaited<ReturnType<BbPluginApi['sdk']['providers']['list']>>[number];

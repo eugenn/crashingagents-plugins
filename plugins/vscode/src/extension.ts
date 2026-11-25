@@ -1,118 +1,171 @@
 import {
-  BRIDGE_CHANNEL,
   DEFAULT_ORIGIN,
   PREVIEW_ORIGIN,
-  attachPostMessageHostBridge,
-  createPluginController,
+  serveMessageRpc,
   type Binding,
+  type CrashingClientOptions,
   type HostStorage,
-  type MessageEndpoint,
 } from '@crashing/plugin-core';
-import type { ExtensionContext, VsCodeApi, Webview, WebviewView } from './vscode-api';
+import {
+  createTerminalHost,
+  installAgentCli,
+  type KeyValueStore,
+  type TerminalAgentCatalog,
+  type TerminalAdapter,
+} from '@crashing/terminal-host';
+import { createVsCodeTerminals } from './terminals';
+import type { ExtensionContext, Memento, VsCodeApi, Webview, WebviewView } from './vscode-api';
 
 const VIEW_ID = 'crashingAgents.table';
 const SCOPE_ID = 'vscode-workspace';
 
-function createWorkspaceStorage(context: ExtensionContext, prefix: string): HostStorage {
+function createWorkspaceStorage(state: Memento, prefix: string): HostStorage {
   const keyFor = (scopeId: string) => `crashingAgents.binding.${prefix}.${scopeId}`;
   return {
-    get: (scopeId) => context.workspaceState.get<Binding>(keyFor(scopeId)) ?? null,
+    get: (scopeId) => state.get<Binding>(keyFor(scopeId)) ?? null,
     set: async (scopeId, binding) => {
-      await context.workspaceState.update(keyFor(scopeId), binding);
+      await state.update(keyFor(scopeId), binding);
     },
     delete: async (scopeId, expected) => {
       const key = keyFor(scopeId);
-      if (expected) {
-        const current = context.workspaceState.get<Binding>(key);
-        if (JSON.stringify(current) !== JSON.stringify(expected)) return;
-      }
-      await context.workspaceState.update(key, undefined);
+      if (expected && JSON.stringify(state.get<Binding>(key)) !== JSON.stringify(expected)) return;
+      await state.update(key, undefined);
     },
   };
 }
 
-function buildShellHtml(origin: string, theme: 'light' | 'dark'): string {
-  const embedUrl = `${origin}/embed?bridge=postMessage&compact=1&theme=${theme}`;
-  const safeOrigin = new URL(origin).origin;
+function createWorkspaceKv(state: Memento, prefix: string): KeyValueStore {
+  const keyFor = (key: string) => `crashingAgents.kv.${prefix}.${key}`;
+  return {
+    get: (key) => state.get(keyFor(key)),
+    set: async (key, value) => {
+      await state.update(keyFor(key), value);
+    },
+    delete: async (key) => {
+      await state.update(keyFor(key), undefined);
+    },
+  };
+}
+
+function nonce() {
+  let text = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 32; i++) text += chars.charAt(Math.floor(Math.random() * chars.length));
+  return text;
+}
+
+export function buildPanelHtml(
+  webview: Webview,
+  assets: { script: string; style: string },
+  options: { origin: string; theme: 'light' | 'dark'; canOpenAgentChat: boolean },
+): string {
+  const n = nonce();
+  const csp = [
+    "default-src 'none'",
+    `img-src ${webview.cspSource} ${new URL(options.origin).origin} data:`,
+    `style-src ${webview.cspSource} 'unsafe-inline'`,
+    `script-src 'nonce-${n}'`,
+    `font-src ${webview.cspSource}`,
+  ].join('; ');
+  const boot = JSON.stringify({ theme: options.theme, canOpenAgentChat: options.canOpenAgentChat });
   return `<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="${options.theme}">
 <head>
 <meta charset="utf-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${safeOrigin}; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
-<style>
-  html, body, iframe { margin: 0; padding: 0; width: 100%; height: 100%; border: 0; overflow: hidden; background: transparent; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="${csp}" />
+<link rel="stylesheet" href="${assets.style}" />
 </head>
 <body>
-<iframe id="panel" src="${embedUrl}" allow="clipboard-write"></iframe>
-<script>
-  const vscode = acquireVsCodeApi();
-  const frame = document.getElementById('panel');
-  const expectedOrigin = ${JSON.stringify(safeOrigin)};
-  window.addEventListener('message', (event) => {
-    const data = event.data;
-    if (!data || data.channel !== ${JSON.stringify(BRIDGE_CHANNEL)}) return;
-    if (event.source === frame.contentWindow && event.origin === expectedOrigin) {
-      vscode.postMessage(data);
-    } else if (frame.contentWindow) {
-      frame.contentWindow.postMessage(data, expectedOrigin);
-    }
-  });
-</script>
+<div id="root"></div>
+<script nonce="${n}">window.__CRASHING_AGENTS__ = ${boot};</script>
+<script nonce="${n}" src="${assets.script}"></script>
 </body>
 </html>`;
 }
 
-function webviewEndpoint(webview: Webview): MessageEndpoint {
+function webviewEndpoint(webview: Webview) {
   return {
-    postMessage: (message) => {
+    postMessage: (message: unknown) => {
       void webview.postMessage(message);
     },
-    onMessage: (listener) => {
+    onMessage: (listener: (message: unknown) => void) => {
       const sub = webview.onDidReceiveMessage(listener);
       return () => sub.dispose();
     },
   };
 }
 
-/**
- * Core activation function, parameterized over `vscode` so it can be unit-tested in Node.
- */
+export interface ActivateDeps {
+  clientOptions?: CrashingClientOptions;
+  terminals?: TerminalAdapter;
+  catalog?: TerminalAgentCatalog;
+  cliCommand?: string;
+}
+
+/** Core activation, parameterized over `vscode` so it can be unit-tested in Node. */
 export function activateWithApi(
   context: ExtensionContext,
   vscode: VsCodeApi,
-  fetchImpl?: typeof globalThis.fetch,
+  deps: ActivateDeps = {},
 ) {
   const cfg = vscode.workspace.getConfiguration('crashingAgents');
   const localPreview = cfg.get<boolean>('localPreview', false);
   const origin = localPreview ? PREVIEW_ORIGIN : cfg.get<string>('origin', DEFAULT_ORIGIN);
-  const storage = createWorkspaceStorage(context, localPreview ? 'local' : 'remote');
+  const prefix = localPreview ? 'local' : 'remote';
 
-  const controller = createPluginController({
+  let cli: Promise<string> | undefined;
+  const cliCommand = () =>
+    (cli ??= deps.cliCommand
+      ? Promise.resolve(deps.cliCommand)
+      : installAgentCli({
+          source: vscode.Uri.joinPath(context.extensionUri, 'dist', 'crashing-agents.mjs').fsPath,
+          origin,
+        }).then((installed) => installed.command));
+
+  const terminals = deps.terminals ?? createVsCodeTerminals(vscode, cliCommand);
+  const host = createTerminalHost({
     origin,
-    storage,
-    agentTransport: 'mcp',
-    clientOptions: fetchImpl ? { fetch: fetchImpl } : undefined,
+    storage: createWorkspaceStorage(context.workspaceState, prefix),
+    kv: createWorkspaceKv(context.workspaceState, prefix),
+    terminals,
+    cliCommand,
+    scope: () => SCOPE_ID,
+    catalog: deps.catalog,
+    clientOptions: deps.clientOptions,
   });
+  async function handle(method: string, params: unknown) {
+    switch (method) {
+      case 'copy':
+        await vscode.env.clipboard.writeText(String((params as { text?: unknown })?.text ?? ''));
+        return true;
+      case 'openUrl': {
+        const url = String((params as { url?: unknown })?.url ?? '');
+        if (/^https?:\/\//.test(url)) await vscode.env.openExternal(vscode.Uri.parse(url));
+        return null;
+      }
+      default:
+        return host.handle(method, params);
+    }
+  }
 
   const provider = {
     resolveWebviewView(view: WebviewView) {
       // VS Code ColorThemeKind: 1 = Light, 4 = HighContrastLight
       const kind = vscode.window.activeColorTheme.kind;
       const theme: 'light' | 'dark' = kind === 1 || kind === 4 ? 'light' : 'dark';
-      view.webview.options = { enableScripts: true };
-      view.webview.html = buildShellHtml(origin, theme);
-
-      const bridge = attachPostMessageHostBridge(controller, SCOPE_ID, webviewEndpoint(view.webview), {
-        copyToClipboard: async (text) => {
-          await vscode.env.clipboard.writeText(text);
-          return true;
+      const dist = vscode.Uri.joinPath(context.extensionUri, 'dist');
+      view.webview.options = { enableScripts: true, localResourceRoots: [dist] };
+      view.webview.html = buildPanelHtml(
+        view.webview,
+        {
+          script: view.webview.asWebviewUri(vscode.Uri.joinPath(dist, 'panel.js')).toString(),
+          style: view.webview.asWebviewUri(vscode.Uri.joinPath(dist, 'panel.css')).toString(),
         },
-        openExternalUrl: async (url) => {
-          await vscode.env.openExternal(vscode.Uri.parse(url));
-        },
-      });
-      view.onDidDispose(() => bridge.dispose());
+        { origin, theme, canOpenAgentChat: !!terminals.focus },
+      );
+      const stop = serveMessageRpc(webviewEndpoint(view.webview), handle);
+      view.onDidDispose(stop);
     },
   };
 
@@ -125,11 +178,13 @@ export function activateWithApi(
     ),
   );
 
-  return { controller };
+  return { host, handle };
 }
 
-export async function activate(context: ExtensionContext) {
-  const vscode = (await import('vscode' as string)) as VsCodeApi;
+export function activate(context: ExtensionContext) {
+  // The extension host provides `vscode` to require() only.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const vscode = require('vscode') as VsCodeApi;
   activateWithApi(context, vscode);
 }
 

@@ -1,0 +1,25 @@
+/* Orca host: map Orca's theme variables onto the shared panel tokens. */
+:root {
+  --background: var(--orca-background);
+  --foreground: var(--orca-foreground);
+  --muted-foreground: var(--orca-muted-foreground);
+  --border: var(--orca-border);
+  --surface-raised-solid: var(--orca-card);
+  --surface-recessed-solid: var(--orca-muted);
+  --state-hover: var(--orca-accent);
+  --primary: var(--orca-primary);
+  --primary-foreground: var(--orca-primary-foreground);
+  --destructive-text: var(--orca-destructive);
+  --radius: var(--orca-radius);
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--orca-background, transparent);
+  color: var(--orca-foreground, inherit);
+  font-family: var(--orca-font-sans, system-ui, sans-serif);
+}

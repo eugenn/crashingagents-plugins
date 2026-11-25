@@ -1,176 +1,152 @@
-import http from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { expect, it } from 'vitest';
-import {
-  createPostMessageClientBridge,
-  type MessageEndpoint,
-} from '@crashing/plugin-core';
+import { createMessageRpcClient } from '@crashing/plugin-core';
+import { createTerminalAgentCatalog } from '@crashing/terminal-host';
 import { activateWithApi } from './extension';
-import type { ExtensionContext, VsCodeApi, WebviewViewProvider } from './vscode-api';
+import { createVsCodeTerminals } from './terminals';
+import type { ExtensionContext, Terminal, Uri, VsCodeApi, WebviewViewProvider } from './vscode-api';
 
-async function startMockServer() {
-  const server = http.createServer(async (req, res) => {
-    const chunks: Buffer[] = [];
-    for await (const chunk of req) chunks.push(chunk as Buffer);
-    const body = chunks.length ? (JSON.parse(Buffer.concat(chunks).toString('utf8')) as Record<string, any>) : {};
-    const url = req.url ?? '/';
-    const json = (status: number, payload: unknown) => {
-      res.writeHead(status, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(payload));
-    };
+const SEAT = 'S'.repeat(43);
+const CLI = 'node /home/me/.crashing-agents/crashing-agents.mjs';
 
-    if ((url === '/api/client/rooms' || url === '/api/bb/rooms') && req.method === 'POST') {
-      return json(201, {
-        code: 'VSC001',
-        playerToken: 'ptok_vscode_12345',
-        inviteCode: 'VSC001AB',
-      });
+const uri = (path: string): Uri => ({ fsPath: path, toString: () => 'vscode-resource:' + path });
+
+function fakeFetch() {
+  return (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = new URL(String(input)).pathname;
+    const body = init?.body ? JSON.parse(String(init.body)) : {};
+    const json = (payload: unknown) => new Response(JSON.stringify(payload));
+    if (path === '/api/client/rooms') return json({ code: 'VSC001', playerToken: 'p'.repeat(43) });
+    if (body.op === 'add_agent') return json({ agentToken: SEAT });
+    if (body.op === 'state') {
+      return json({ code: 'VSC001', phase: 'lobby', hostId: 'p1', viewerId: 'p1', seats: [] });
     }
-    if ((url === '/api/client/rooms/VSC001' || url === '/api/bb/rooms/VSC001') && req.method === 'POST') {
-      if (body.op === 'state') {
-        return json(200, {
-          code: 'VSC001',
-          version: 1,
-          visibility: 'private',
-          nextDeckProfile: 'duel',
-          hostId: 'p1',
-          viewerId: 'p1',
-          spectator: false,
-          phase: 'lobby',
-          settings: {
-            reactionSeconds: null,
-            humanSeconds: 30,
-            agentSeconds: 30,
-            agentsHostOnly: false,
-            spectators: true,
-          },
-          seats: [{ id: 'p1', name: 'Player', kind: 'human', connected: true }],
-          chat: [],
-        });
-      }
-    }
-    return json(404, { error: `Unhandled ${req.method} ${url}` });
-  });
-
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-  const origin = 'http://127.0.0.1:' + (server.address() as AddressInfo).port;
-  return {
-    origin,
-    close: () => new Promise<void>((resolve) => server.close(() => resolve())),
-  };
+    return json({});
+  }) as typeof globalThis.fetch;
 }
 
-it('bridges a VS Code WebviewView to /api/client/* via @crashing/plugin-core without duplicating UI or rules', async () => {
-  const { origin, close } = await startMockServer();
-
-  try {
-    const state = new Map<string, unknown>();
-    const copied: string[] = [];
-    const opened: string[] = [];
-    let registeredProvider: WebviewViewProvider | undefined;
-
-    const hostListeners = new Set<(msg: unknown) => void>();
-    const clientListeners = new Set<(msg: unknown) => void>();
-
-    const context: ExtensionContext = {
-      workspaceState: {
-        get: <T,>(k: string) => state.get(k) as T | undefined,
-        update: async (k: string, v: unknown) => {
-          if (v === undefined) state.delete(k);
-          else state.set(k, v);
-        },
+function fakeVsCode() {
+  const state = new Map<string, unknown>();
+  const terminals: (Terminal & { sent: string[] })[] = [];
+  const opened: string[] = [];
+  let provider: WebviewViewProvider | undefined;
+  const context: ExtensionContext = {
+    workspaceState: {
+      get: <T>(k: string) => state.get(k) as T | undefined,
+      update: async (k, v) => {
+        if (v === undefined) state.delete(k);
+        else state.set(k, v);
       },
-      subscriptions: [],
-    };
-
-    const vscode: VsCodeApi = {
-      window: {
-        activeColorTheme: { kind: 2 },
-        registerWebviewViewProvider(_id, provider) {
-          registeredProvider = provider;
-          return { dispose() {} };
-        },
-      },
-      workspace: {
-        getConfiguration: () => ({
-          get: <T,>(key: string, fallback: T) =>
-            (key === 'origin' ? origin : fallback) as T,
-        }),
-      },
-      commands: {
-        registerCommand: () => ({ dispose() {} }),
-        executeCommand: async () => undefined,
-      },
-      env: {
-        clipboard: {
-          writeText: async (text) => {
-            copied.push(text);
+    },
+    subscriptions: [],
+    extensionUri: uri('/ext'),
+    extensionPath: '/ext',
+  };
+  const vscode: VsCodeApi = {
+    window: {
+      activeColorTheme: { kind: 1 },
+      terminals,
+      createTerminal: ({ name }) => {
+        const terminal = {
+          name,
+          exitStatus: undefined,
+          sent: [] as string[],
+          sendText(text: string) {
+            terminal.sent.push(text);
           },
-        },
-        openExternal: async (target) => {
-          opened.push(String(target));
-          return true;
-        },
+          show() {},
+        };
+        terminals.push(terminal);
+        return terminal;
       },
-      Uri: { parse: (v) => v },
-    };
-
-    activateWithApi(context, vscode);
-    expect(registeredProvider).toBeDefined();
-
-    let renderedHtml = '';
-    registeredProvider!.resolveWebviewView({
-      webview: {
-        options: {},
-        get html() {
-          return renderedHtml;
-        },
-        set html(v: string) {
-          renderedHtml = v;
-        },
-        postMessage: async (msg) => {
-          for (const listener of clientListeners) listener(msg);
-          return true;
-        },
-        onDidReceiveMessage(listener) {
-          hostListeners.add(listener);
-          return { dispose: () => hostListeners.delete(listener) };
-        },
+      registerWebviewViewProvider: (_id, p) => {
+        provider = p;
+        return { dispose() {} };
       },
-      onDidDispose: () => ({ dispose() {} }),
-    });
-
-    expect(renderedHtml).toContain(`${origin}/embed?bridge=postMessage&compact=1&theme=dark`);
-
-    const clientEndpoint: MessageEndpoint = {
-      postMessage: (msg) => {
-        for (const listener of hostListeners) listener(msg);
+    },
+    workspace: { getConfiguration: () => ({ get: <T>(_k: string, fallback: T) => fallback }) },
+    commands: { registerCommand: () => ({ dispose() {} }), executeCommand: async () => undefined },
+    env: {
+      clipboard: { writeText: async () => {} },
+      openExternal: async (target) => {
+        opened.push(target.toString());
+        return true;
       },
-      onMessage: (listener) => {
-        clientListeners.add(listener);
-        return () => clientListeners.delete(listener);
-      },
-    };
-    const bridge = createPostMessageClientBridge(clientEndpoint);
+    },
+    Uri: {
+      parse: (value) => uri(value),
+      joinPath: (base, ...segments) => uri([base.fsPath, ...segments].join('/')),
+    },
+  };
+  return { context, vscode, terminals, opened, provider: () => provider! };
+}
 
-    const cfg = await bridge.getConfig();
-    expect(cfg.assetsOrigin).toBe(origin);
+it('serves the bundled panel and duels an agent CLI in a VS Code terminal', async () => {
+  const fake = fakeVsCode();
+  const catalog = createTerminalAgentCatalog({
+    find: async (bin) => (bin === 'claude' ? '/usr/bin/claude' : undefined),
+  });
+  activateWithApi(fake.context, fake.vscode, {
+    clientOptions: { fetch: fakeFetch() },
+    catalog,
+    cliCommand: CLI,
+    terminals: createVsCodeTerminals(
+      fake.vscode,
+      async () => CLI,
+      async () => {},
+    ),
+  });
 
-    expect(await bridge.getState()).toBeNull();
-    await bridge.dispatch({ type: 'create', visibility: 'private' });
-    const created = await bridge.getState();
-    expect(created?.room.phase).toBe('lobby');
-    expect(created?.owner).toBe(true);
+  // The webview side of the channel.
+  const toPanel = new Set<(m: unknown) => void>();
+  const toHost = new Set<(m: unknown) => void>();
+  const webview = {
+    options: {},
+    html: '',
+    cspSource: 'vscode-resource:',
+    asWebviewUri: (u: Uri) => u,
+    postMessage: async (m: unknown) => {
+      for (const fn of toPanel) fn(structuredClone(m));
+      return true;
+    },
+    onDidReceiveMessage: (fn: (m: unknown) => void) => {
+      toHost.add(fn);
+      return { dispose: () => toHost.delete(fn) };
+    },
+  };
+  await fake.provider().resolveWebviewView({ webview, onDidDispose: () => ({ dispose() {} }) });
+  expect(webview.html).toContain('vscode-resource:/ext/dist/panel.js');
+  expect(webview.html).toMatch(/script-src 'nonce-\w+'/);
+  expect(webview.html).toContain('data-theme="light"');
 
-    expect(await bridge.copyToClipboard?.('INVITE42')).toBe(true);
-    expect(copied).toEqual(['INVITE42']);
+  const rpc = createMessageRpcClient({
+    postMessage: (m) => {
+      for (const fn of toHost) fn(structuredClone(m));
+    },
+    onMessage: (fn) => {
+      toPanel.add(fn);
+      return () => toPanel.delete(fn);
+    },
+  });
 
-    bridge.openExternalUrl?.('https://crashingagents.com/s/test');
-    await new Promise((r) => setTimeout(r, 10));
-    expect(opened).toEqual(['https://crashingagents.com/s/test']);
+  const config = (await rpc.request('config')) as { capabilities: Record<string, unknown> };
+  expect(config.capabilities).toMatchObject({ canInviteLocalAgent: true, agentTransport: 'cli' });
 
-    bridge.dispose();
-  } finally {
-    await close();
-  }
+  await rpc.request('dispatch', { type: 'duel' });
+  expect(fake.terminals).toHaveLength(1);
+  const [line] = fake.terminals[0]!.sent;
+  expect(line).toMatch(
+    /^claude --allowedTools 'Bash\(node \/home\/me\/.crashing-agents\/crashing-agents.mjs:\*\)' 'Play Crashing Agents/,
+  );
+  expect(line).toContain(`--seat ${SEAT} join-room`);
+
+  // Wake goes to the same terminal: text first, then Enter.
+  await rpc.request('dispatch', { type: 'inviteAgent' });
+  expect(fake.terminals).toHaveLength(1);
+  expect(fake.terminals[0]!.sent.slice(1)).toEqual([expect.stringContaining(SEAT), '\r']);
+
+  await rpc.request('openUrl', { url: 'https://crashingagents.com/room/VSC001' });
+  await rpc.request('openUrl', { url: 'file:///etc/passwd' });
+  expect(fake.opened).toEqual(['vscode-resource:https://crashingagents.com/room/VSC001']);
+
+  await expect(rpc.request('nope')).rejects.toThrow(/Unknown panel request/);
 });

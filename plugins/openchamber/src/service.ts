@@ -5,11 +5,14 @@ import {
   DEFAULT_ORIGIN,
   PREVIEW_ORIGIN,
   createPluginController,
+  invitedSeatToken,
+  type AgentInvitation,
   type Binding,
   type HostStorage,
   type PanelCommand,
   type PluginController,
 } from '@crashing/plugin-core';
+import { createModelDirectory, type OpenCodeReader } from './models';
 import {
   buildOpenChamberInviteMessage,
   isAllowedGameOrigin,
@@ -74,11 +77,32 @@ class JsonFileStore<T extends Record<string, unknown>> {
   }
 }
 
+/** OpenChamber's session calls (`createServiceHost`), needing `contributes.sessionControl`. */
+export interface ServiceSessions {
+  start(input: {
+    prompt: string;
+    title?: string;
+    model?: string;
+    directory?: string;
+  }): Promise<{ sessionId: string }>;
+  send(sessionId: string, prompt: string): Promise<unknown>;
+}
+
 export interface CreateServiceHandlerOptions {
   dataDir: string;
   token: string;
   defaultOrigin?: string;
   fetchImpl?: typeof globalThis.fetch;
+  /** Starts sessions for connected agents. Absent: the panel offers no agent picker. */
+  sessions?: ServiceSessions;
+  /** Reads recent sessions for the models the player uses. */
+  opencode?: OpenCodeReader;
+}
+
+/** A session this service started for a connected agent, by session id. */
+interface ChildSeat {
+  token: string;
+  requestId: string;
 }
 
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
@@ -139,6 +163,12 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
     () => ({ localPreview: false }),
   );
 
+  const childrenStore = new JsonFileStore<Record<string, ChildSeat>>(
+    join(options.dataDir, 'agent-sessions.json'),
+    () => ({}),
+  );
+  const models = createModelDirectory(options.opencode);
+
   let currentLocalPreview = false;
   let settingsLoaded = false;
 
@@ -187,6 +217,15 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
       },
       agentHost: {
         async invite(scopeId) {
+          // A connected agent's own session: the rematch goes straight to it.
+          const child = (await childrenStore.read())[scopeId];
+          if (child && options.sessions) {
+            await options.sessions.send(
+              scopeId,
+              buildOpenChamberInviteMessage({ agentToken: child.token, origin, reason: 'rematch' }),
+            );
+            return;
+          }
           const binding = await storage.get(scopeId);
           if (!binding?.agentToken) {
             throw new Error('Room has no agent token to invite.');
@@ -211,6 +250,46 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
     });
     controllers.set(localPreview, controller);
     return controller;
+  }
+
+  async function inviteConnected(
+    controller: PluginController,
+    scopeId: string,
+    invite: AgentInvitation,
+    directory: string | undefined,
+  ) {
+    const sessions = options.sessions;
+    if (!sessions) throw new Error('Approve session control for Crashing Agents in Settings → Extensions.');
+    await controller.inviteConnectedAgent(scopeId, invite, {
+      async recover() {
+        const children = await childrenStore.read();
+        return Object.keys(children).find((id) => children[id]!.requestId === invite.requestId);
+      },
+      async prepare() {
+        // The panel offered this model; OpenChamber checks it again when the session starts.
+        const target = `${invite.providerId}/${invite.model}`;
+        const agent = (await models.list(target, false, true)).agents.find(
+          (item) => item.providerId === invite.providerId && item.model === invite.model,
+        );
+        if (!agent) throw new Error('This model is unavailable. Refresh the agent list.');
+        return {
+          name: (invite.name || agent.label).slice(0, 24),
+          async launch(prompt) {
+            const token = invitedSeatToken(prompt);
+            const { sessionId } = await sessions.start({
+              prompt: buildOpenChamberInviteMessage({ agentToken: token, origin: controller.origin }),
+              title: `${agent.label} · ${invite.roomCode}`,
+              model: `${agent.providerId}/${agent.model}`,
+              ...(directory ? { directory } : {}),
+            });
+            await childrenStore.update((all) => {
+              all[sessionId] = { token, requestId: invite.requestId };
+            });
+            return sessionId;
+          },
+        };
+      },
+    });
   }
 
   async function ensureSettings(): Promise<boolean> {
@@ -245,6 +324,7 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
           origin: controller.origin,
           assetsOrigin: controller.origin,
           localPreview,
+          connectedAgents: !!options.sessions,
         };
         sendJson(res, 200, payload);
         return;
@@ -319,6 +399,33 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
         pendingInvites.delete(scopeId);
         const payload: ServiceDispatchResponse = invite ? { ok: true, invite } : { ok: true };
         sendJson(res, 200, payload);
+        return;
+      }
+
+      if (method === 'POST' && url.pathname === '/agents') {
+        const body = await readJsonBody(req);
+        const current = typeof body.currentModel === 'string' ? body.currentModel : undefined;
+        sendJson(res, 200, await models.list(current, body.refresh === true));
+        return;
+      }
+
+      if (method === 'POST' && url.pathname === '/invite-connected') {
+        const body = await readJsonBody(req);
+        const scopeId = assertScopeId(body.scopeId);
+        const invite = body.invite as AgentInvitation | undefined;
+        if (
+          !invite ||
+          typeof invite.providerId !== 'string' ||
+          typeof invite.model !== 'string' ||
+          typeof invite.requestId !== 'string' ||
+          typeof invite.roomCode !== 'string'
+        ) {
+          sendJson(res, 400, { error: 'Invalid invitation.' });
+          return;
+        }
+        const directory = typeof body.directory === 'string' ? body.directory : undefined;
+        await inviteConnected(controller, scopeId, invite, directory);
+        sendJson(res, 200, { ok: true });
         return;
       }
 

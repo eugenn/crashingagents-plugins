@@ -2,11 +2,7 @@ node_modules/
 **/dist/
 *.vsix
 plugins/openchamber/*.zip
-plugins/jetbrains/.gradle/
-plugins/jetbrains/.intellijPlatform/
-plugins/jetbrains/.kotlin/
-plugins/jetbrains/build/
-plugins/jetbrains/out/
 *.iml
 .DS_Store
 .idea/
+plugins/orca/*.zip

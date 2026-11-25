@@ -246,6 +246,7 @@ describe('OpenChamber local service', () => {
         origin: DEFAULT_ORIGIN,
         assetsOrigin: DEFAULT_ORIGIN,
         localPreview: false,
+        connectedAgents: false,
       });
 
       const readyRes = await fetch(`${baseUrl}/ready-rooms`, { headers: authHeaders });
@@ -350,6 +351,116 @@ describe('OpenChamber local service', () => {
       expect(afterForget.table).toBeNull();
 
       expect(upstreamCalls.some((c) => c.url === `${DEFAULT_ORIGIN}/api/bb/rooms`)).toBe(true);
+    } finally {
+      await new Promise<void>((r) => server.close(() => r()));
+    }
+  });
+});
+
+describe('OpenChamber connected agents', () => {
+  const GUEST = 'G'.repeat(43);
+
+  it('lists recent session models and starts a session with the chosen one, then sends it the rematch', async () => {
+    const dataDir = await makeTempDir();
+    let phase = 'lobby';
+    const mockFetch: typeof globalThis.fetch = async (input, init) => {
+      const url = String(input instanceof Request ? input.url : input);
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
+      const json = (payload: unknown) => new Response(JSON.stringify(payload));
+      if (url.endsWith('/api/bb/rooms')) return json({ code: 'ROOM', playerToken: 'p'.repeat(43) });
+      if (body.op === 'invite_external_agent') {
+        return json({ seatId: 's2', prompt: `{"token":"${GUEST}"}` });
+      }
+      if (body.op === 'state') {
+        return json({
+          code: 'ROOM',
+          phase,
+          hostId: 'p1',
+          viewerId: 'p1',
+          visibility: 'private',
+          seats: [{ id: 's2', kind: 'agent', connected: true }],
+        });
+      }
+      if (body.op === 'rematch') return json({});
+      return json({});
+    };
+    const reads: string[] = [];
+    const opencode = async (path: string) => {
+      reads.push(path);
+      if (path === '/api/session') return [{ id: 'old', time: { updated: 2 } }];
+      return [
+        { info: { role: 'user' } },
+        { info: { role: 'assistant', providerID: 'anthropic', modelID: 'claude-sonnet-4' } },
+        { info: { role: 'assistant', providerID: 'openai', modelID: 'gpt-5-mini' } },
+      ];
+    };
+    const started: Array<Record<string, unknown>> = [];
+    const sent: Array<[string, string]> = [];
+    const handler = createServiceHandler({
+      dataDir,
+      token: 't',
+      fetchImpl: mockFetch,
+      opencode,
+      sessions: {
+        start: async (input) => {
+          started.push(input);
+          return { sessionId: 'child-1' };
+        },
+        send: async (id, prompt) => {
+          sent.push([id, prompt]);
+          return { sent: true };
+        },
+      },
+    });
+    const server = http.createServer((req, res) => void handler.handle(req, res));
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const post = async (path: string, payload: unknown) => {
+      const res = await fetch(base + path, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer t' },
+        body: JSON.stringify(payload),
+      });
+      return { status: res.status, body: (await res.json()) as any };
+    };
+    try {
+      const config = await (await fetch(base + '/config', { headers: { Authorization: 'Bearer t' } })).json();
+      expect(config.connectedAgents).toBe(true);
+
+      await post('/agents', { currentModel: 'zai/glm-4.6' });
+      await vi.waitFor(async () => {
+        const { body } = await post('/agents', { currentModel: 'zai/glm-4.6' });
+        expect(body.loading).toBe(false);
+        expect(body.agents.map((a: any) => `${a.providerId}/${a.model}`)).toEqual([
+          'openai/gpt-5-mini',
+          'zai/glm-4.6',
+          'anthropic/claude-sonnet-4',
+        ]);
+      });
+
+      await post('/dispatch', { scopeId: 'session:host', command: { type: 'create' } });
+      const invite = {
+        roomCode: 'ROOM',
+        requestId: crypto.randomUUID(),
+        providerId: 'openai',
+        model: 'gpt-5-mini',
+      };
+      expect((await post('/invite-connected', { scopeId: 'session:host', invite, directory: '/repo' })).status).toBe(200);
+      expect(started).toEqual([
+        expect.objectContaining({ model: 'openai/gpt-5-mini', title: 'gpt-5-mini · ROOM', directory: '/repo' }),
+      ]);
+      expect(started[0]!.prompt).toContain(GUEST);
+
+      // The same request never starts a second session.
+      await post('/invite-connected', { scopeId: 'session:host', invite });
+      expect(started).toHaveLength(1);
+
+      const { body: state } = await post('/state', { scopeId: 'session:host' });
+      expect(state.table.connectedInvites.s2).toMatchObject({ threadId: 'child-1' });
+
+      phase = 'finished';
+      await post('/dispatch', { scopeId: 'session:host', command: { type: 'start', rematch: true } });
+      expect(sent).toEqual([['child-1', expect.stringContaining('rematch')]]);
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }

@@ -1,6 +1,8 @@
 import http from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createServiceHost } from '@openchamber/sdk';
+import { createOpenCodeReader } from './models';
 import { createServiceHandler } from './service';
 
 const port = Number(process.env.OPENCHAMBER_SERVICE_PORT);
@@ -13,7 +15,16 @@ if (!Number.isInteger(port) || port <= 0 || !token) {
   process.exit(1);
 }
 
-const { handle } = createServiceHandler({ dataDir, token });
+const callback = process.env.OPENCHAMBER_HOST_CALLBACK_URL;
+const opencodeUrl = process.env.OPENCHAMBER_OPENCODE_URL;
+const sessions = callback ? createServiceHost({ env: process.env }).sessions : undefined;
+
+const { handle } = createServiceHandler({
+  dataDir,
+  token,
+  ...(sessions ? { sessions } : {}),
+  ...(opencodeUrl ? { opencode: createOpenCodeReader(opencodeUrl, token) } : {}),
+});
 
 const server = http.createServer((req, res) => {
   void handle(req, res);

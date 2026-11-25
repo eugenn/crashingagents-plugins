@@ -7,9 +7,8 @@ plugins/openchamber/panel/styles.css
 plugins/openchamber/service/main.js
 plugins/openchamber/opencode-plugin/index.js
 plugins/openchamber/*.zip
-plugins/jetbrains/build
-plugins/jetbrains/.gradle
-plugins/jetbrains/.intellijPlatform
-plugins/jetbrains/.kotlin
-plugins/jetbrains/src/main/resources/webview/main.js
-plugins/jetbrains/src/main/resources/webview/styles.css
+plugins/orca/panel/main.js
+plugins/orca/panel/styles.css
+plugins/orca/worker/main.mjs
+plugins/orca/bin/crashing-agents.mjs
+plugins/orca/*.zip
