@@ -27,7 +27,8 @@ import {
   scopeIdForContext,
   type OpenChamberBridgeHost,
 } from './panel-bridge';
-import { buildOpenChamberInviteMessage, isAllowedGameOrigin } from './protocol';
+import { readSeat, writeSeat } from '@crashing/terminal-host';
+import { buildOpenChamberInviteMessage, isAllowedGameOrigin, sessionSeatKey } from './protocol';
 import { createServiceHandler } from './service';
 
 const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -144,6 +145,12 @@ describe('protocol helpers', () => {
     });
     expect(rematchPreview).toContain('rematch is ready');
     expect(rematchPreview).toContain(`"origin": "${PREVIEW_ORIGIN}"`);
+
+    // A seat bound to the session: no credential and no origin in the text.
+    const bound = buildOpenChamberInviteMessage({ origin: PREVIEW_ORIGIN });
+    expect(bound).toContain('crashing_agents_join_room with {"model"');
+    expect(bound).not.toContain('token');
+    expect(bound).not.toContain(PREVIEW_ORIGIN);
   });
 });
 
@@ -396,8 +403,10 @@ describe('OpenChamber connected agents', () => {
     };
     const started: Array<Record<string, unknown>> = [];
     const sent: Array<[string, string]> = [];
+    const home = await makeTempDir();
     const handler = createServiceHandler({
       dataDir,
+      home,
       token: 't',
       fetchImpl: mockFetch,
       opencode,
@@ -449,7 +458,12 @@ describe('OpenChamber connected agents', () => {
       expect(started).toEqual([
         expect.objectContaining({ model: 'openai/gpt-5-mini', title: 'gpt-5-mini · ROOM', directory: '/repo' }),
       ]);
-      expect(started[0]!.prompt).toContain(GUEST);
+      // Like BB: the seat is bound to the session, never sent in the prompt.
+      expect(started[0]!.prompt).not.toContain(GUEST);
+      expect(await readSeat(sessionSeatKey('child-1'), home)).toEqual({
+        token: GUEST,
+        origin: DEFAULT_ORIGIN,
+      });
 
       // The same request never starts a second session.
       await post('/invite-connected', { scopeId: 'session:host', invite });
@@ -461,6 +475,129 @@ describe('OpenChamber connected agents', () => {
       phase = 'finished';
       await post('/dispatch', { scopeId: 'session:host', command: { type: 'start', rematch: true } });
       expect(sent).toEqual([['child-1', expect.stringContaining('rematch')]]);
+      expect(sent[0]![1]).not.toContain(GUEST);
+    } finally {
+      await new Promise<void>((r) => server.close(() => r()));
+    }
+  });
+});
+
+describe('OpenChamber my agent', () => {
+  const AGENT = 'A'.repeat(43);
+
+  it('binds the seat to the session, holds invitations while it is busy, and starts a new session for a chosen model', async () => {
+    const dataDir = await makeTempDir();
+    const home = await makeTempDir();
+    const mockFetch: typeof globalThis.fetch = async (input, init) => {
+      const url = String(input instanceof Request ? input.url : input);
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
+      const json = (payload: unknown) => new Response(JSON.stringify(payload));
+      if (url.endsWith('/api/bb/rooms')) return json({ code: 'ROOM', playerToken: 'p'.repeat(43) });
+      if (body.op === 'add_agent') return json({ agentToken: AGENT });
+      if (body.op === 'state') {
+        return json({
+          code: 'ROOM',
+          phase: 'lobby',
+          hostId: 'p1',
+          viewerId: 'p1',
+          visibility: 'private',
+          seats: [{ id: 'p1', kind: 'human', connected: true }],
+        });
+      }
+      return json({});
+    };
+    let status: 'idle' | 'busy' = 'busy';
+    const sent: Array<[string, string]> = [];
+    const started: Array<Record<string, unknown>> = [];
+    const handler = createServiceHandler({
+      dataDir,
+      home,
+      token: 't',
+      fetchImpl: mockFetch,
+      holdPollMs: 5,
+      opencode: async (path) =>
+        path === '/api/session'
+          ? [{ id: 'old' }]
+          : [{ info: { role: 'assistant', providerID: 'openai', modelID: 'gpt-5-mini' } }],
+      sessions: {
+        start: async (input) => {
+          started.push(input);
+          return { sessionId: 'new-1' };
+        },
+        send: async (id, prompt) => {
+          sent.push([id, prompt]);
+          return { sent: true };
+        },
+        status: async () => ({ status }),
+      },
+    });
+    const server = http.createServer((req, res) => void handler.handle(req, res));
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const post = async (path: string, payload: unknown) => {
+      const res = await fetch(base + path, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer t' },
+        body: JSON.stringify(payload),
+      });
+      return { status: res.status, body: (await res.json()) as any };
+    };
+    try {
+      // The panel's own session plays by default. It is busy, so the invitation waits.
+      const duel = await post('/dispatch', { scopeId: 'session:host', command: { type: 'duel' } });
+      expect(duel.body).toEqual({ ok: true });
+      expect(await readSeat(sessionSeatKey('host'), home)).toEqual({
+        token: AGENT,
+        origin: DEFAULT_ORIGIN,
+      });
+      await new Promise((r) => setTimeout(r, 30));
+      expect(sent).toEqual([]);
+      status = 'idle';
+      await vi.waitFor(() => expect(sent).toHaveLength(1));
+      expect(sent[0]![0]).toBe('host');
+      expect(sent[0]![1]).toContain('crashing_agents_join_room');
+      expect(sent[0]![1]).not.toContain(AGENT);
+      expect((await post('/state', { scopeId: 'session:host' })).body.agentSession).toBe('host');
+
+      // My agent: the panel's session by default, or a new session with a recent model.
+      await vi.waitFor(async () => {
+        const { body } = await post('/local-agent', { currentModel: 'zai/glm-4.6' });
+        expect(body).toEqual({
+          selected: null,
+          defaultLabel: 'zai/glm-4.6',
+          groups: [
+            {
+              label: 'Start a new agent',
+              options: expect.arrayContaining([
+                { value: 'model:openai/gpt-5-mini', label: 'gpt-5-mini · openai' },
+              ]),
+            },
+          ],
+        });
+      });
+      expect((await post('/local-agent', { value: 'gpt-5' })).status).toBe(400);
+      expect((await post('/local-agent', { value: 'model:openai/gpt-5-mini' })).status).toBe(200);
+
+      // A panel without a session follows its room into the session started for the agent.
+      const fresh = await post('/dispatch', {
+        scopeId: 'dir:/repo',
+        directory: '/repo',
+        command: { type: 'duel' },
+      });
+      expect(fresh.body).toEqual({ ok: true, session: 'new-1' });
+      expect(started).toEqual([
+        expect.objectContaining({ model: 'openai/gpt-5-mini', directory: '/repo' }),
+      ]);
+      expect(started[0]!.prompt).not.toContain(AGENT);
+      expect(await readSeat(sessionSeatKey('new-1'), home)).toMatchObject({ token: AGENT });
+      expect((await post('/state', { scopeId: 'dir:/repo' })).body.table).toBeNull();
+      const moved = (await post('/state', { scopeId: 'session:new-1' })).body;
+      expect(moved.table.room.code).toBe('ROOM');
+      expect(moved.agentSession).toBe('new-1');
+
+      // Forgetting the room unbinds the seat.
+      await post('/dispatch', { scopeId: 'session:new-1', command: { type: 'forget' } });
+      expect(await readSeat(sessionSeatKey('new-1'), home)).toBeUndefined();
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }
@@ -468,9 +605,12 @@ describe('OpenChamber connected agents', () => {
 });
 
 describe('OpenCode v2 plugin', () => {
-  async function loadTools(fetchImpl: typeof globalThis.fetch) {
+  async function loadTools(fetchImpl: typeof globalThis.fetch, home?: string) {
     const tools = new Map<string, OpenCodeToolDefinition>();
-    const plugin = createCrashingAgentsPlugin(fetchImpl);
+    const plugin = createCrashingAgentsPlugin(fetchImpl, {
+      home: home ?? (await makeTempDir()),
+      seatWaitMs: 0,
+    });
     await plugin.setup({
       tool: {
         transform(fn) {
@@ -514,7 +654,11 @@ describe('OpenCode v2 plugin', () => {
       { token: 'seat_tok_A', model: 'gpt-5', origin: PREVIEW_ORIGIN },
       { sessionID: 'sess-A' },
     );
-    expect(JSON.parse(joinRes.content)).toEqual({ ok: true, roomCode: 'WXYZ' });
+    expect(JSON.parse(joinRes.content)).toEqual({
+      ok: true,
+      roomCode: 'WXYZ',
+      instructions: expect.stringContaining('Play one game'),
+    });
     expect(requests[0].url).toBe(`${PREVIEW_ORIGIN}/mcp`);
     expect(requests[0].auth).toBe('Bearer seat_tok_A');
     expect(requests[0].body).toMatchObject({
@@ -538,7 +682,7 @@ describe('OpenCode v2 plugin', () => {
       { decision_id: 'd2', card_id: 'c2' },
       { sessionID: 'sess-B' },
     );
-    expect(JSON.parse(missingTok.content).error).toContain('Missing agent seat token');
+    expect(JSON.parse(missingTok.content).error).toContain('No game seat is bound');
 
     // Disallowed origin rejected before calling fetch.
     const badOrigin = await tools.get('crashing_agents_join_room')!.execute(
@@ -556,6 +700,52 @@ describe('OpenCode v2 plugin', () => {
     expect(requests).toHaveLength(3);
     expect(requests[2].auth).toBeNull();
     expect(requests[2].url).toBe(`${DEFAULT_ORIGIN}/mcp`);
+  });
+
+  it('plays the seat the panel bound to the session, one game per invitation', async () => {
+    const home = await makeTempDir();
+    const SEAT_TOKEN = 'S'.repeat(43);
+    await writeSeat(sessionSeatKey('sess-bound'), { token: SEAT_TOKEN, origin: PREVIEW_ORIGIN }, home);
+    const requests: Array<{ url: string; auth: string | null; body: any }> = [];
+    let reply: Record<string, unknown> = { roomCode: 'WXYZ', state: { phase: 'lobby' } };
+    const mockFetch: typeof globalThis.fetch = async (input, init) => {
+      requests.push({
+        url: String(input),
+        auth: new Headers(init?.headers).get('Authorization'),
+        body: JSON.parse(String(init?.body)),
+      });
+      return new Response(
+        JSON.stringify({ result: { content: [{ type: 'text', text: JSON.stringify(reply) }] } }),
+      );
+    };
+    const tools = await loadTools(mockFetch, home);
+    expect(
+      (tools.get('crashing_agents_wait_for_turn')!.input as any).properties.wait_for_rematch,
+    ).toBeUndefined();
+    expect((tools.get('crashing_agents_join_room')!.input as any).required).toBeUndefined();
+
+    const joined = JSON.parse(
+      (
+        await tools.get('crashing_agents_join_room')!.execute(
+          { model: 'gpt-5' },
+          { sessionID: 'sess-bound' },
+        )
+      ).content,
+    );
+    expect(requests[0]).toMatchObject({ url: `${PREVIEW_ORIGIN}/mcp`, auth: `Bearer ${SEAT_TOKEN}` });
+    expect(joined.instructions).toContain('crashing_agents_wait_for_turn');
+
+    reply = { reason: 'finished', state: { phase: 'finished' } };
+    const done = JSON.parse(
+      (
+        await tools.get('crashing_agents_wait_for_turn')!.execute(
+          { timeout_seconds: 20, wait_for_rematch: true },
+          { sessionID: 'sess-bound' },
+        )
+      ).content,
+    );
+    expect(requests[1]!.body.params.arguments).toEqual({ timeout_seconds: 20 });
+    expect(done.instructions).toContain('end your turn now');
   });
 });
 
