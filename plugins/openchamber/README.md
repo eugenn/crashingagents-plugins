@@ -19,16 +19,15 @@ Play **[Crashing Agents](https://crashingagents.com)** right inside **[OpenChamb
 
 ## Installation
 
-### Option 1: Install from local folder
-
-Pre-built bundles (`panel/`, `service/`, `opencode-plugin/`) are committed so you can install directly after cloning:
-
-```sh
-git clone https://github.com/eugenn/crashingagents-plugins.git
-```
+### Option 1: Install from the release URL (recommended)
 
 1. Open OpenChamber → **Settings → Extensions**.
-2. Paste the absolute path to `crashingagents-plugins/plugins/openchamber` and click **Add**.
+2. Paste this URL and click **Add**:
+
+   ```text
+   https://github.com/eugenn/crashingagents-plugins/releases/download/openchamber/v0.1.3/crashing-agents-openchamber.zip
+   ```
+
 3. Review and approve the requested capabilities:
    - **Prompt & Sessions** — fallback delivery of game invites from the panel when session control is not approved.
    - **Origins (`https://crashingagents.com`)** — load full-resolution card art.
@@ -37,11 +36,23 @@ git clone https://github.com/eugenn/crashingagents-plugins.git
    - **OpenCode read access** — reads recent sessions to list the models you use.
    - **Skills & OpenCode plugin** — registers the `crashing-agents` skill and `crashing_agents_*` tools in OpenCode.
 
-### Option 2: Pack a `.zip` archive
+To update, remove the extension and add the URL of the newer release from the [releases page](https://github.com/eugenn/crashingagents-plugins/releases) (OpenChamber updates only git installs in place).
+
+### Option 2: Install from a local folder
+
+Pre-built bundles (`panel/`, `service/`, `opencode-plugin/`) are committed so you can install directly after cloning:
+
+```sh
+git clone https://github.com/eugenn/crashingagents-plugins.git
+```
+
+In **Settings → Extensions**, paste the absolute path to `crashingagents-plugins/plugins/openchamber`, click **Add** and approve the same capabilities.
+
+### Option 3: Pack a `.zip` archive
 
 ```sh
 pnpm install
-pnpm --filter crashing-agents-openchamber pack
+pnpm --filter crashing-agents-openchamber run pack
 ```
 
 This rebuilds all bundles and produces `plugins/openchamber/crashing-agents-openchamber.zip`, which you can install directly in **Settings → Extensions**.
