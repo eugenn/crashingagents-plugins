@@ -27,6 +27,7 @@ function fakeFetch() {
 function fakeOrca() {
   const store = new Map<string, JsonValue>();
   const calls: { method: string; params: any }[] = [];
+  const logs: string[] = [];
   let handler: ((input: JsonValue | undefined) => unknown) | undefined;
   let hook: ((e: AgentLaunchEvent, next: (e?: AgentLaunchEvent) => unknown) => unknown) | undefined;
   const orca: OrcaWorkerApi = {
@@ -84,11 +85,14 @@ function fakeOrca() {
         return { dispose() {} };
       },
     },
-    log: () => {},
+    log: (message) => {
+      logs.push(message);
+    },
   };
   return {
     orca,
     calls,
+    logs,
     request: (method: string, params?: unknown) => handler!({ method, params } as JsonValue),
   };
 }
@@ -151,4 +155,31 @@ it('ships a manifest whose entries exist after the build', async () => {
   const html = await readFile(resolve(ROOT, manifest.contributes.panels[0].entry), 'utf8');
   expect(html).toContain('./main.js');
   expect(manifest.main).toBe('worker/main.mjs');
+});
+
+it('logs what it does and why a request failed, without credentials', async () => {
+  const fake = fakeOrca();
+  const failing = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const body = init?.body ? JSON.parse(String(init.body)) : {};
+    if (new URL(String(input)).pathname === '/api/client/rooms') {
+      return new Response(JSON.stringify({ code: 'ORCA02', playerToken: 'p'.repeat(43) }));
+    }
+    if (body.op === 'add_agent') {
+      return new Response(JSON.stringify({ error: `Seat ${SEAT} is taken` }), { status: 409 });
+    }
+    return new Response('{}');
+  }) as typeof globalThis.fetch;
+  await activateWorker(fake.orca, {
+    cliCommand: CLI,
+    clientOptions: { fetch: failing },
+    catalog: createTerminalAgentCatalog({ find: async () => '/usr/bin/claude' }),
+  });
+
+  await expect(fake.request('dispatch', { type: 'duel' })).rejects.toThrow(/taken/);
+  await fake.request('state');
+  const text = fake.logs.join('\n');
+  expect(text).toMatch(/worker started, game server https:\/\/crashingagents.com/);
+  expect(text).toMatch(/dispatch\(duel\) failed after \d+ ms: Seat <credential> is taken/);
+  expect(text).not.toContain(SEAT);
+  expect(text).not.toMatch(/^state/m);
 });

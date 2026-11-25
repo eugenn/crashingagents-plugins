@@ -1128,6 +1128,9 @@ async function installAgentCli(options) {
 // src/worker.ts
 var ORCA_AGENT_KINDS = ["claude", "codex", "opencode"];
 var GLOBAL_SCOPE = "global";
+var redact = (text) => text.replace(/[A-Za-z0-9_-]{43}/g, "<credential>");
+var describe = (error) => redact(error instanceof Error ? error.message || error.name : String(error));
+var QUIET_CALLS = /* @__PURE__ */ new Set(["config", "state", "readyRooms", "agents", "localAgent"]);
 function orcaStorage(orca, prefix) {
   const storage = {
     get: async (scopeId) => await orca.storage.get(prefix + "binding:" + scopeId),
@@ -1146,7 +1149,8 @@ function orcaStorage(orca, prefix) {
   };
   return { storage, kv };
 }
-function createOrcaTerminals(orca, cliCommand) {
+function createOrcaTerminals(orca, cliCommand, log = () => {
+}) {
   const pending = [];
   async function workspaceId() {
     const context = await orca.host.call("workspace.readContext");
@@ -1159,6 +1163,9 @@ function createOrcaTerminals(orca, cliCommand) {
       const index = pending.findIndex((p) => p.agent === event.agent && p.expires > now);
       if (index < 0) return void 0;
       const [entry] = pending.splice(index, 1);
+      log(
+        `launch hook: ${event.agent} gets ${entry.flags.filter((f) => f.startsWith("-")).join(" ") || "no flags"}`
+      );
       if (!entry.flags.length) return void 0;
       return { ...event, command: event.command + " " + entry.flags.map(shellQuote).join(" ") };
     },
@@ -1170,12 +1177,18 @@ function createOrcaTerminals(orca, cliCommand) {
       };
       pending.push(entry);
       try {
+        const workspace = await workspaceId();
+        log(`launching ${kind.id} (model ${model}) in workspace ${workspace}`);
         const { terminalId } = await orca.host.call("agent.launch", {
-          workspaceId: await workspaceId(),
+          workspaceId: workspace,
           agent: kind.id,
           prompt
         });
+        log(`launched ${kind.id} in terminal ${terminalId}`);
         return terminalId;
+      } catch (error) {
+        log(`launch of ${kind.id} failed: ${describe(error)}`);
+        throw error;
       } finally {
         const left = pending.indexOf(entry);
         if (left >= 0) pending.splice(left, 1);
@@ -1188,16 +1201,21 @@ function createOrcaTerminals(orca, cliCommand) {
           text,
           enter: true
         });
+        log(`invitation to terminal ${terminalId}: ${accepted ? "sent" : "not accepted"}`);
         return accepted;
-      } catch {
+      } catch (error) {
+        log(`invitation to terminal ${terminalId} failed: ${describe(error)}`);
         return false;
       }
     },
     async focus(terminalId) {
-      await orca.host.call("terminal.focus", { terminalId }).catch(() => void 0);
+      await orca.host.call("terminal.focus", { terminalId }).catch((error) => log(`focus of terminal ${terminalId} failed: ${describe(error)}`));
     },
     async running() {
-      const { agents } = await orca.host.call("agents.list", {}).catch(() => ({ agents: [] }));
+      const { agents } = await orca.host.call("agents.list", {}).catch((error) => {
+        log(`agents.list failed: ${describe(error)}`);
+        return { agents: [] };
+      });
       return agents.flatMap(
         (agent) => agent.terminalId ? [{ id: agent.terminalId, label: agent.title || agent.agent || "Agent" }] : []
       );
@@ -1205,15 +1223,32 @@ function createOrcaTerminals(orca, cliCommand) {
   };
 }
 async function activateWorker(orca, deps = {}) {
+  const log = (message) => {
+    try {
+      orca.log(message);
+    } catch {
+    }
+  };
   const localPreview = await orca.settings.get("localPreview").catch(() => null) === true;
   const origin = localPreview ? PREVIEW_ORIGIN : DEFAULT_ORIGIN;
+  log(`worker started, game server ${origin}`);
   const { storage, kv } = orcaStorage(orca, localPreview ? "local:" : "");
   let cli;
   const cliCommand = () => cli ??= deps.cliCommand ? Promise.resolve(deps.cliCommand) : installAgentCli({
     source: fileURLToPath(new URL("../bin/crashing-agents.mjs", import.meta.url)),
     origin
-  }).then((installed) => installed.command);
-  const terminals = createOrcaTerminals(orca, cliCommand);
+  }).then(
+    (installed) => {
+      log(`game CLI installed at ${installed.path}`);
+      return installed.command;
+    },
+    (error) => {
+      cli = void 0;
+      log(`game CLI install failed: ${describe(error)}`);
+      throw error;
+    }
+  );
+  const terminals = createOrcaTerminals(orca, cliCommand, log);
   orca.hooks.on("agent.launch.before", (event, next) => {
     const changed = terminals.onLaunch(event);
     return changed ? next(changed) : void 0;
@@ -1231,7 +1266,19 @@ async function activateWorker(orca, deps = {}) {
   });
   orca.panels.handle("rpc", async (input) => {
     const { method, params } = input ?? {};
-    const result = await host.handle(method, params);
+    const name = String(method) + (method === "dispatch" ? `(${String(params?.type)})` : "");
+    const started = Date.now();
+    let result;
+    try {
+      result = await host.handle(method, params);
+    } catch (error) {
+      log(`${name} failed after ${Date.now() - started} ms: ${describe(error)}`);
+      if (error instanceof Error && error.stack) {
+        log(redact(error.stack.split("\n").slice(1, 4).join(" | ")));
+      }
+      throw error;
+    }
+    if (!QUIET_CALLS.has(String(method))) log(`${name} ok in ${Date.now() - started} ms`);
     if (method === "config") return { ...result, assetsOrigin: "" };
     return result;
   });
@@ -1244,5 +1291,6 @@ export {
   ORCA_AGENT_KINDS,
   activateWorker,
   createOrcaTerminals,
-  activate as default
+  activate as default,
+  redact
 };

@@ -1,6 +1,6 @@
 {
   "name": "crashing-agents-orca",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Crashing Agents plugin for Orca: play against the agents in your workspace.",
   "private": true,
   "type": "module",
