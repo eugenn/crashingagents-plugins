@@ -1,12 +1,18 @@
-import { expect, it } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterAll, expect, it } from 'vitest';
 import { createMessageRpcClient } from '@crashing/plugin-core';
-import { createTerminalAgentCatalog } from '@crashing/terminal-host';
+import { createTerminalAgentCatalog, readSeat } from '@crashing/terminal-host';
 import { activateWithApi } from './extension';
 import { createVsCodeTerminals } from './terminals';
 import type { ExtensionContext, Terminal, Uri, VsCodeApi, WebviewViewProvider } from './vscode-api';
 
 const SEAT = 'S'.repeat(43);
 const CLI = 'node /home/me/.crashing-agents/crashing-agents.mjs';
+
+const home = mkdtempSync(join(tmpdir(), 'crashing-vscode-'));
+afterAll(() => rmSync(home, { recursive: true, force: true }));
 
 const uri = (path: string): Uri => ({ fsPath: path, toString: () => 'vscode-resource:' + path });
 
@@ -26,7 +32,7 @@ function fakeFetch() {
 
 function fakeVsCode() {
   const state = new Map<string, unknown>();
-  const terminals: (Terminal & { sent: string[] })[] = [];
+  const terminals: (Terminal & { sent: string[]; env?: Record<string, string> })[] = [];
   const opened: string[] = [];
   let provider: WebviewViewProvider | undefined;
   const context: ExtensionContext = {
@@ -45,9 +51,10 @@ function fakeVsCode() {
     window: {
       activeColorTheme: { kind: 1 },
       terminals,
-      createTerminal: ({ name }) => {
+      createTerminal: ({ name, env }) => {
         const terminal = {
           name,
+          env,
           exitStatus: undefined,
           sent: [] as string[],
           sendText(text: string) {
@@ -89,6 +96,7 @@ it('serves the bundled panel and duels an agent CLI in a VS Code terminal', asyn
     clientOptions: { fetch: fakeFetch() },
     catalog,
     cliCommand: CLI,
+    home,
     terminals: createVsCodeTerminals(
       fake.vscode,
       async () => CLI,
@@ -137,12 +145,17 @@ it('serves the bundled panel and duels an agent CLI in a VS Code terminal', asyn
   expect(line).toMatch(
     /^claude --allowedTools 'Bash\(node \/home\/me\/.crashing-agents\/crashing-agents.mjs:\*\)' 'Play Crashing Agents/,
   );
-  expect(line).toContain(`--seat ${SEAT} join-room`);
+  // The terminal carries its own name, and the seat is bound to it: no credential in the text.
+  expect(line).toContain(`${CLI} join-room --model`);
+  expect(line).not.toContain(SEAT);
+  const key = fake.terminals[0]!.env!.CRASHING_AGENTS_TERMINAL!;
+  expect(key).toMatch(/^ca-/);
+  expect(await readSeat(key, home)).toMatchObject({ token: SEAT });
 
   // Wake goes to the same terminal: text first, then Enter.
   await rpc.request('dispatch', { type: 'inviteAgent' });
   expect(fake.terminals).toHaveLength(1);
-  expect(fake.terminals[0]!.sent.slice(1)).toEqual([expect.stringContaining(SEAT), '\r']);
+  expect(fake.terminals[0]!.sent.slice(1)).toEqual([expect.stringContaining('join-room'), '\r']);
 
   await rpc.request('openUrl', { url: 'https://crashingagents.com/room/VSC001' });
   await rpc.request('openUrl', { url: 'file:///etc/passwd' });

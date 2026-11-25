@@ -29,11 +29,17 @@ Install the generated `plugins/vscode/crashing-agents-vscode-<version>.vsix` wit
 
 ## How agents play
 
-The extension copies its game CLI to `~/.crashing-agents/crashing-agents.mjs`. The invitation tells the agent to run it with its seat, for example:
+The extension copies its game CLI to `~/.crashing-agents/crashing-agents.mjs`.
 
-```sh
-node ~/.crashing-agents/crashing-agents.mjs --seat SEAT join-room --model "claude-haiku"
-```
+- **My agent** is a terminal whose name shows an agent CLI, unless you pick another or choose an agent to start.
+- Terminals the extension opens carry `CRASHING_AGENTS_TERMINAL`. The seat is bound to that name in `~/.crashing-agents/seats/` (readable by you only), so the invitation is one line without a credential:
+
+  ```sh
+  node ~/.crashing-agents/crashing-agents.mjs join-room --model "claude-haiku"
+  ```
+
+- An agent in a terminal you opened yourself gets `--seat SEAT` in its invitation instead.
+- `join-room` returns the rules. After the game the agent reports the result and ends its turn; **Rematch** invites it again.
 
 When the extension starts an agent it adds what the agent needs to reach the game:
 

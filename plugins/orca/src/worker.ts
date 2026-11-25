@@ -64,8 +64,59 @@ export function createOrcaTerminals(
   orca: OrcaWorkerApi,
   cliCommand: () => Promise<string>,
   log: Log = () => {},
-): TerminalAdapter & { onLaunch(event: AgentLaunchEvent): AgentLaunchEvent | undefined } {
+  queue: { pollMs?: number; maxWaitMs?: number } = {},
+): TerminalAdapter & {
+  onLaunch(event: AgentLaunchEvent): AgentLaunchEvent | undefined;
+  /** Delivers held invitations now (tests). */
+  flush(): Promise<void>;
+  dispose(): void;
+} {
   const pending: { agent: string; flags: string[]; expires: number }[] = [];
+  const pollMs = queue.pollMs ?? 2000;
+  const maxWaitMs = queue.maxWaitMs ?? 30 * 60000;
+  /** Invitations held for busy agents, newest per terminal, like BB's queue-if-active. */
+  const held = new Map<string, { text: string; since: number }>();
+  let timer: ReturnType<typeof setInterval> | undefined;
+
+  async function agentStates() {
+    const { agents } = await orca.host.call('agents.list', {}).catch((error) => {
+      log(`agents.list failed: ${describe(error)}`);
+      return { agents: [] };
+    });
+    return new Map(agents.flatMap((a) => (a.terminalId ? [[a.terminalId, a.state] as const] : [])));
+  }
+  const busy = (state: string | undefined) => state === 'working' || state === 'blocked';
+
+  async function sendNow(terminalId: string, text: string) {
+    try {
+      const { accepted } = await orca.host.call('terminal.sendText', {
+        terminalId,
+        text,
+        enter: true,
+      });
+      log(`invitation to terminal ${terminalId}: ${accepted ? 'sent' : 'not accepted'}`);
+      return accepted;
+    } catch (error) {
+      log(`invitation to terminal ${terminalId} failed: ${describe(error)}`);
+      return false;
+    }
+  }
+
+  async function flush() {
+    if (!held.size) return;
+    const states = await agentStates();
+    for (const [terminalId, entry] of [...held]) {
+      const state = states.get(terminalId);
+      if (busy(state) && Date.now() - entry.since < maxWaitMs) continue;
+      held.delete(terminalId);
+      if (busy(state)) log(`gave up waiting for terminal ${terminalId} to be free`);
+      else await sendNow(terminalId, entry.text);
+    }
+    if (!held.size && timer) {
+      clearInterval(timer);
+      timer = undefined;
+    }
+  }
 
   async function workspaceId() {
     const context = await orca.host.call('workspace.readContext');
@@ -111,18 +162,22 @@ export function createOrcaTerminals(
       }
     },
     async send(terminalId, text) {
-      try {
-        const { accepted } = await orca.host.call('terminal.sendText', {
-          terminalId,
-          text,
-          enter: true,
-        });
-        log(`invitation to terminal ${terminalId}: ${accepted ? 'sent' : 'not accepted'}`);
-        return accepted;
-      } catch (error) {
-        log(`invitation to terminal ${terminalId} failed: ${describe(error)}`);
-        return false;
-      }
+      const state = (await agentStates()).get(terminalId);
+      if (!busy(state)) return sendNow(terminalId, text);
+      // Typing into a working agent would land in its prompt mid-task. Wait until it is free.
+      held.set(terminalId, { text, since: Date.now() });
+      timer ??= setInterval(() => void flush(), pollMs);
+      log(`terminal ${terminalId} is ${state}: invitation held until it is free`);
+      return true;
+    },
+    // Orca names each terminal by the handle it puts in ORCA_TERMINAL_HANDLE.
+    seatKey: (terminalId) => terminalId,
+    bindsLaunches: true,
+    flush,
+    dispose() {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+      held.clear();
     },
     async focus(terminalId) {
       await orca.host
@@ -134,11 +189,22 @@ export function createOrcaTerminals(
         log(`agents.list failed: ${describe(error)}`);
         return { agents: [] };
       });
-      return agents.flatMap((agent) =>
-        agent.terminalId
-          ? [{ id: agent.terminalId, label: agent.title || agent.agent || 'Agent' }]
-          : [],
-      );
+      // Idle agents first: they read an invitation at once.
+      return agents
+        .flatMap((agent) =>
+          agent.terminalId
+            ? [
+                {
+                  id: agent.terminalId,
+                  label: agent.title || agent.agent || 'Agent',
+                  agent: true,
+                  busy: busy(agent.state),
+                },
+              ]
+            : [],
+        )
+        .sort((a, b) => Number(a.busy) - Number(b.busy))
+        .map(({ busy: _busy, ...terminal }) => terminal);
     },
   };
 }
@@ -147,6 +213,9 @@ export interface WorkerDeps {
   cliCommand?: string;
   catalog?: TerminalAgentCatalog;
   clientOptions?: CrashingClientOptions;
+  /** Home folder for seat files (tests). */
+  home?: string;
+  queue?: { pollMs?: number; maxWaitMs?: number };
 }
 
 export async function activateWorker(orca: OrcaWorkerApi, deps: WorkerDeps = {}) {
@@ -181,7 +250,7 @@ export async function activateWorker(orca: OrcaWorkerApi, deps: WorkerDeps = {})
           },
         ));
 
-  const terminals = createOrcaTerminals(orca, cliCommand, log);
+  const terminals = createOrcaTerminals(orca, cliCommand, log, deps.queue);
   orca.hooks.on('agent.launch.before', (event, next) => {
     const changed = terminals.onLaunch(event);
     return changed ? next(changed) : undefined;
@@ -194,6 +263,7 @@ export async function activateWorker(orca: OrcaWorkerApi, deps: WorkerDeps = {})
     terminals,
     cliCommand,
     clientOptions: deps.clientOptions,
+    home: deps.home,
     catalog:
       deps.catalog ??
       createTerminalAgentCatalog({ kinds: ORCA_AGENT_KINDS, assumeInstalled: true }),
@@ -224,7 +294,7 @@ export async function activateWorker(orca: OrcaWorkerApi, deps: WorkerDeps = {})
     if (method === 'config') return { ...(result as object), assetsOrigin: '' };
     return result;
   });
-  return host;
+  return Object.assign(host, { terminals });
 }
 
 export default function activate(orca: OrcaWorkerApi) {

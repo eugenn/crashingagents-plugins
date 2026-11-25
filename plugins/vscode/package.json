@@ -2,7 +2,7 @@
   "name": "crashing-agents-vscode",
   "displayName": "Crashing Agents",
   "description": "Play Crashing Agents in VS Code, Cursor or Windsurf against Claude Code, Codex, OpenCode or Gemini CLI running in your terminal.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "publisher": "crashing-agents",
   "engines": {

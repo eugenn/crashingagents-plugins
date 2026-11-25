@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { mkdtempSync, rmSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterAll, describe, expect, it } from 'vitest';
 import type { Binding, HostStorage, LocalAgentChoices } from '@crashing/plugin-core';
 import {
   agentLaunchCommand,
@@ -8,6 +11,7 @@ import {
 } from './agents';
 import { parseCliArguments, runAgentCli } from './cli';
 import { createTerminalHost, type KeyValueStore, type TerminalAdapter } from './host';
+import { readSeat, writeSeat } from './seats';
 
 const ORIGIN = 'https://game.test';
 const HOST_SEAT = 'H'.repeat(43);
@@ -87,8 +91,8 @@ function memory() {
   return { storage, kv };
 }
 
-function fakeTerminals() {
-  const open = new Map<string, { label: string; sent: string[] }>();
+function fakeTerminals(keyed: boolean) {
+  const open = new Map<string, { label: string; sent: string[]; agent?: boolean }>();
   const launches: { kind: string; model: string; prompt: string; title: string; id: string }[] = [];
   let n = 0;
   const adapter: TerminalAdapter = {
@@ -105,8 +109,9 @@ function fakeTerminals() {
     },
     focus: () => {},
     async running() {
-      return [...open].map(([id, t]) => ({ id, label: t.label }));
+      return [...open].map(([id, t]) => ({ id, label: t.label, agent: t.agent ?? true }));
     },
+    ...(keyed ? { seatKey: (id: string) => 'key-' + id, bindsLaunches: true } : {}),
   };
   return { adapter, open, launches };
 }
@@ -117,10 +122,13 @@ const installedCatalog = (bins: string[], exec?: ExecText) =>
     exec: exec ?? (async () => 'anthropic/claude-haiku\nopenai/gpt-5-mini\n'),
   });
 
-function setup(bins = ['claude', 'opencode']) {
+const home = mkdtempSync(join(tmpdir(), 'crashing-seats-'));
+afterAll(() => rmSync(home, { recursive: true, force: true }));
+
+function setup(bins = ['claude', 'opencode'], { keyed = false } = {}) {
   const game = fakeGame();
   const { storage, kv } = memory();
-  const terminals = fakeTerminals();
+  const terminals = fakeTerminals(keyed);
   const host = createTerminalHost({
     origin: ORIGIN,
     storage,
@@ -130,6 +138,7 @@ function setup(bins = ['claude', 'opencode']) {
     scope: () => 'workspace',
     catalog: installedCatalog(bins),
     clientOptions: { fetch: game.fetch },
+    home,
   });
   return { game, kv, terminals, host };
 }
@@ -138,7 +147,7 @@ describe('terminal host', () => {
   it('lists installed agent CLIs with fast models first and open terminals on top', async () => {
     const { host, terminals } = setup();
     await host.catalog.installed();
-    terminals.open.set('t9', { label: 'zsh', sent: [] });
+    terminals.open.set('t9', { label: 'zsh', sent: [], agent: false });
     const list = (await host.handle('agents', {})) as { agents: any[] };
     expect(list.agents[0]).toMatchObject({
       providerId: 'terminal',
@@ -165,6 +174,7 @@ describe('terminal host', () => {
     const [launch] = terminals.launches;
     expect(launch).toMatchObject({ kind: 'claude', model: 'haiku' });
     expect(launch!.prompt).toContain(`${CLI} --seat ${HOST_SEAT} join-room`);
+    expect(launch!.prompt).toContain('passing the same --seat value on every call');
     expect(launch!.prompt).not.toContain("'");
 
     await host.handle('dispatch', { type: 'inviteAgent' });
@@ -172,8 +182,33 @@ describe('terminal host', () => {
     expect(terminals.open.get(launch!.id)!.sent).toHaveLength(1);
 
     const choices = (await host.handle('localAgent', undefined)) as LocalAgentChoices;
-    expect(choices.defaultLabel).toBe('Claude Code');
+    // The agent it started is now the one running here.
+    expect(choices.defaultLabel).toBe('Crashing Agents');
     expect(choices.groups.map((g) => g.label)).toEqual(['Open terminals', 'Start a new agent']);
+  });
+
+  it('duels the agent already running here by default, like the thread agent in BB', async () => {
+    const { host, terminals } = setup();
+    terminals.open.set('t3', { label: 'zsh', sent: [], agent: false });
+    terminals.open.set('t4', { label: 'Claude · fix tests', sent: [] });
+    const choices = (await host.handle('localAgent', undefined)) as LocalAgentChoices;
+    expect(choices).toMatchObject({ selected: null, defaultLabel: 'Claude · fix tests' });
+
+    await host.handle('dispatch', { type: 'duel' });
+    expect(terminals.launches).toHaveLength(0);
+    expect(terminals.open.get('t3')!.sent).toEqual([]);
+    expect(terminals.open.get('t4')!.sent).toEqual([expect.stringContaining(HOST_SEAT)]);
+  });
+
+  it('binds the seat to the terminal so the agent never sees it', async () => {
+    const { host, terminals } = setup(['claude'], { keyed: true });
+    await host.handle('dispatch', { type: 'duel' });
+    const [launch] = terminals.launches;
+    expect(launch!.prompt).toBe(
+      `Play Crashing Agents with me. Run ${CLI} join-room --model "<your actual model name>" now and follow the instructions it returns.`,
+    );
+    expect(await readSeat('key-' + launch!.id, home)).toEqual({ token: HOST_SEAT, origin: ORIGIN });
+    expect(statSync(join(home, '.crashing-agents', 'seats')).mode & 0o777).toBe(0o700);
   });
 
   it('sends "my agent" to an open terminal when the player picked one', async () => {
@@ -294,5 +329,54 @@ describe('game CLI', () => {
 
   it('refuses calls without a seat', async () => {
     expect(await runAgentCli(['draw-card'])).toMatchObject({ code: 1 });
+    expect(
+      await runAgentCli(['draw-card'], {
+        env: { ORCA_TERMINAL_HANDLE: 'nobody' },
+        home,
+        seatWaitMs: 0,
+      }),
+    ).toMatchObject({ code: 1, stderr: expect.stringMatching(/invite you again/) });
+  });
+
+  it('plays the seat bound to its terminal, returns the play guide and ends at the result', async () => {
+    await writeSeat('term-42', { token: GUEST_SEAT, origin: ORIGIN }, home);
+    const calls: any[] = [];
+    const fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init!.body));
+      calls.push({
+        url: String(input),
+        auth: new Headers(init!.headers).get('authorization'),
+        body,
+      });
+      return new Response(
+        JSON.stringify({ result: { content: [{ text: JSON.stringify({ ok: true }) }] } }),
+      );
+    }) as typeof globalThis.fetch;
+    const env = { ORCA_TERMINAL_HANDLE: 'term-42' };
+    const joined = await runAgentCli(['join-room', '--model', 'haiku'], {
+      env,
+      home,
+      command: CLI,
+      clientOptions: { fetch },
+    });
+    expect(joined.code).toBe(0);
+    const guide = JSON.parse(joined.stdout!).instructions as string;
+    expect(guide).toContain(`${CLI} wait-for-turn --timeout_seconds 20`);
+    expect(guide).not.toContain('--seat');
+    expect(guide).toMatch(/end your turn/);
+
+    await runAgentCli(['wait-for-turn', '--wait_for_rematch', 'true'], {
+      env,
+      home,
+      clientOptions: { fetch },
+    });
+    expect(calls.map((c) => [c.url, c.auth, c.body.params])).toEqual([
+      [
+        ORIGIN + '/mcp',
+        'Bearer ' + GUEST_SEAT,
+        { name: 'join_room', arguments: { model: 'haiku' } },
+      ],
+      [ORIGIN + '/mcp', 'Bearer ' + GUEST_SEAT, { name: 'wait_for_turn', arguments: {} }],
+    ]);
   });
 });
