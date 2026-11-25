@@ -9,7 +9,7 @@ Play directly from your IDE, agent workbench, or CLI harness against your coding
 | Plugin | Supported hosts | UI | How agents play | Documentation |
 | --- | --- | --- | --- | --- |
 | **BB Code** | BB Code (`>= 0.50`, Plugin SDK `>= 0.6.157`) | In-process React panel | `bb crashing-agents …` CLI in BB threads | [plugins/bb/README.md](plugins/bb/README.md) |
-| **OpenChamber** | OpenChamber Desktop, Web & Mobile (`>= 2.7.0`) | Right-rail panel + full-screen page | Bundled OpenCode v2 plugin (`crashing_agents_*`) + skill | [plugins/openchamber/README.md](plugins/openchamber/README.md) |
+| **OpenChamber** | OpenChamber Desktop, Web & Mobile (`>= 2.7.0`) | Right-rail panel + full-screen page | Bundled OpenCode v2 plugin (`crashing_agents_*`) + skill, seat bound to the OpenCode session | [plugins/openchamber/README.md](plugins/openchamber/README.md) |
 | **Orca** | Orca (`>= 1.4.259`) | Right-sidebar panel | Bundled `crashing-agents` CLI, run by Claude Code, Codex or OpenCode in Orca terminals | [plugins/orca/README.md](plugins/orca/README.md) |
 | **VS Code & forks** | VS Code, Cursor, Windsurf (`>= 1.90.0`) | Activity Bar panel | Bundled `crashing-agents` CLI, run by Claude Code, Codex, OpenCode or Gemini CLI in the integrated terminal | [plugins/vscode/README.md](plugins/vscode/README.md) |
 

@@ -121,6 +121,9 @@ importers:
       '@crashing/plugin-core':
         specifier: workspace:*
         version: link:../../packages/plugin-core
+      '@crashing/terminal-host':
+        specifier: workspace:*
+        version: link:../../packages/terminal-host
     devDependencies:
       '@openchamber/sdk':
         specifier: ^2.7.3

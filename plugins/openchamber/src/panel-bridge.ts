@@ -74,6 +74,8 @@ export function createOpenChamberBridge(
 ): PanelBridge {
   let activeScopeId = options.scopeId;
   let activeSessionId = options.sessionId;
+  /** The session "my agent" plays in, from the service. */
+  let agentSessionId: string | undefined;
   let lastBadge: number | null | undefined;
 
   async function callService<T>(
@@ -111,6 +113,12 @@ export function createOpenChamberBridge(
     if (nextBadge === lastBadge) return;
     lastBadge = nextBadge;
     void host.setBadge(nextBadge).catch(() => {});
+  }
+
+  function followSession(sessionId: string) {
+    activeScopeId = scopeIdForContext(sessionId, null);
+    activeSessionId = sessionId;
+    options.onSessionCreated?.(sessionId);
   }
 
   async function startFreshSession(invite: ServiceInvite) {
@@ -190,24 +198,38 @@ export function createOpenChamberBridge(
       }
     : undefined;
 
+  const localAgent: PanelBridge['localAgent'] = options.connectedAgents
+    ? {
+        get: () =>
+          callService('POST', '/local-agent', { currentModel: options.sessionModel ?? null }),
+        async select(value) {
+          await callService('POST', '/local-agent', { value });
+        },
+      }
+    : undefined;
+
   return {
     theme: options.theme,
     connectedAgents,
+    localAgent,
     async getConfig() {
       const cfg = await callService<ServiceConfigResponse>('GET', '/config');
       return {
         assetsOrigin: cfg.assetsOrigin,
         capabilities: {
           canInviteLocalAgent: true,
-          canOpenAgentChat: Boolean(activeSessionId) && options.surface === 'page',
+          canOpenAgentChat:
+            Boolean(options.connectedAgents) ||
+            (Boolean(activeSessionId) && options.surface === 'page'),
           agentTransport: 'mcp',
         },
       };
     },
     async getState() {
-      const { table } = await callService<ServiceStateResponse>('POST', '/state', {
+      const { table, agentSession } = await callService<ServiceStateResponse>('POST', '/state', {
         scopeId: activeScopeId,
       });
+      agentSessionId = agentSession;
       syncBadge(table);
       return table;
     },
@@ -219,7 +241,9 @@ export function createOpenChamberBridge(
       const result = await callService<ServiceDispatchResponse>('POST', '/dispatch', {
         scopeId: activeScopeId,
         command,
+        ...(options.directory ? { directory: options.directory } : {}),
       });
+      if (result.session) followSession(result.session);
       if (command.type === 'forget') {
         syncBadge(null);
       }
@@ -231,11 +255,14 @@ export function createOpenChamberBridge(
     openExternalUrl: (url) => {
       void host.openUrl(url).catch(() => {});
     },
-    openAgentChat:
-      options.surface === 'page'
-        ? () => {
-            if (activeSessionId) void host.openSession(activeSessionId).catch(() => {});
-          }
-        : undefined,
+    openAgentChat: () => {
+      const target =
+        agentSessionId && agentSessionId !== options.sessionId
+          ? agentSessionId
+          : options.surface === 'page'
+            ? activeSessionId
+            : null;
+      if (target) void host.openSession(target).catch(() => {});
+    },
   };
 }

@@ -9,13 +9,16 @@ import {
   type AgentInvitation,
   type Binding,
   type HostStorage,
+  type LocalAgentChoices,
   type PanelCommand,
   type PluginController,
 } from '@crashing/plugin-core';
-import { createModelDirectory, type OpenCodeReader } from './models';
+import { deleteSeat, writeSeat } from '@crashing/terminal-host';
+import { createModelDirectory, splitModel, type OpenCodeReader } from './models';
 import {
   buildOpenChamberInviteMessage,
   isAllowedGameOrigin,
+  sessionSeatKey,
   type InviteReason,
   type ServiceConfigResponse,
   type ServiceDispatchRequest,
@@ -32,7 +35,13 @@ const VALID_SCOPE_ID = /^[A-Za-z0-9:._/@-]{1,256}$/;
 
 interface PersistedSettings {
   localPreview: boolean;
+  /** "My agent": null for the panel's session, `model:provider/model` for a new session. */
+  localAgent?: string | null;
 }
+
+const MODEL_CHOICE = 'model:';
+/** How long an invitation waits for a busy session before it is dropped. */
+const HOLD_MS = 30 * 60000;
 
 class JsonFileStore<T extends Record<string, unknown>> {
   private cache: T | null = null;
@@ -86,6 +95,8 @@ export interface ServiceSessions {
     directory?: string;
   }): Promise<{ sessionId: string }>;
   send(sessionId: string, prompt: string): Promise<unknown>;
+  /** `busy` or `waiting` holds an invitation until the session is idle (BB's queue-if-active). */
+  status?(sessionId: string): Promise<{ status: 'idle' | 'busy' | 'waiting' }>;
 }
 
 export interface CreateServiceHandlerOptions {
@@ -97,6 +108,10 @@ export interface CreateServiceHandlerOptions {
   sessions?: ServiceSessions;
   /** Reads recent sessions for the models the player uses. */
   opencode?: OpenCodeReader;
+  /** Home folder for the seat files the OpenCode plugin reads (tests). */
+  home?: string;
+  /** How often held invitations check their session (tests). */
+  holdPollMs?: number;
 }
 
 /** A session this service started for a connected agent, by session id. */
@@ -167,6 +182,11 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
     join(options.dataDir, 'agent-sessions.json'),
     () => ({}),
   );
+  /** The session "my agent" plays each room in, by namespaced scope. */
+  const agentStore = new JsonFileStore<Record<string, string>>(
+    join(options.dataDir, 'my-agent.json'),
+    () => ({}),
+  );
   const models = createModelDirectory(options.opencode);
 
   let currentLocalPreview = false;
@@ -174,9 +194,60 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
 
   const pendingInvites = new Map<string, ServiceInvite>();
   const activeReasons = new Map<string, InviteReason>();
+  const activeDirectories = new Map<string, string>();
+  /** Sessions started for "my agent" during the current dispatch, by scope. */
+  const startedSessions = new Map<string, string>();
 
   const namespaceKey = (localPreview: boolean, scopeId: string) =>
     `${localPreview ? 'local' : 'remote'}:${scopeId}`;
+
+  /** Binds the seat to the session, like BB's thread: the invitation carries no credential. */
+  const bindSeat = (sessionId: string, token: string, origin: string) =>
+    writeSeat(sessionSeatKey(sessionId), { token, origin }, options.home);
+
+  // Invitations held for busy sessions, newest per session.
+  const held = new Map<string, { text: string; until: number }>();
+  let holdTimer: ReturnType<typeof setTimeout> | undefined;
+
+  async function idle(sessionId: string) {
+    if (!options.sessions?.status) return true;
+    try {
+      return (await options.sessions.status(sessionId)).status === 'idle';
+    } catch {
+      return true;
+    }
+  }
+
+  function scheduleHeld() {
+    if (holdTimer || !held.size) return;
+    holdTimer = setTimeout(() => {
+      holdTimer = undefined;
+      void Promise.all(
+        [...held].map(async ([sessionId, entry]) => {
+          if (entry.until < Date.now()) return held.delete(sessionId);
+          if (!(await idle(sessionId)) || held.get(sessionId) !== entry) return;
+          held.delete(sessionId);
+          await options.sessions!.send(sessionId, entry.text).catch(() => {});
+        }),
+      ).finally(scheduleHeld);
+    }, options.holdPollMs ?? 2000);
+    holdTimer.unref?.();
+  }
+
+  /** Sends now, or holds the invitation while the agent is working or waiting on the player. */
+  async function deliver(sessionId: string, text: string) {
+    if (await idle(sessionId)) {
+      held.delete(sessionId);
+      await options.sessions!.send(sessionId, text);
+      return;
+    }
+    held.set(sessionId, { text, until: Date.now() + HOLD_MS });
+    scheduleHeld();
+  }
+
+  async function localAgentChoice(): Promise<string | null> {
+    return (await settingsStore.read()).localAgent ?? null;
+  }
 
   function createStorageFor(localPreview: boolean): HostStorage {
     return {
@@ -206,6 +277,47 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
     if (existing) return existing;
     const origin = localPreview ? PREVIEW_ORIGIN : baseOrigin;
     const storage = createStorageFor(localPreview);
+    const agentKey = (scopeId: string) => namespaceKey(localPreview, scopeId);
+
+    /**
+     * "My agent", like BB's thread agent: the session that already plays this room, else the
+     * panel's session, else a new session (with the model the player chose in My agent).
+     */
+    async function inviteMyAgent(scopeId: string, token: string, reason: InviteReason) {
+      const sessions = options.sessions!;
+      const text = buildOpenChamberInviteMessage({ reason });
+      const choice = await localAgentChoice();
+      const known = (await agentStore.read())[agentKey(scopeId)];
+      const here = scopeId.startsWith('session:') ? scopeId.slice('session:'.length) : undefined;
+      const target = known ?? (choice?.startsWith(MODEL_CHOICE) ? undefined : here);
+      if (target) {
+        await bindSeat(target, token, origin);
+        await deliver(target, text);
+        if (!known) {
+          await agentStore.update((all) => {
+            all[agentKey(scopeId)] = target;
+          });
+        }
+        return;
+      }
+      const binding = await storage.get(scopeId);
+      const model = choice?.startsWith(MODEL_CHOICE) ? choice.slice(MODEL_CHOICE.length) : undefined;
+      const directory =
+        activeDirectories.get(scopeId) ??
+        (scopeId.startsWith('dir:') ? scopeId.slice('dir:'.length) : undefined);
+      const { sessionId } = await sessions.start({
+        prompt: text,
+        title: binding?.code ? `Crashing Agents · ${binding.code}` : 'Crashing Agents',
+        ...(model ? { model } : {}),
+        ...(directory ? { directory } : {}),
+      });
+      await bindSeat(sessionId, token, origin);
+      await agentStore.update((all) => {
+        all[agentKey(scopeId)] = sessionId;
+      });
+      startedSessions.set(scopeId, sessionId);
+    }
+
     const controller = createPluginController({
       origin,
       storage,
@@ -217,13 +329,11 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
       },
       agentHost: {
         async invite(scopeId) {
-          // A connected agent's own session: the rematch goes straight to it.
+          // A connected agent's own session: the rematch goes straight back to it.
           const child = (await childrenStore.read())[scopeId];
           if (child && options.sessions) {
-            await options.sessions.send(
-              scopeId,
-              buildOpenChamberInviteMessage({ agentToken: child.token, origin, reason: 'rematch' }),
-            );
+            await bindSeat(scopeId, child.token, origin);
+            await deliver(scopeId, buildOpenChamberInviteMessage({ reason: 'rematch' }));
             return;
           }
           const binding = await storage.get(scopeId);
@@ -231,6 +341,11 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
             throw new Error('Room has no agent token to invite.');
           }
           const reason = activeReasons.get(scopeId) ?? 'invite';
+          if (options.sessions) {
+            await inviteMyAgent(scopeId, binding.agentToken, reason);
+            return;
+          }
+          // Without session control the panel delivers the invitation, credential included.
           const text = buildOpenChamberInviteMessage({
             agentToken: binding.agentToken,
             origin,
@@ -277,11 +392,12 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
           async launch(prompt) {
             const token = invitedSeatToken(prompt);
             const { sessionId } = await sessions.start({
-              prompt: buildOpenChamberInviteMessage({ agentToken: token, origin: controller.origin }),
+              prompt: buildOpenChamberInviteMessage(),
               title: `${agent.label} · ${invite.roomCode}`,
               model: `${agent.providerId}/${agent.model}`,
               ...(directory ? { directory } : {}),
             });
+            await bindSeat(sessionId, token, controller.origin);
             await childrenStore.update((all) => {
               all[sessionId] = { token, requestId: invite.requestId };
             });
@@ -292,6 +408,23 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
     });
   }
 
+  async function localAgentChoices(currentModel: string | undefined): Promise<LocalAgentChoices> {
+    const { agents } = await models.list(currentModel);
+    return {
+      selected: await localAgentChoice(),
+      defaultLabel: currentModel || 'OpenCode',
+      groups: [
+        {
+          label: 'Start a new agent',
+          options: agents.map((agent) => ({
+            value: `${MODEL_CHOICE}${agent.providerId}/${agent.model}`,
+            label: `${agent.label} · ${agent.providerLabel}`,
+          })),
+        },
+      ].filter((group) => group.options.length),
+    };
+  }
+
   async function ensureSettings(): Promise<boolean> {
     if (!settingsLoaded) {
       const saved = await settingsStore.read();
@@ -299,6 +432,26 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
       settingsLoaded = true;
     }
     return currentLocalPreview;
+  }
+
+  /** Moves a room, and the session its agent plays in, to another scope. */
+  async function rekey(localPreview: boolean, fromScopeId: string, toScopeId: string) {
+    if (fromScopeId === toScopeId) return;
+    const fromKey = namespaceKey(localPreview, fromScopeId);
+    const toKey = namespaceKey(localPreview, toScopeId);
+    let moved = false;
+    await bindingsStore.update((all) => {
+      if (all[fromKey] && !all[toKey]) {
+        all[toKey] = all[fromKey];
+        delete all[fromKey];
+        moved = true;
+      }
+    });
+    if (!moved) return;
+    await agentStore.update((all) => {
+      if (all[fromKey]) all[toKey] = all[fromKey];
+      delete all[fromKey];
+    });
   }
 
   async function handle(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -375,7 +528,8 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
             // Ignore race if the game was already started or another operation is in flight.
           }
         }
-        const payload: ServiceStateResponse = { table };
+        const agentSession = (await agentStore.read())[namespaceKey(localPreview, scopeId)];
+        const payload: ServiceStateResponse = agentSession ? { table, agentSession } : { table };
         sendJson(res, 200, payload);
         return;
       }
@@ -389,16 +543,68 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
           return;
         }
         pendingInvites.delete(scopeId);
+        startedSessions.delete(scopeId);
+        const agentKey = namespaceKey(localPreview, scopeId);
+        // A new room or seat starts a new conversation with "my agent".
+        if (command.type === 'create' || command.type === 'duel' || command.type === 'forget') {
+          const previous = (await agentStore.read())[agentKey];
+          if (previous) {
+            held.delete(previous);
+            if (command.type === 'forget') await deleteSeat(sessionSeatKey(previous), options.home);
+            await agentStore.update((all) => {
+              delete all[agentKey];
+            });
+          }
+        }
         activeReasons.set(scopeId, inviteReasonFor(command));
+        if (typeof body.directory === 'string') activeDirectories.set(scopeId, body.directory);
         try {
           await controller.dispatch(scopeId, command);
         } finally {
           activeReasons.delete(scopeId);
+          activeDirectories.delete(scopeId);
         }
         const invite = pendingInvites.get(scopeId);
         pendingInvites.delete(scopeId);
+        const started = startedSessions.get(scopeId);
+        startedSessions.delete(scopeId);
         const payload: ServiceDispatchResponse = invite ? { ok: true, invite } : { ok: true };
+        // A panel without a session follows the room into the session started for its agent.
+        if (started && !scopeId.startsWith('session:')) {
+          await rekey(localPreview, scopeId, `session:${started}`);
+          payload.session = started;
+        }
         sendJson(res, 200, payload);
+        return;
+      }
+
+      if (method === 'POST' && url.pathname === '/local-agent') {
+        const body = await readJsonBody(req);
+        const current = typeof body.currentModel === 'string' ? body.currentModel : undefined;
+        if (!options.sessions) {
+          sendJson(res, 400, { error: 'Approve session control for Crashing Agents in Settings → Extensions.' });
+          return;
+        }
+        if ('value' in body) {
+          const value = body.value;
+          if (
+            value !== null &&
+            !(
+              typeof value === 'string' &&
+              value.startsWith(MODEL_CHOICE) &&
+              splitModel(value.slice(MODEL_CHOICE.length))
+            )
+          ) {
+            sendJson(res, 400, { error: 'Model unavailable' });
+            return;
+          }
+          await settingsStore.update((saved) => {
+            saved.localAgent = value;
+          });
+          sendJson(res, 200, { ok: true });
+          return;
+        }
+        sendJson(res, 200, await localAgentChoices(current));
         return;
       }
 
@@ -433,16 +639,7 @@ export function createServiceHandler(options: CreateServiceHandlerOptions) {
         const body = (await readJsonBody(req)) as Partial<ServiceRekeyRequest>;
         const fromScopeId = assertScopeId(body.fromScopeId);
         const toScopeId = assertScopeId(body.toScopeId);
-        if (fromScopeId !== toScopeId) {
-          await bindingsStore.update((all) => {
-            const fromKey = namespaceKey(localPreview, fromScopeId);
-            const toKey = namespaceKey(localPreview, toScopeId);
-            if (all[fromKey] && !all[toKey]) {
-              all[toKey] = all[fromKey];
-              delete all[fromKey];
-            }
-          });
-        }
+        await rekey(localPreview, fromScopeId, toScopeId);
         sendJson(res, 200, { ok: true });
         return;
       }
