@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useId, useState, type CSSProperties, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useId, useRef, useState, type CSSProperties, type ReactNode, type Ref } from 'react';
 import type { AgentInvitation, HostCapabilities, PanelBridge, ReadyRoom, TableSnapshot } from '@crashing/plugin-core';
-import { AgentPicker } from './AgentPicker';
+import { AgentOptions, AgentPicker, targetKey, useAgentCatalog } from './AgentPicker';
 import { CardBack, PaperCard, Portrait, useAsset } from './cards';
 import { Glyph } from './icons';
 import { useText } from './language';
@@ -91,6 +91,7 @@ function HeroFan() {
 }
 
 function Tile({
+  buttonRef,
   icon,
   title,
   text,
@@ -98,6 +99,7 @@ function Tile({
   onToggle,
   children,
 }: {
+  buttonRef?: Ref<HTMLButtonElement>;
   icon: string;
   title: string;
   text: string;
@@ -107,7 +109,7 @@ function Tile({
 }) {
   return (
     <section className={'ca-tile' + (open ? ' is-open' : '')}>
-      <button type="button" className="ca-tile__head" aria-expanded={open} onClick={onToggle}>
+      <button ref={buttonRef} type="button" className="ca-tile__head" aria-expanded={open} onClick={onToggle}>
         <span className="ca-tile__icon">
           <Glyph name={icon} size={18} />
         </span>
@@ -175,6 +177,8 @@ function ReadyRooms({ busy, onJoin }: { busy: boolean; onJoin: (code: string) =>
 }
 
 export function StartScreen({
+  languageControl,
+  agentModelControl,
   busy,
   capabilities,
   onDuel,
@@ -182,17 +186,35 @@ export function StartScreen({
   onJoinRoom,
   onJoinSeat,
 }: {
+  languageControl?: ReactNode;
+  agentModelControl?: ReactNode;
   busy: boolean;
   capabilities: HostCapabilities;
   onDuel: (name?: string) => void;
-  onCreateRoom: (visibility: 'public' | 'private') => void;
+  onCreateRoom: (
+    visibility: 'public' | 'private',
+    agent?: { name?: string; target?: { providerId: string; model: string } },
+  ) => void;
   onJoinRoom: (code: string, readyOnly?: boolean) => void;
   onJoinSeat: (token: string) => Promise<void> | void;
 }) {
   const t = useText();
   const [open, setOpen] = useState<'friends' | 'bots' | 'seat' | null>(null);
   const [agentName, setAgentName] = useState('');
-  const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+  const roomButton = useRef<HTMLButtonElement>(null);
+  const [roomType, setRoomType] = useState<'public' | 'private' | 'duel'>('public');
+  const [inviteOwnAgent, setInviteOwnAgent] = useState(false);
+  const duel = capabilities.canInviteLocalAgent && roomType === 'duel';
+  const withAgent = capabilities.canInviteLocalAgent && (duel || inviteOwnAgent);
+  const directory = useContext(BridgeContext)?.connectedAgents;
+  const choosing = withAgent && !duel && !!directory;
+  const { catalog, refresh } = useAgentCatalog(directory, choosing);
+  const [agentChoice, setAgentChoice] = useState('thread');
+  const connected = choosing
+    ? catalog?.agents.find((item) => targetKey(item) === agentChoice)
+    : undefined;
+  const threadAgent = !choosing || agentChoice === 'thread';
+  const agentMissing = choosing && !threadAgent && !connected;
   const accessHint = useId();
   const [code, setCode] = useState('');
   const [token, setToken] = useState('');
@@ -203,60 +225,41 @@ export function StartScreen({
       <section className="ca-hero">
         <HeroFan />
         <div className="ca-hero__copy">
-          {logo && <img className="ca-hero__logo" src={logo} alt="Crashing Agents" />}
-          <h2 className="ca-hero__title">{t('Outlast your own agent.')}</h2>
-          <p className="ca-hero__lead">
-            {t(
-              'A private card duel against this thread’s agent. One CRASH card hides in the deck. Draw it without a Fix and your server melts down.',
-            )}
-          </p>
-          <ul className="ca-hero__facts" aria-label={t('Duel at a glance')}>
-            <li>{t('1 vs 1')}</li>
-            <li>{t('32-card deck')}</li>
-            <li>{t('About 10 min')}</li>
-          </ul>
-          {capabilities.canInviteLocalAgent ? (
-            <>
-              <label className="ca-field">
-                {t('Agent name')}
-                <input
-                  className="ca-input"
-                  placeholder={t('Thread agent')}
-                  maxLength={24}
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
-                />
-              </label>
-              <div className="ca-hero__cta">
-                <button
-                  type="button"
-                  className="ca-btn ca-btn--primary ca-btn--lg"
-                  onClick={() => onDuel(agentName.trim() || undefined)}
-                  disabled={busy}
-                >
-                  {busy ? t('Creating duel…') : t('Invite this thread’s agent')}
-                  {!busy && <Glyph name="arrow" size={18} />}
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="ca-hero__cta">
-              <button
-                type="button"
-                className="ca-btn ca-btn--primary ca-btn--lg"
-                onClick={() => onCreateRoom('private')}
-                disabled={busy}
-              >
-                {t('Create room')}
-                {!busy && <Glyph name="arrow" size={18} />}
-              </button>
+          {(logo || languageControl) && (
+            <div className="ca-hero__brand">
+              {logo && <img className="ca-hero__logo" src={logo} alt="Crashing Agents" />}
+              {languageControl}
             </div>
           )}
+          <h2 className="ca-hero__title">
+            {capabilities.canInviteLocalAgent ? t('Outlast your own agent.') : 'Crashing Agents'}
+          </h2>
+          <p className="ca-hero__lead">
+            {t(
+              capabilities.canInviteLocalAgent
+                ? 'A private card duel against this thread’s agent. One CRASH card hides in the deck. Draw it without a Fix and your server melts down.'
+                : 'Create a room or join by code',
+            )}
+          </p>
+          <div className="ca-hero__cta">
+            <button
+              type="button"
+              className="ca-btn ca-btn--primary ca-btn--lg"
+              onClick={() => {
+                setOpen('friends');
+                roomButton.current?.focus();
+                roomButton.current?.scrollIntoView({ block: 'nearest' });
+              }}
+            >
+              {t('Set up room')} <Glyph name="arrow" size={18} />
+            </button>
+          </div>
         </div>
       </section>
 
       <div className="ca-tiles">
         <Tile
+          buttonRef={roomButton}
           icon="users"
           title={t('Play with friends and agents')}
           text={t('Create a room or join by code')}
@@ -265,27 +268,113 @@ export function StartScreen({
         >
           <div className="ca-room-setup">
             <label className="ca-field">
-              {t('Room access')}
+              {t('Room type')}
               <select
                 className="ca-input"
                 aria-describedby={accessHint}
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value === 'private' ? 'private' : 'public')}
+                value={roomType}
+                onChange={(e) => setRoomType(e.target.value as typeof roomType)}
               >
                 <option value="public">{t('Public room')}</option>
                 <option value="private">{t('Private room')}</option>
+                {capabilities.canInviteLocalAgent && (
+                  <option value="duel">{t('Private duel with my agent')}</option>
+                )}
               </select>
             </label>
             <small id={accessHint}>
-              {visibility === 'public'
-                ? t('Anyone with the room number can join.')
-                : t('Guests need the invitation code to join.')}
+              {duel
+                ? t('1 vs 1') + ' · ' + t('32-card deck') + ' · ' + t('About 10 min')
+                : roomType === 'public'
+                  ? t('Anyone with the room number can join.')
+                  : t('Guests need the invitation code to join.')}
             </small>
+            {capabilities.canInviteLocalAgent && !duel && (
+              <label className="ca-room-agent-choice">
+                <input
+                  type="checkbox"
+                  checked={inviteOwnAgent}
+                  onChange={(event) => setInviteOwnAgent(event.target.checked)}
+                />
+                {t('Invite my agent')}
+              </label>
+            )}
+            {withAgent && (
+              <div className="ca-room-agent-fields">
+                {choosing && (
+                  <>
+                    <label className="ca-field">
+                      {t('Agent')}
+                      <select
+                        className="ca-input"
+                        value={agentChoice}
+                        disabled={busy}
+                        onChange={(event) => setAgentChoice(event.target.value)}
+                      >
+                        <option value="thread">{t('Thread agent')}</option>
+                        {agentMissing && (
+                          <option value={agentChoice} disabled>
+                            {catalog && !catalog.loading
+                              ? t('Model unavailable')
+                              : t('Loading agents…')}
+                          </option>
+                        )}
+                        {catalog && <AgentOptions agents={catalog.agents} />}
+                      </select>
+                    </label>
+                    <div className="ca-agent-picker__status" role="status">
+                      {!catalog || catalog.loading
+                        ? t('Loading agents…')
+                        : catalog.failed
+                          ? t('Could not load agents.')
+                          : catalog.unavailable.length
+                            ? t('Could not load models from {names}.', {
+                                names: catalog.unavailable.join(', '),
+                              })
+                            : ''}
+                      {catalog && !catalog.loading && (
+                        <button type="button" className="ca-link" disabled={busy} onClick={refresh}>
+                          {t('Refresh agents')}
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+                {threadAgent && agentModelControl}
+                <label className="ca-field">
+                  {t('Agent name (optional)')}
+                  <input
+                    className="ca-input"
+                    placeholder={connected?.label || t('Thread agent')}
+                    maxLength={24}
+                    value={agentName}
+                    onChange={(event) => setAgentName(event.target.value)}
+                  />
+                </label>
+              </div>
+            )}
             <button
               type="button"
               className="ca-btn ca-btn--primary"
-              onClick={() => onCreateRoom(visibility)}
-              disabled={busy}
+              onClick={() => {
+                const name = agentName.trim() || undefined;
+                if (roomType === 'duel') {
+                  if (duel) onDuel(name);
+                } else {
+                  onCreateRoom(
+                    roomType,
+                    withAgent
+                      ? {
+                          name,
+                          ...(connected
+                            ? { target: { providerId: connected.providerId, model: connected.model } }
+                            : {}),
+                        }
+                      : undefined,
+                  );
+                }
+              }}
+              disabled={busy || agentMissing}
             >
               {t('Create room')}
             </button>
@@ -383,6 +472,7 @@ export function StartSkeleton() {
 type Step = { label: string; state: 'done' | 'active' | 'todo' };
 
 export function LobbyScreen({
+  agentModelControl,
   table,
   busy,
   capabilities,
@@ -393,6 +483,7 @@ export function LobbyScreen({
   onStart,
   onOpenThread,
 }: {
+  agentModelControl?: ReactNode;
   table: TableSnapshot;
   busy: boolean;
   capabilities: HostCapabilities;
@@ -604,6 +695,7 @@ export function LobbyScreen({
             {directory && onInviteConnected ? (
               <AgentPicker
                 key={room.code}
+                threadModelControl={agentModelControl}
                 directory={directory}
                 roomCode={room.code}
                 busy={busy}

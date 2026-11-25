@@ -20,7 +20,8 @@ const DEFAULT_CAPABILITIES: HostCapabilities = {
 
 export interface CrashingPanelProps {
   bridge: PanelBridge;
-  settingsControls?: ReactNode;
+  languageControl?: ReactNode;
+  agentModelControl?: ReactNode;
   /** Compact layout (e.g. narrow sidebar / inline thread tab). */
   compact?: boolean;
   /** Custom mascot element rendered in the panel header (defaults to site mascot image). */
@@ -38,7 +39,8 @@ export interface CrashingPanelProps {
 }
 
 function PanelBody({
-  settingsControls,
+  languageControl,
+  agentModelControl,
   bridge,
   compact,
   mascot,
@@ -57,8 +59,6 @@ function PanelBody({
   }>();
   const [network, setNetwork] = useState('');
   const [busy, setBusy] = useState(false);
-  const [menu, setMenu] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [epoch, refresh] = useState(0);
   const lock = useRef(false);
   const acceptedMove = useRef<{ gameId?: string; decisionId: string } | null>(null);
@@ -142,7 +142,6 @@ function PanelBody({
       await bridge.dispatch({ type: 'forget' });
       setTable(null);
       setNetwork('');
-      setMenu(false);
     });
 
   const room = table?.room;
@@ -173,15 +172,6 @@ function PanelBody({
           >
             {busy && <span className="ca-progress" aria-hidden="true" />}
             <div className="ca-wrap">
-              {!room && settingsControls && (
-                <details
-                  className="ca-settings"
-                  onToggle={(e) => setSettingsOpen(e.currentTarget.open)}
-                >
-                  <summary>{t('Table options')}</summary>
-                  {settingsOpen && settingsControls}
-                </details>
-              )}
               {room && table && (
                 <header className="ca-bar">
                   {mascot ??
@@ -207,63 +197,43 @@ function PanelBody({
                       {turn?.label}
                     </span>
                   )}
-                  <div className="ca-menu">
+                  <div className="ca-bar__actions">
+                    {languageControl}
+                    {canOpenChat && !compact && (
+                      <button
+                        type="button"
+                        className="ca-icon-btn"
+                        title={t('Open agent thread')}
+                        aria-label={t('Open agent thread')}
+                        onClick={() => bridge.openAgentChat?.()}
+                      >
+                        <Glyph name="thread" />
+                      </button>
+                    )}
+                    {phase === 'table' &&
+                      capabilities.canInviteLocalAgent &&
+                      (table.agent || table.owner) && (
+                        <button
+                          type="button"
+                          className="ca-icon-btn"
+                          disabled={busy}
+                          title={table.agent ? t('Wake agent') : t('Add thread agent')}
+                          aria-label={table.agent ? t('Wake agent') : t('Add thread agent')}
+                          onClick={() => void run(() => bridge.dispatch({ type: 'inviteAgent' }))}
+                        >
+                          <Glyph name="wake" />
+                        </button>
+                      )}
                     <button
                       type="button"
                       className="ca-icon-btn"
-                      aria-label={t('Table options')}
-                      aria-haspopup="dialog"
-                      aria-expanded={menu}
-                      onClick={() => setMenu(!menu)}
+                      title={t('Leave this table')}
+                      aria-label={t('Leave this table')}
+                      disabled={busy}
+                      onClick={() => void leave()}
                     >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <circle cx="5" cy="12" r="1.7" />
-                        <circle cx="12" cy="12" r="1.7" />
-                        <circle cx="19" cy="12" r="1.7" />
-                      </svg>
+                      <Glyph name="leave" />
                     </button>
-                    {menu && (
-                      <>
-                        <span className="ca-menu__scrim" onClick={() => setMenu(false)} />
-                        <div className="ca-menu__pop" role="dialog" aria-label={t('Table options')}>
-                          {settingsControls}
-                          {canOpenChat && !compact && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setMenu(false);
-                                bridge.openAgentChat?.();
-                              }}
-                            >
-                              <Glyph name="thread" size={15} />
-                              {t('Open agent thread')}
-                            </button>
-                          )}
-                          {capabilities.canInviteLocalAgent && (table.agent || table.owner) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setMenu(false);
-                                void run(() => bridge.dispatch({ type: 'inviteAgent' }));
-                              }}
-                            >
-                              <Glyph name="wake" size={15} />
-                              {table.agent ? t('Wake agent') : t('Add thread agent')}
-                            </button>
-                          )}
-                          <button type="button" className="is-danger" onClick={() => void leave()}>
-                            <Glyph name="leave" size={15} />
-                            {t('Leave this table')}
-                          </button>
-                        </div>
-                      </>
-                    )}
                   </div>
                 </header>
               )}
@@ -293,11 +263,30 @@ function PanelBody({
 
               {table === null && (
                 <StartScreen
+                  languageControl={languageControl}
+                  agentModelControl={agentModelControl}
                   busy={busy}
                   capabilities={capabilities}
                   onDuel={(name) => void run(() => bridge.dispatch({ type: 'duel', name }))}
-                  onCreateRoom={(visibility) =>
-                    void run(() => bridge.dispatch({ type: 'create', visibility }))
+                  onCreateRoom={(visibility, agent) =>
+                    void run(async () => {
+                      await bridge.dispatch({ type: 'create', visibility });
+                      if (!agent) return;
+                      const { target, name } = agent;
+                      if (!target || !bridge.connectedAgents) {
+                        await bridge.dispatch({ type: 'inviteAgent', name });
+                        return;
+                      }
+                      const created = await bridge.getState();
+                      if (!created) throw new Error('Room changed.');
+                      setTable(created);
+                      await bridge.connectedAgents.invite({
+                        roomCode: created.room.code,
+                        requestId: crypto.randomUUID(),
+                        ...target,
+                        ...(name ? { name } : {}),
+                      });
+                    })
                   }
                   onJoinRoom={(invite, readyOnly) =>
                     void run(() =>
@@ -310,6 +299,7 @@ function PanelBody({
 
               {table && phase === 'lobby' && (
                 <LobbyScreen
+                  agentModelControl={agentModelControl}
                   table={table}
                   busy={busy}
                   capabilities={capabilities}

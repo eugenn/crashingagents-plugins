@@ -1,40 +1,54 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   definePluginApp,
   useRpc,
   useBbNavigate,
+  useBbContext,
   experimental_copyToClipboard as bbCopyToClipboard,
   experimental_useSidebarThreads,
   experimental_Icon as Icon,
 } from '@get-bb/plugin-sdk/app';
 import type { PanelBridge, PanelCommand } from '@crashing/plugin-core';
-import { CrashingPanel, LanguageSelect, LanguagePanel, useText } from '@crashing/panel-ui';
+import {
+  CrashingPanel,
+  LanguageSelect,
+  LanguagePanel,
+  StartSkeleton,
+  useText,
+} from '@crashing/panel-ui';
 import thumbnails from '@crashing/panel-ui/opening-thumbnails';
 import '@crashing/panel-ui/styles.css';
 import type { contract } from './server';
 import { connectedInviteInput } from './agents';
 
+// The standalone table shares the host's binding storage with thread tables.
+const PAGE_SCOPE = 'page:game';
+const PAGE_BINDING_KEY = 'crashing-agents.game-thread';
+
 function useBbBridge(threadId: string, inThread?: boolean): PanelBridge {
   const rpc = useRpc<typeof contract>();
   const navigate = useBbNavigate();
+  const hasThread = threadId !== PAGE_SCOPE;
 
   return useMemo<PanelBridge>(
     () => ({
-      connectedAgents: {
-        hostName: 'bb',
-        list: (refresh = false) => rpc.call('connectedAgents', { threadId, refresh }),
-        invite: async (invitation) => {
-          await rpc.call('inviteConnectedAgent', connectedInviteInput(threadId, invitation));
-        },
-        openThread: (id) => navigate.toThread(id, { split: true }),
-      },
+      connectedAgents: hasThread
+        ? {
+            hostName: 'bb',
+            list: (refresh = false) => rpc.call('connectedAgents', { threadId, refresh }),
+            invite: async (invitation) => {
+              await rpc.call('inviteConnectedAgent', connectedInviteInput(threadId, invitation));
+            },
+            openThread: (id) => navigate.toThread(id, { split: true }),
+          }
+        : undefined,
       async getConfig() {
         const { assets } = await rpc.call('config', {});
         return {
           assetsOrigin: assets,
           capabilities: {
-            canInviteLocalAgent: true,
-            canOpenAgentChat: !inThread,
+            canInviteLocalAgent: hasThread,
+            canOpenAgentChat: hasThread && !inThread,
             agentTransport: 'cli',
           },
         };
@@ -45,6 +59,7 @@ function useBbBridge(threadId: string, inThread?: boolean): PanelBridge {
         switch (command.type) {
           case 'create':
             await rpc.call('create', { threadId, visibility: command.visibility });
+            if (!hasThread) localStorage.setItem(PAGE_BINDING_KEY, PAGE_SCOPE);
             return;
           case 'duel':
             await rpc.call('duel', command.name ? { threadId, name: command.name } : { threadId });
@@ -55,6 +70,7 @@ function useBbBridge(threadId: string, inThread?: boolean): PanelBridge {
               invite: command.invite,
               readyOnly: !!command.readyOnly,
             });
+            if (!hasThread) localStorage.setItem(PAGE_BINDING_KEY, PAGE_SCOPE);
             return;
           case 'joinSeat':
             await rpc.call('join', { threadId, token: command.token });
@@ -83,13 +99,15 @@ function useBbBridge(threadId: string, inThread?: boolean): PanelBridge {
             return;
           case 'forget':
             await rpc.call('forget', { threadId });
+            if (!hasThread) localStorage.removeItem(PAGE_BINDING_KEY);
             return;
         }
       },
       copyToClipboard: (text) => bbCopyToClipboard({ text }).catch(() => false),
-      openAgentChat: inThread ? undefined : () => navigate.toThread(threadId, { split: true }),
+      openAgentChat:
+        inThread || !hasThread ? undefined : () => navigate.toThread(threadId, { split: true }),
     }),
-    [rpc, navigate, threadId, inThread],
+    [rpc, navigate, threadId, inThread, hasThread],
   );
 }
 
@@ -140,7 +158,7 @@ function ThreadModelSelect({
   }
   return (
     <>
-      <label className="ca-language">
+      <label className="ca-field">
         {t('Agent model')}
         <select
           className="ca-input"
@@ -162,36 +180,29 @@ function ThreadModelSelect({
         </select>
       </label>
       {error && (
-        <div role="alert">
-          {error} <button onClick={() => retry((n) => n + 1)}>{t('Retry')}</button>
+        <div className="ca-notice" role="alert">
+          {error}{' '}
+          <button className="ca-link" onClick={() => retry((n) => n + 1)}>
+            {t('Retry')}
+          </button>
         </div>
       )}
     </>
   );
 }
 
-function TablePanel({
-  threadId,
-  inThread,
-  threadSelector,
-}: {
-  threadId: string;
-  inThread?: boolean;
-  threadSelector?: ReactNode;
-}) {
+function TablePanel({ threadId, inThread }: { threadId: string; inThread?: boolean }) {
   const bridge = useBbBridge(threadId, inThread);
   const [saving, setSaving] = useState(false);
-  const settingsControls = (
-    <>
-      <LanguageSelect />
-      {threadSelector}
-      <ThreadModelSelect threadId={threadId} saving={saving} setSaving={setSaving} />
-    </>
-  );
   return (
     <div className="ca-bb-game" inert={saving}>
       <CrashingPanel
-        settingsControls={settingsControls}
+        languageControl={<LanguageSelect compact />}
+        agentModelControl={
+          threadId !== PAGE_SCOPE && (
+            <ThreadModelSelect threadId={threadId} saving={saving} setSaving={setSaving} />
+          )
+        }
         bridge={bridge}
         compact={inThread}
         thumbnails={thumbnails}
@@ -205,56 +216,29 @@ function TablePanel({
 }
 
 function GamePage() {
-  const t = useText();
+  const { threadId: activeThread } = useBbContext();
   const { threads, status } = experimental_useSidebarThreads();
-  const choices = threads.filter((thread) => !thread.isHidden && !thread.isArchived);
-  const [selected, setSelected] = useState(
-    () => localStorage.getItem('crashing-agents.game-thread') ?? '',
-  );
-  const current = choices.find((item) => item.id === selected) ?? choices[0];
-  useEffect(() => {
-    if (current && current.id !== selected) setSelected(current.id);
-  }, [current, selected]);
+  const [scope, setScope] = useState<string>();
 
-  if (!current) {
-    return (
-      <div className="ca-page">
-        <p className="ca-empty">
-          {status === 'loading'
-            ? t('Loading threads…')
-            : status === 'error'
-              ? t('Could not load threads.')
-              : t('Open a BB Code thread to start playing.')}
-        </p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (scope) return;
+    const saved = localStorage.getItem(PAGE_BINDING_KEY);
+    if (saved === PAGE_SCOPE) {
+      setScope(PAGE_SCOPE);
+      return;
+    }
+    if (status === 'loading') return;
+    const available = threads.filter((thread) => !thread.isHidden && !thread.isArchived);
+    const thread =
+      available.find((item) => item.id === activeThread) ??
+      available.find((item) => item.id === saved) ??
+      available[0];
+    if (thread) localStorage.setItem(PAGE_BINDING_KEY, thread.id);
+    setScope(thread?.id ?? PAGE_SCOPE);
+  }, [activeThread, threads, status, scope]);
+
   return (
-    <div className="ca-page">
-      <TablePanel
-        key={current.id}
-        threadId={current.id}
-        threadSelector={
-          <label className="ca-language">
-            {t('BB thread')}
-            <select
-              className="ca-input"
-              value={current.id}
-              onChange={(event) => {
-                setSelected(event.target.value);
-                localStorage.setItem('crashing-agents.game-thread', event.target.value);
-              }}
-            >
-              {choices.map((thread) => (
-                <option key={thread.id} value={thread.id}>
-                  {thread.displayTitle}
-                </option>
-              ))}
-            </select>
-          </label>
-        }
-      />
-    </div>
+    <div className="ca-page">{scope ? <TablePanel threadId={scope} /> : <StartSkeleton />}</div>
   );
 }
 

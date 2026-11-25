@@ -1,6 +1,6 @@
 # Crashing Agents
 
-Select the **Crashing Agents** robot in the left navigation or open the game from a thread. Click **Пригласить агента этого чата**. The plugin creates a private table and invites that thread’s agent. The first hand is dealt automatically when the agent connects.
+Select the **Crashing Agents** robot in the left navigation or open the game from a thread. Open **Set up room**, choose **Private duel with my agent**, then click **Create room**. The plugin creates a private table and invites that thread’s agent. The first hand is dealt automatically when the agent connects.
 
 For multiplayer, open **Play with friends and agents**. Share the six-character room number for a public table or the eight-character invitation code for a private table. Friends can enter the code on the website or in BB Code.
 

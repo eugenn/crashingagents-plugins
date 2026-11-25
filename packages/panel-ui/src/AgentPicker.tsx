@@ -1,53 +1,28 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import type { AgentInvitation, PanelBridge } from '@crashing/plugin-core';
 import { useText } from './language';
 import { Glyph } from './icons';
 
 type Directory = NonNullable<PanelBridge['connectedAgents']>;
 type Catalog = Awaited<ReturnType<Directory['list']>>;
-const targetKey = (target: { providerId: string; model: string }) =>
+export const targetKey = (target: { providerId: string; model: string }) =>
   JSON.stringify([target.providerId, target.model]);
 
-export function AgentPicker({
-  directory,
-  roomCode,
-  busy,
-  full,
-  local,
-  hasLocalSeat,
-  onWake,
-  onPrompt,
-  onInvite,
-}: {
-  directory: Directory;
-  roomCode: string;
-  busy: boolean;
-  full: boolean;
-  local: boolean;
-  hasLocalSeat: boolean;
-  onWake: (name?: string) => void;
-  onPrompt: (name: string) => void;
-  onInvite: (invite: AgentInvitation) => Promise<boolean>;
-}) {
-  const t = useText();
-  const hint = useId();
-  const [open, setOpen] = useState(false);
-  const [revision, refresh] = useState(0);
+/** Loads the host's connected-agent catalog while `enabled`, polling while it is still loading. */
+export function useAgentCatalog(directory: Directory | undefined, enabled: boolean) {
+  const [revision, bump] = useState(0);
   const [catalog, setCatalog] = useState<Catalog>();
-  const [selection, select] = useState('');
-  const [name, setName] = useState('');
-  const pending = useRef<{ key: string; requestId: string } | null>(null);
   const refreshRequested = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!enabled || !directory) return;
     let active = true;
     let timer: ReturnType<typeof setTimeout>;
     async function load() {
       try {
         const force = refreshRequested.current;
         refreshRequested.current = false;
-        const next = await directory.list(force);
+        const next = await directory!.list(force);
         if (!active) return;
         setCatalog(next);
         if (next.loading) timer = setTimeout(load, 500);
@@ -66,7 +41,71 @@ export function AgentPicker({
       active = false;
       clearTimeout(timer);
     };
-  }, [directory, open, revision]);
+  }, [directory, enabled, revision]);
+
+  const refresh = () => {
+    refreshRequested.current = true;
+    bump((n) => n + 1);
+  };
+  return { catalog, refresh };
+}
+
+/** Connected agents grouped as recommended / other, for use inside a `<select>`. */
+export function AgentOptions({ agents }: { agents: Catalog['agents'] }) {
+  const t = useText();
+  return (
+    <>
+      {[true, false].map((recommended) => {
+        const group = agents.filter((item) => item.recommended === recommended);
+        return (
+          group.length > 0 && (
+            <optgroup
+              key={String(recommended)}
+              label={recommended ? t('Suggested for quick turns') : t('Other models')}
+            >
+              {group.map((item) => (
+                <option key={targetKey(item)} value={targetKey(item)}>
+                  {item.label} · {item.providerLabel}
+                </option>
+              ))}
+            </optgroup>
+          )
+        );
+      })}
+    </>
+  );
+}
+
+export function AgentPicker({
+  directory,
+  roomCode,
+  busy,
+  full,
+  local,
+  hasLocalSeat,
+  threadModelControl,
+  onWake,
+  onPrompt,
+  onInvite,
+}: {
+  directory: Directory;
+  roomCode: string;
+  busy: boolean;
+  full: boolean;
+  local: boolean;
+  hasLocalSeat: boolean;
+  threadModelControl?: ReactNode;
+  onWake: (name?: string) => void;
+  onPrompt: (name: string) => void;
+  onInvite: (invite: AgentInvitation) => Promise<boolean>;
+}) {
+  const t = useText();
+  const hint = useId();
+  const [open, setOpen] = useState(false);
+  const { catalog, refresh } = useAgentCatalog(directory, open);
+  const [selection, select] = useState('');
+  const [name, setName] = useState('');
+  const pending = useRef<{ key: string; requestId: string } | null>(null);
 
   const agents = catalog?.agents ?? [];
   const selectedKey = selection || (agents[0] && targetKey(agents[0])) || '';
@@ -124,23 +163,7 @@ export function AgentPicker({
                     {t('Model unavailable')}
                   </option>
                 )}
-                {[true, false].map((recommended) => {
-                  const group = agents.filter((item) => item.recommended === recommended);
-                  return (
-                    group.length > 0 && (
-                      <optgroup
-                        key={String(recommended)}
-                        label={recommended ? t('Suggested for quick turns') : t('Other models')}
-                      >
-                        {group.map((item) => (
-                          <option key={targetKey(item)} value={targetKey(item)}>
-                            {item.label} · {item.providerLabel}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )
-                  );
-                })}
+                <AgentOptions agents={agents} />
                 <optgroup label={t('Other ways to invite')}>
                   {local && <option value="thread">{t('Thread agent')}</option>}
                   <option value="prompt">{t('External agent prompt')}</option>
@@ -162,6 +185,7 @@ export function AgentPicker({
                   : t('Invite')}
             </button>
           </div>
+          {thread && threadModelControl}
           <small id={hint}>
             {manual
               ? t('Copy the invitation from the reserved seat.')
@@ -189,10 +213,7 @@ export function AgentPicker({
                 type="button"
                 className="ca-link"
                 disabled={busy}
-                onClick={() => {
-                  refreshRequested.current = true;
-                  refresh((n) => n + 1);
-                }}
+                onClick={refresh}
               >
                 {t('Refresh agents')}
               </button>

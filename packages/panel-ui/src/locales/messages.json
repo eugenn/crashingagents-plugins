@@ -1,5 +1,9 @@
 {
   "de": {
+    "Set up room": "Raum einrichten",
+    "Room type": "Raumtyp",
+    "Invite my agent": "Meinen Agenten einladen",
+    "Private duel with my agent": "Privates Duell mit meinem Agenten",
     "Duel": "Duel-Deck",
     "Core deck": "Core-Deck",
     "Public room": "Öffentlicher Server",
@@ -235,6 +239,10 @@
     "Choose cards for a combo. Play it on your turn.": "Wähle Karten für eine Kombination. Spiele sie in deinem Zug aus."
   },
   "fr": {
+    "Set up room": "Configurer le salon",
+    "Room type": "Type de salon",
+    "Invite my agent": "Inviter mon agent",
+    "Private duel with my agent": "Duel privé avec mon agent",
     "Duel": "Deck Duel",
     "Core deck": "Deck Core",
     "Public room": "Serveur public",
@@ -470,6 +478,10 @@
     "Choose cards for a combo. Play it on your turn.": "Préparez une combinaison de cartes et jouez-la à votre tour."
   },
   "es": {
+    "Set up room": "Configurar sala",
+    "Room type": "Tipo de sala",
+    "Invite my agent": "Invitar a mi agente",
+    "Private duel with my agent": "Duelo privado con mi agente",
     "Duel": "Mazo Duel",
     "Core deck": "Mazo Core",
     "Public room": "Servidor público",
@@ -705,6 +717,10 @@
     "Choose cards for a combo. Play it on your turn.": "Elige las cartas de la combinación y juégala en tu turno."
   },
   "pl": {
+    "Set up room": "Skonfiguruj pokój",
+    "Room type": "Rodzaj pokoju",
+    "Invite my agent": "Zaproś mojego agenta",
+    "Private duel with my agent": "Prywatny pojedynek z moim agentem",
     "Duel": "Talia Duel",
     "Core deck": "Talia Core",
     "Public room": "Serwer publiczny",
@@ -940,6 +956,10 @@
     "Choose cards for a combo. Play it on your turn.": "Wybierz karty do kombinacji i zagraj ją w swojej turze."
   },
   "lt": {
+    "Set up room": "Konfigūruoti kambarį",
+    "Room type": "Kambario tipas",
+    "Invite my agent": "Pakviesti savo agentą",
+    "Private duel with my agent": "Privati dvikova su savo agentu",
     "Duel": "Duel kaladė",
     "Core deck": "Core kaladė",
     "Public room": "Viešas serveris",
@@ -1175,6 +1195,10 @@
     "Choose cards for a combo. Play it on your turn.": "Pasirinkite derinio kortas ir sužaiskite jomis per savo ėjimą."
   },
   "be": {
+    "Set up room": "Наладзіць пакой",
+    "Room type": "Тып пакоя",
+    "Invite my agent": "Запрасіць свайго агента",
+    "Private duel with my agent": "Прыватная дуэль са сваім агентам",
     "Duel": "Калода Duel",
     "Core deck": "Калода Core",
     "Public room": "Публічны сервер",
@@ -1410,6 +1434,10 @@
     "Choose cards for a combo. Play it on your turn.": "Можна загадзя выбраць карты для камбінацыі і разыграць іх у свой ход."
   },
   "sr": {
+    "Set up room": "Podesi sobu",
+    "Room type": "Tip sobe",
+    "Invite my agent": "Pozovi mog agenta",
+    "Private duel with my agent": "Privatni duel sa mojim agentom",
     "Duel": "Duel špil",
     "Core deck": "Core špil",
     "Public room": "Javni server",
@@ -1645,6 +1673,10 @@
     "Choose cards for a combo. Play it on your turn.": "Изабери карте за комбинацију и одиграј је кад дођеш на ред."
   },
   "ru": {
+    "Set up room": "Настроить комнату",
+    "Room type": "Тип комнаты",
+    "Invite my agent": "Пригласить своего агента",
+    "Private duel with my agent": "Закрытая дуэль со своим агентом",
     "Duel": "Дуэль",
     "Core deck": "Базовая колода",
     "Public room": "Открытая комната",

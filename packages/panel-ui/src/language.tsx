@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Translate } from '@crashing/plugin-core';
+import { Glyph } from './icons';
 import messages from './locales/messages.json';
 import site from './locales/site.json';
 
 export type Language = keyof typeof site;
 export type { Translate };
 
-const languages = Object.keys(site) as Language[];
+const languages: Language[] = ['en', 'de', 'fr', 'es', 'pl', 'lt', 'be', 'ru', 'sr'];
 const isLanguage = (value: unknown): value is Language =>
   typeof value === 'string' && Object.hasOwn(site, value);
 
@@ -95,14 +96,25 @@ export function LanguagePanel({
   );
 }
 
-export function LanguageSelect() {
+export function LanguageSelect({ compact = false }: { compact?: boolean } = {}) {
   const language = useLanguage();
   const t = useText();
   return (
-    <label className="ca-language">
-      {t('Language')}
+    <label
+      className={compact ? 'ca-locale' : 'ca-language'}
+      title={compact ? t('Language') : undefined}
+    >
+      {compact ? (
+        <>
+          <Glyph name="globe" size={15} />
+          <span aria-hidden="true">{language.toUpperCase()}</span>
+          <Glyph name="down" size={12} />
+        </>
+      ) : (
+        t('Language')
+      )}
       <select
-        className="ca-input"
+        className={compact ? undefined : 'ca-input'}
         aria-label={t('Language')}
         value={language}
         onChange={(event) => {

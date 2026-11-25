@@ -565,6 +565,7 @@
 
 .ca-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   min-height: 36px;
@@ -579,7 +580,8 @@
   align-items: baseline;
   gap: 10px;
   min-width: 0;
-  flex: 1;
+  max-width: 100%;
+  flex: 1 1 auto;
 }
 .ca-bar__title strong {
   font-size: var(--text-base, 1rem);
@@ -621,47 +623,11 @@
   background: currentColor;
   animation: ca-blink 1.4s ease-in-out infinite;
 }
-.ca-menu {
-  position: relative;
-}
-.ca-menu__scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-}
-.ca-menu__pop {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  z-index: 61;
-  min-width: 210px;
-  padding: 5px;
-  border-radius: calc(var(--ca-radius) + 2px);
-  border: 1px solid var(--ca-border);
-  background: var(--popover, var(--ca-bg));
-  box-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.55);
-  animation: ca-pop 0.14s ease-out;
-}
-.ca-menu__pop button {
+.ca-bar__actions {
   display: flex;
   align-items: center;
-  gap: 9px;
-  width: 100%;
-  padding: 7px 9px;
-  border: 0;
-  border-radius: var(--ca-radius);
-  background: none;
-  color: var(--ca-fg);
-  font: inherit;
-  font-size: var(--text-xs, 0.875rem);
-  text-align: left;
-  cursor: pointer;
-}
-.ca-menu__pop button:hover {
-  background: var(--ca-hover);
-}
-.ca-menu__pop .is-danger {
-  color: var(--ca-danger);
+  gap: 2px;
+  margin-inline-start: auto;
 }
 
 .ca-notice {
@@ -752,6 +718,42 @@
   position: relative;
   z-index: 20;
 }
+.ca-hero__brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+}
+.ca-hero__brand .ca-locale {
+  margin-inline-start: auto;
+}
+.ca-room-agent-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-size: var(--text-xs, 0.875rem);
+  cursor: pointer;
+}
+.ca-room-agent-choice input {
+  margin: 0;
+  accent-color: var(--ca-signal);
+}
+.ca-room-agent-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 10px;
+  width: 100%;
+}
+.ca-room-agent-fields .ca-field,
+.ca-room-setup .ca-field {
+  min-width: 0;
+}
+.ca-room-agent-fields .ca-input,
+.ca-room-setup .ca-input {
+  box-sizing: border-box;
+  width: 100%;
+}
 .ca-hero__logo {
   width: 64px;
   height: 64px;
@@ -774,25 +776,6 @@
   font-size: var(--text-sm, 0.9375rem);
   line-height: 1.55;
   text-wrap: pretty;
-}
-.ca-hero__facts {
-  display: flex;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  flex-wrap: wrap;
-}
-.ca-hero__facts li {
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--ca-border);
-  font-size: var(--text-2xs, 0.6875rem);
-  font-weight: 600;
-  color: var(--ca-muted);
 }
 .ca-hero__cta {
   display: flex;
@@ -1974,14 +1957,17 @@
     transform: translateX(-50%) translateY(-12px) rotate(-3deg);
   }
   .ca-hero__copy {
+    position: static;
     align-items: center;
     text-align: center;
   }
+  .ca-hero__brand {
+    position: absolute;
+    inset-block-start: 10px;
+    inset-inline-end: 12px;
+  }
   .ca-hero__logo {
     display: none;
-  }
-  .ca-hero__facts {
-    justify-content: center;
   }
   .ca-hero__cta {
     align-items: center;
@@ -2360,18 +2346,6 @@
   flex: 1;
   min-height: 0;
 }
-.ca-settings summary {
-  cursor: pointer;
-  color: var(--ca-muted);
-}
-.ca-menu__pop:has(.ca-language) {
-  width: min(320px, 82cqw);
-}
-.ca-menu__pop .ca-input, .ca-settings .ca-input {
-  min-width: 0;
-  max-width: 60%;
-}
-
 /* Room and seat setup share the panel's controls and spacing. */
 .ca-room-setup,
 .ca-agent-setup {
@@ -2489,6 +2463,35 @@
 .ca-language .ca-input {
   width: auto;
   min-height: 28px;
+}
+
+.ca-locale {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding-inline: 7px;
+  border-radius: var(--ca-radius);
+  color: var(--ca-muted);
+  font-size: var(--text-2xs, 0.6875rem);
+  font-weight: 650;
+}
+.ca-locale:hover, .ca-locale:focus-within {
+  background: var(--ca-hover);
+  color: var(--ca-fg);
+}
+.ca-locale:has(:focus-visible) {
+  outline: 2px solid var(--ring, currentColor);
+  outline-offset: 2px;
+}
+.ca-locale select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .ca-agent-picker > summary {

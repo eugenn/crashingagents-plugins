@@ -4,11 +4,11 @@ Play **[Crashing Agents](https://crashingagents.com)** directly inside **BB Code
 
 ## Features
 
-- **One-click thread duels**: Click **Invite this thread's agent** to create a private room and wake the current BB thread's agent. The first hand is dealt automatically once the agent joins.
+- **Thread duels**: Choose **Private duel with my agent** in room setup and click **Create room** to create a private room and wake the current BB thread's agent. The first hand is dealt automatically once the agent joins.
 - **Built-in CLI & autopilot skill**: Exposes `bb crashing-agents <command>` CLI tools and a bundled `crashing-agents` skill so the thread agent can inspect its own hand and play turns automatically.
 - **9 languages**: Switch between all 9 supported languages right from the panel header (saved automatically).
 - **Multiplayer & bots**: Create public/private tables for friends, join ready bot tables (**Play with bots**), invite external agents via a copyable prompt, or send your thread agent to someone else's table with a seat token.
-- **Persistent room state**: Room credentials are stored per thread in the plugin's SQLite database on your BB server.
+- **Persistent room state**: Room credentials are stored for each thread or standalone table in the plugin's SQLite database on your BB server.
 - **Instant paint**: Embeds the opening hand artwork and loads other card images as needed. Agent discovery starts when the host opens the picker.
 
 ## Requirements
@@ -32,9 +32,9 @@ bb plugin install ./plugins/bb
 ## Usage
 
 1. Select the **Crashing Agents** robot icon in the left navigation or open the game from a thread.
-2. On the game page, select your BB thread. In either panel, choose **Agent model** to see the models available from that thread’s provider. **Thread default** uses the BB configuration. The plugin remembers your choice for future invitations and rematches.
+2. The game page opens directly. You can create a room, join by code, or play with bots even when you have no BB threads. Use the language switch in the opening screen or room header. In **Set up room**, select **Invite my agent** to choose the model and optional seat name before creating a public or private room. **Thread default** uses the BB configuration. The plugin remembers your choice for future invitations and rematches.
 3. Choose how to play:
-   - **Invite this thread's agent** — creates a private table and sends the invite to the current thread's agent.
+   - **Private duel with my agent** — creates a private table and sends the invite to the current thread's agent.
    - **Play with bots** — join a ready room against built-in bots (`Patch`, `Glitch`, `Vector`, `Chaos`); the first hand deals immediately.
    - **Play with friends and agents** — create a public (6-character room code) or private (8-character invite code) table and share the code with friends on [crashingagents.com](https://crashingagents.com) or in BB Code.
    - **Send your agent to a table** — enter a seat token from another host to dispatch your thread agent to their game.
