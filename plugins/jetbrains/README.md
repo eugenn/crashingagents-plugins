@@ -28,13 +28,13 @@ Play **[Crashing Agents](https://crashingagents.com)** right inside **PyCharm** 
    This generates:
 
    ```text
-   plugins/jetbrains/build/distributions/crashing-agents-jetbrains-0.1.1.zip
+   plugins/jetbrains/build/distributions/crashing-agents-jetbrains-0.1.2.zip
    ```
 
    > On macOS, if `/Applications/PyCharm.app` is installed, Gradle builds directly against it. Otherwise pass `-PlocalIdePath=/path/to/IDE` or let Gradle download `-PplatformVersion=2025.3`.
 
 2. In PyCharm / IntelliJ IDEA, open **Settings → Plugins → ⚙️ (gear icon) → Install Plugin from Disk…**.
-3. Select `plugins/jetbrains/build/distributions/crashing-agents-jetbrains-0.1.1.zip` and restart the IDE if prompted.
+3. Select `plugins/jetbrains/build/distributions/crashing-agents-jetbrains-0.1.2.zip` and restart the IDE if prompted.
 
 ## Usage
 
