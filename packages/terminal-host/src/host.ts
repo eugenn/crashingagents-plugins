@@ -17,6 +17,7 @@ import {
   type TerminalAgentCatalog,
   type TerminalAgentKind,
 } from './agents';
+import { writeSeat } from './seats';
 
 /** The terminal side of one IDE. */
 export interface TerminalAdapter {
@@ -27,11 +28,28 @@ export interface TerminalAdapter {
     prompt: string;
     title: string;
   }): Promise<string>;
-  /** Types `text` and presses Enter. False when the terminal is gone. */
+  /**
+   * Delivers `text` as the agent's next message and presses Enter. A host may hold it until a
+   * busy agent is free, like BB's queue-if-active. False when the terminal is gone.
+   */
   send(terminalId: string, text: string): Promise<boolean>;
   focus?(terminalId: string): Promise<void> | void;
   /** Open terminals the player can send an invitation to, agents first. */
-  running?(): Promise<{ id: string; label: string }[]>;
+  running?(): Promise<RunningTerminal[]>;
+  /**
+   * The name the terminal's environment gives the game CLI (see TERMINAL_KEY_ENV), when the host
+   * knows it. The host then binds the seat to the terminal and the agent never sees it.
+   */
+  seatKey?(terminalId: string): string | undefined;
+  /** Every terminal `launch` opens has a `seatKey`. */
+  bindsLaunches?: boolean;
+}
+
+export interface RunningTerminal {
+  id: string;
+  label: string;
+  /** An agent runs there (false: a plain shell). Hosts that list only agents may omit it. */
+  agent?: boolean;
 }
 
 /** Small JSON store next to the room bindings. */
@@ -52,6 +70,8 @@ export interface TerminalHostOptions {
   scope: () => Promise<string> | string;
   catalog?: TerminalAgentCatalog;
   clientOptions?: CrashingClientOptions;
+  /** Home folder for the seat files (tests). */
+  home?: string;
 }
 
 const RUNNING = 'terminal';
@@ -63,16 +83,35 @@ type Seat = { terminalId: string; token: string };
 export function createTerminalHost(options: TerminalHostOptions) {
   const { kv, terminals, storage } = options;
   const catalog = options.catalog ?? createTerminalAgentCatalog();
-  const message = async (token: string) =>
-    buildTerminalInviteMessage({
-      command:
-        typeof options.cliCommand === 'string' ? options.cliCommand : await options.cliCommand(),
-      token,
-    });
+  const cli = async () =>
+    typeof options.cliCommand === 'string' ? options.cliCommand : options.cliCommand();
+  const invitation = async (token?: string) =>
+    buildTerminalInviteMessage({ command: await cli(), ...(token ? { token } : {}) });
+  const bind = (key: string, token: string) =>
+    writeSeat(key, { token, origin: options.origin }, options.home);
+
+  /** Sends the invitation, with the seat bound to the terminal when the host can. */
+  async function deliver(terminalId: string, token: string) {
+    const key = terminals.seatKey?.(terminalId);
+    if (key) await bind(key, token);
+    return terminals.send(terminalId, await invitation(key ? undefined : token));
+  }
 
   async function launch(kind: TerminalAgentKind, model: string, title: string, token: string) {
-    return terminals.launch({ kind, model, title, prompt: await message(token) });
+    const bound = !!terminals.bindsLaunches;
+    const id = await terminals.launch({
+      kind,
+      model,
+      title,
+      prompt: await invitation(bound ? undefined : token),
+    });
+    const key = terminals.seatKey?.(id);
+    if (bound && key) await bind(key, token);
+    return id;
   }
+
+  const runningAgents = async () =>
+    ((await terminals.running?.()) ?? []).filter((terminal) => terminal.agent !== false);
 
   async function defaultTarget() {
     const [first] = await catalog.installed();
@@ -82,14 +121,21 @@ export function createTerminalHost(options: TerminalHostOptions) {
     return { kind: first.kind, model: DEFAULT_MODEL };
   }
 
-  /** Sends to the chosen agent, or starts it. Remembers the terminal for wake-ups. */
+  /**
+   * "My agent", like BB's thread agent: the one the player picked, else the agent already running
+   * here. A new agent starts only when none runs or the player chose one to start.
+   */
   async function inviteLocal(scopeId: string, token: string) {
     const known = await kv.get<string>('agent:' + scopeId);
-    if (known && (await terminals.send(known, await message(token)))) return;
+    if (known && (await deliver(known, token))) return;
     const choice = await kv.get<string>(LOCAL_AGENT);
-    if (choice?.startsWith(RUNNING + ':')) {
-      const id = choice.slice(RUNNING.length + 1);
-      if (await terminals.send(id, await message(token))) {
+    const candidates = choice?.startsWith(RUNNING + ':')
+      ? [choice.slice(RUNNING.length + 1)]
+      : choice
+        ? []
+        : (await runningAgents()).map((terminal) => terminal.id);
+    for (const id of candidates) {
+      if (await deliver(id, token)) {
         await kv.set('agent:' + scopeId, id);
         return;
       }
@@ -117,7 +163,7 @@ export function createTerminalHost(options: TerminalHostOptions) {
         // Connected agents are keyed by their terminal: rematches go straight back to them.
         const seat = await kv.get<Seat>('seat:' + scopeId);
         if (seat) {
-          if (!(await terminals.send(seat.terminalId, await message(seat.token)))) {
+          if (!(await deliver(seat.terminalId, seat.token))) {
             throw new Error('That agent terminal was closed. Invite a new agent.');
           }
           return;
@@ -129,7 +175,7 @@ export function createTerminalHost(options: TerminalHostOptions) {
     },
   });
 
-  async function runningAgents(): Promise<ConnectedAgent[]> {
+  async function runningOptions(): Promise<ConnectedAgent[]> {
     const open = (await terminals.running?.()) ?? [];
     return open.map((terminal) => ({
       providerId: RUNNING,
@@ -146,9 +192,10 @@ export function createTerminalHost(options: TerminalHostOptions) {
     const open = (await terminals.running?.()) ?? [];
     const selected = (await kv.get<string>(LOCAL_AGENT)) ?? null;
     const [first] = installed;
+    const [here] = open.filter((terminal) => terminal.agent !== false);
     return {
       selected,
-      defaultLabel: first ? first.kind.label : 'No agent CLI found',
+      defaultLabel: here ? here.label : first ? first.kind.label : 'No agent CLI found',
       groups: [
         {
           label: 'Open terminals',
@@ -183,7 +230,7 @@ export function createTerminalHost(options: TerminalHostOptions) {
     },
     agents: async ({ refresh }) => {
       const snapshot = catalog.list(!!refresh);
-      return { ...snapshot, agents: [...(await runningAgents()), ...snapshot.agents] };
+      return { ...snapshot, agents: [...(await runningOptions()), ...snapshot.agents] };
     },
     invite: async (invite, scopeId) => {
       await controller.inviteConnectedAgent(scopeId, invite, {
@@ -202,7 +249,7 @@ export function createTerminalHost(options: TerminalHostOptions) {
               name: (invite.name || terminal.label).slice(0, 24),
               async launch(prompt) {
                 const token = invitedSeatToken(prompt);
-                if (!(await terminals.send(terminal.id, await message(token)))) {
+                if (!(await deliver(terminal.id, token))) {
                   throw new Error('That terminal was closed. Refresh the agent list.');
                 }
                 return remember(terminal.id, token);

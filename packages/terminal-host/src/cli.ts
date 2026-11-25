@@ -1,8 +1,10 @@
+import { readSeat, terminalKey } from './seats';
 import {
   AGENT_TOOL_NAMES,
   AGENT_TOOL_SET,
   DEFAULT_ORIGIN,
   LIST_ARGUMENTS,
+  buildTerminalPlayGuide,
   createCrashingClient,
   fromCliCommandName,
   toCliCommandName,
@@ -19,9 +21,10 @@ const SEAT = /^[A-Za-z0-9_-]{43}$/;
 
 function usage(): string {
   return [
-    'Usage: crashing-agents --seat SEAT COMMAND [--name value ...]',
+    'Usage: crashing-agents COMMAND [--name value ...] [--seat SEAT]',
     '',
-    'Plays the agent seat of a Crashing Agents room. The invitation names your seat.',
+    'Plays the agent seat of a Crashing Agents room. The panel binds your seat to this terminal;',
+    'pass --seat only when your invitation names one.',
     'Values are JSON when they parse as JSON (numbers, true, false), text otherwise.',
     'card_ids takes a comma list.',
     '',
@@ -89,24 +92,67 @@ function finished(result: Record<string, unknown>): boolean {
   );
 }
 
-/** The game CLI an IDE terminal agent runs. Stateless: the seat travels with every call. */
+async function findSeat(key: string, home: string | undefined, waitMs: number) {
+  // The host writes the seat right after the agent starts; a fast agent may run first.
+  const until = Date.now() + waitMs;
+  for (;;) {
+    const seat = await readSeat(key, home);
+    if (seat || Date.now() >= until) return seat;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+}
+
+/**
+ * The game CLI an IDE terminal agent runs. The seat comes from the agent's terminal, which the
+ * host bound when it invited the agent (like BB's thread), or from `--seat`.
+ */
 export async function runAgentCli(
   argv: string[],
-  options: { env?: Record<string, string | undefined>; clientOptions?: CrashingClientOptions } = {},
+  options: {
+    env?: Record<string, string | undefined>;
+    clientOptions?: CrashingClientOptions;
+    /** Shell words that run this CLI, used in the play guide. */
+    command?: string;
+    home?: string;
+    seatWaitMs?: number;
+  } = {},
 ): Promise<CliResult> {
   try {
-    const { seat, origin, command, args } = parseCliArguments(argv);
+    const parsed = parseCliArguments(argv);
+    const { command, args } = parsed;
     if (!command || command === 'help') return { code: command ? 0 : 1, stdout: usage() };
     const tool = fromCliCommandName(command);
     if (!AGENT_TOOL_SET.has(tool)) throw new Error(`Unknown command: ${command}\n\n${usage()}`);
-    if (!seat || !SEAT.test(seat)) throw new Error('Pass the --seat value from your invitation.');
+
+    const key = options.env ? terminalKey(options.env) : undefined;
+    const bound =
+      !parsed.seat && key
+        ? await findSeat(key, options.home, options.seatWaitMs ?? 3000)
+        : undefined;
+    const seat = parsed.seat ?? bound?.token;
+    if (!seat || !SEAT.test(seat)) {
+      throw new Error(
+        key
+          ? 'No game seat is bound to this terminal. Ask the player to invite you again from the Crashing Agents panel.'
+          : 'Pass the --seat value from your invitation.',
+      );
+    }
     const client = createCrashingClient(
-      origin || options.env?.CRASHING_AGENTS_ORIGIN || DEFAULT_ORIGIN,
+      parsed.origin || bound?.origin || options.env?.CRASHING_AGENTS_ORIGIN || DEFAULT_ORIGIN,
       options.clientOptions,
     );
+    // Like BB: one game per invitation. A rematch comes as a new invitation.
+    if (tool === 'wait_for_turn') delete args.wait_for_rematch;
     const result = (await client.agent(seat, tool, args)) as Record<string, unknown>;
+    if (tool === 'join_room') {
+      result.instructions = buildTerminalPlayGuide({
+        command: options.command ?? 'crashing-agents',
+        ...(parsed.seat ? { seat: parsed.seat } : {}),
+      });
+    }
     if (finished(result)) {
-      result.instructions = 'The game is finished. Report the result in one line and stop.';
+      result.instructions =
+        'The game is finished. Report the result in one line and end your turn now.';
     }
     return { code: 0, stdout: JSON.stringify(result) };
   } catch (error) {

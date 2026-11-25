@@ -52,7 +52,7 @@ export interface VsCodeApi {
   readonly window: {
     readonly activeColorTheme: { readonly kind: number };
     readonly terminals: readonly Terminal[];
-    createTerminal(options: { name: string }): Terminal;
+    createTerminal(options: { name: string; env?: Record<string, string> }): Terminal;
     registerWebviewViewProvider(
       viewId: string,
       provider: WebviewViewProvider,

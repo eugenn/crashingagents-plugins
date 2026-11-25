@@ -25,9 +25,13 @@ export async function installAgentCli(options: {
     await mkdir(dir, { recursive: true });
     await writeFile(path, bundle, { mode: 0o755 });
   }
-  const node =
-    (await findOnPath('node', options.env)) ??
-    (/^node(\.exe)?$/i.test(basename(process.execPath)) ? process.execPath : 'node');
+  // Plain `node` when it is on PATH: the game CLI prints its own command the same way, so
+  // Claude Code's permission for this command covers every move.
+  const node = (await findOnPath('node', options.env))
+    ? 'node'
+    : /^node(\.exe)?$/i.test(basename(process.execPath))
+      ? process.execPath
+      : 'node';
   const words = [quotePath(node), quotePath(path)];
   if (options.origin !== DEFAULT_ORIGIN) words.push('--origin', options.origin);
   return { path, command: words.join(' ') };

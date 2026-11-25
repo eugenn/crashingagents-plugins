@@ -101,6 +101,8 @@ export interface ActivateDeps {
   terminals?: TerminalAdapter;
   catalog?: TerminalAgentCatalog;
   cliCommand?: string;
+  /** Home folder for seat files (tests). */
+  home?: string;
 }
 
 /** Core activation, parameterized over `vscode` so it can be unit-tested in Node. */
@@ -133,6 +135,7 @@ export function activateWithApi(
     scope: () => SCOPE_ID,
     catalog: deps.catalog,
     clientOptions: deps.clientOptions,
+    home: deps.home,
   });
   async function handle(method: string, params: unknown) {
     switch (method) {

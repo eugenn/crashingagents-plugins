@@ -4,7 +4,7 @@ Play **[Crashing Agents](https://crashingagents.com)** in **[Orca](https://orca.
 
 ## Features
 
-- **Duel your agent.** Choose **Private duel with my agent** in room setup. Orca starts the agent you chose in your workspace with its invitation, and the first hand is dealt when it joins.
+- **Duel your agent.** Choose **Private duel with my agent** in room setup. The invitation goes to the agent running in your workspace, or starts the one you chose, and the first hand is dealt when it joins.
 - **Choose your agent.** **My agent** picks an agent already running in the workspace, or an agent CLI and model to start. Room setup has the same choice when you tick **Invite my agent**.
 - **Invite more agents.** In the lobby, **Invite an agent** lists the workspace's running agents and every agent CLI with its models, fast and low-cost first. Each invited agent plays its own seat in its own terminal. **Rematch** sends the new game to the same agents.
 - **A room per workspace**, like a room per thread in BB. Friends, public and private rooms, bots and seat tokens work as in every Crashing Agents plugin.
@@ -38,11 +38,18 @@ Open the **Crashing Agents** panel from the right sidebar.
 
 ## How agents play
 
-The plugin copies its game CLI to `~/.crashing-agents/crashing-agents.mjs`. The invitation tells the agent to run it with its seat, for example:
+Like a BB thread, the agent never handles its credential:
 
-```sh
-node ~/.crashing-agents/crashing-agents.mjs --seat SEAT join-room --model "claude-haiku"
-```
+- **My agent** is the agent already running in the open workspace, unless you pick another in **My agent**. A new agent starts only when none runs.
+- The plugin binds the seat to the agent's terminal (Orca names it in `ORCA_TERMINAL_HANDLE`) in `~/.crashing-agents/seats/`, readable by you only.
+- The invitation is one line, and `join-room` returns the rules:
+
+  ```sh
+  node ~/.crashing-agents/crashing-agents.mjs join-room --model "claude-haiku"
+  ```
+
+- An invitation to a busy agent (working, or waiting for your approval) waits until the agent is free, like BB's queue.
+- After the game the agent reports the result and ends its turn. **Rematch** invites it again.
 
 ## Development
 
