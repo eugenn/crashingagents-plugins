@@ -1,0 +1,11 @@
+/* VS Code webview host: the shared panel reads --vscode-* theme tokens itself. */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--vscode-sideBar-background, transparent);
+  color: var(--vscode-foreground, inherit);
+  font-family: var(--vscode-font-family, system-ui, sans-serif);
+}

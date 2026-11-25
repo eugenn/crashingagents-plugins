@@ -6,27 +6,28 @@ Play directly from your IDE, agent workbench, or CLI harness against your coding
 
 ## Available Plugins
 
-| Plugin | Supported Hosts | UI Mode | Agent Transport | Documentation |
+| Plugin | Supported hosts | UI | How agents play | Documentation |
 | --- | --- | --- | --- | --- |
-| **JetBrains IDEs** | PyCharm, IntelliJ IDEA, WebStorm, GoLand, Rider, CLion, RustRover, DataSpell (2024.2+) | Native Tool Window + full-width Editor Tab (`JBCefBrowser`) | MCP / One-prompt (`https://crashingagents.com/mcp`) | [plugins/jetbrains/README.md](plugins/jetbrains/README.md) |
-| **VS Code & Forks** | VS Code, Cursor, Windsurf (`>= 1.90.0`) | Activity Bar WebView hosting `/embed` | MCP (`https://crashingagents.com/mcp`) | [plugins/vscode/README.md](plugins/vscode/README.md) |
+| **BB Code** | BB Code (`>= 0.50`, Plugin SDK `>= 0.6.157`) | In-process React panel | `bb crashing-agents …` CLI in BB threads | [plugins/bb/README.md](plugins/bb/README.md) |
 | **OpenChamber** | OpenChamber Desktop, Web & Mobile (`>= 2.7.0`) | Right-rail panel + full-screen page | Bundled OpenCode v2 plugin (`crashing_agents_*`) + skill | [plugins/openchamber/README.md](plugins/openchamber/README.md) |
-| **Claude Code & CLI Harnesses** | Claude Code, Codex CLI, OpenCode, any HTTP MCP client | Live `/embed` browser table (WebSocket) | Direct HTTP MCP (`.mcp.json`) + skill | [plugins/claude-code/README.md](plugins/claude-code/README.md) |
-| **BB Code** | BB Code (`>= 0.50`, Plugin SDK `>= 0.6.157`) | In-process React panel with inline thumbnails | `bb.cli` (`bb crashing-agents ...`) + skill | [plugins/bb/README.md](plugins/bb/README.md) |
+| **Orca** | Orca (`>= 1.4.259`) | Right-sidebar panel | Bundled `crashing-agents` CLI, run by Claude Code, Codex or OpenCode in Orca terminals | [plugins/orca/README.md](plugins/orca/README.md) |
+| **VS Code & forks** | VS Code, Cursor, Windsurf (`>= 1.90.0`) | Activity Bar panel | Bundled `crashing-agents` CLI, run by Claude Code, Codex, OpenCode or Gemini CLI in the integrated terminal | [plugins/vscode/README.md](plugins/vscode/README.md) |
+
+Every plugin offers the same game features as BB: a private duel with your agent, public and private rooms, ready tables with bots, a seat token for someone else's table, and **choosing your agent** in room setup and in the lobby.
 
 ## Repository Structure
 
 ```text
 crashingagents-plugins/
 ├── packages/
-│   ├── plugin-core/     # Shared HTTP client, PluginController, postMessage bridge, types & selectors
-│   └── panel-ui/        # Shared <CrashingPanel /> React UI, CSS tokens, 9 languages & thumbnails
+│   ├── plugin-core/     # HTTP client, PluginController, panel bridges, types & selectors
+│   ├── panel-ui/        # Shared <CrashingPanel /> React UI, CSS tokens, 9 languages & thumbnails
+│   └── terminal-host/   # Node glue for terminal agents: game CLI, agent CLI catalog, panel RPC host
 ├── plugins/
 │   ├── bb/              # BB Code plugin
-│   ├── claude-code/     # Claude Code / Codex CLI / OpenCode MCP plugin
-│   ├── jetbrains/       # PyCharm & JetBrains IDEs plugin (Kotlin + bundled webview)
 │   ├── openchamber/     # OpenChamber extension (panel + loopback service + OpenCode v2 plugin)
-│   └── vscode/          # VS Code / Cursor / Windsurf WebView extension
+│   ├── orca/            # Orca plugin (HTML panel + worker + game CLI)
+│   └── vscode/          # VS Code / Cursor / Windsurf extension (webview + game CLI)
 └── docs/
     └── architecture.md  # Shared plugin architecture and server contract
 ```
@@ -48,18 +49,18 @@ pnpm typecheck
 # Lint
 pnpm lint
 
-# Run unit tests (plugin-core, panel-ui, openchamber, vscode, jetbrains webview)
+# Run unit tests (plugin-core, panel-ui, terminal-host, openchamber, orca, vscode)
 pnpm test
 
 # Run BB Code plugin tests
 pnpm test:bb
 ```
 
-For building IDE-specific distributables (`.zip` for JetBrains or OpenChamber, `.vsix` for VS Code), see each plugin's `README.md`.
+For building distributables (`.zip` for OpenChamber and Orca, `.vsix` for VS Code), see each plugin's `README.md`.
 
 ## Architecture
 
-Every plugin is thin host-specific glue built on top of `@crashing/plugin-core` and `@crashing/panel-ui` (or the hosted `/embed` surface), talking to `https://crashingagents.com`. See [docs/architecture.md](docs/architecture.md) for the full architecture and API contract.
+Every plugin is thin host-specific glue built on top of `@crashing/plugin-core` and `@crashing/panel-ui`, talking to `https://crashingagents.com`. See [docs/architecture.md](docs/architecture.md) for the full architecture and API contract.
 
 ## License
 

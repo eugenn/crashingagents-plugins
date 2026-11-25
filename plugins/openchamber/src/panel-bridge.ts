@@ -36,6 +36,11 @@ export type OpenChamberBridgeHost = Pick<
 export interface OpenChamberBridgeOptions {
   scopeId: string;
   sessionId: string | null;
+  /** The open session's model, `provider/model`. */
+  sessionModel?: string | null;
+  directory?: string | null;
+  /** The service can start sessions for connected agents. */
+  connectedAgents?: boolean;
   surface: GuestHostSurface;
   theme: 'light' | 'dark';
   onSessionCreated?: (sessionId: string) => void;
@@ -167,8 +172,27 @@ export function createOpenChamberBridge(
     await startFreshSession(invite);
   }
 
+  const connectedAgents: PanelBridge['connectedAgents'] = options.connectedAgents
+    ? {
+        hostName: 'OpenChamber',
+        list: (refresh = false) =>
+          callService('POST', '/agents', { refresh, currentModel: options.sessionModel ?? null }),
+        async invite(invite) {
+          await callService('POST', '/invite-connected', {
+            scopeId: activeScopeId,
+            invite,
+            ...(options.directory ? { directory: options.directory } : {}),
+          });
+        },
+        openThread: (sessionId) => {
+          void host.openSession(sessionId).catch(() => {});
+        },
+      }
+    : undefined;
+
   return {
     theme: options.theme,
+    connectedAgents,
     async getConfig() {
       const cfg = await callService<ServiceConfigResponse>('GET', '/config');
       return {

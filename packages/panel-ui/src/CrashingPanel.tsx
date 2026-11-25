@@ -9,6 +9,7 @@ import {
 import { AssetsContext, ThumbnailsContext } from './cards';
 import { Glyph } from './icons';
 import { LanguagePanel, useText } from './language';
+import { LocalAgentSelect } from './AgentPicker';
 import { BridgeContext, LobbyScreen, StartScreen, StartSkeleton } from './screens';
 import { TableScreen } from './table';
 
@@ -40,7 +41,7 @@ export interface CrashingPanelProps {
 
 function PanelBody({
   languageControl,
-  agentModelControl,
+  agentModelControl: modelControl,
   bridge,
   compact,
   mascot,
@@ -49,6 +50,8 @@ function PanelBody({
   theme,
 }: Omit<CrashingPanelProps, 'withLanguageBar' | 'initialLanguage'>) {
   const t = useText();
+  const agentModelControl =
+    modelControl ?? (bridge.localAgent && <LocalAgentSelect api={bridge.localAgent} />);
   const [assets, setAssets] = useState('');
   const [capabilities, setCapabilities] = useState<HostCapabilities>(DEFAULT_CAPABILITIES);
   const [table, setTable] = useState<TableSnapshot | null>();

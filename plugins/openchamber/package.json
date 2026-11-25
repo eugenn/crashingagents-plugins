@@ -20,12 +20,21 @@
       },
       "page": true,
       "attach": false,
-      "capabilities": ["prompt", "sessions"],
-      "origins": ["https://crashingagents.com"],
+      "capabilities": [
+        "prompt",
+        "sessions"
+      ],
+      "origins": [
+        "https://crashingagents.com"
+      ],
       "service": {
         "entry": "service/main.js",
-        "runtime": "host"
+        "runtime": "host",
+        "provides": [
+          "opencode"
+        ]
       },
+      "sessionControl": {},
       "skills": "skills",
       "opencodePlugin": "opencode-plugin",
       "tools": [

@@ -1,0 +1,27 @@
+{
+  "name": "crashing-agents-orca",
+  "version": "0.1.2",
+  "description": "Crashing Agents plugin for Orca: play against the agents in your workspace.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "pack": "node scripts/build.mjs && rm -f crashing-agents-orca.zip && zip -r crashing-agents-orca.zip orca-plugin.json README.md panel worker bin"
+  },
+  "dependencies": {
+    "@crashing/panel-ui": "workspace:*",
+    "@crashing/plugin-core": "workspace:*",
+    "@crashing/terminal-host": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "esbuild": "^0.25.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.9.0"
+  }
+}

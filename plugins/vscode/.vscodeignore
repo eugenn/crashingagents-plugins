@@ -1,0 +1,9 @@
+**
+!dist/extension.js
+!dist/panel.js
+!dist/panel.css
+!dist/crashing-agents.mjs
+!media/**
+!package.json
+!README.md
+!LICENSE

@@ -3,9 +3,198 @@ import http from "node:http";
 import { tmpdir } from "node:os";
 import { join as join2 } from "node:path";
 
-// src/service.ts
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/scrollbar-style.js
+var GUEST_SCROLLING_ATTRIBUTE = "data-oc-scrolling";
+var GUEST_SCROLLBAR_CSS = `
+:root {
+  /* Quiet at rest like the app's own thumbs; hover gives a clear grab target. */
+  --oc-scrollbar-thumb: color-mix(in srgb, var(--oc-muted, currentColor) 18%, transparent);
+  --oc-scrollbar-thumb-hover: color-mix(in srgb, var(--oc-muted, currentColor) 36%, transparent);
+  scrollbar-gutter: stable;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+:hover, [${GUEST_SCROLLING_ATTRIBUTE}] {
+  scrollbar-color: var(--oc-scrollbar-thumb) transparent;
+}
+/* Chromium's standard scrollbar properties otherwise override its pseudo-elements. */
+@supports selector(::-webkit-scrollbar) {
+  *, :hover, [${GUEST_SCROLLING_ATTRIBUTE}] { scrollbar-width: auto; scrollbar-color: auto; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; background: transparent; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    min-width: 24px;
+    min-height: 24px;
+  }
+  :hover::-webkit-scrollbar-thumb, [${GUEST_SCROLLING_ATTRIBUTE}]::-webkit-scrollbar-thumb { background: var(--oc-scrollbar-thumb); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--oc-scrollbar-thumb-hover); }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+}
+@media (forced-colors: active) {
+  *, :hover, [${GUEST_SCROLLING_ATTRIBUTE}] { scrollbar-color: auto; }
+  ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:hover { background: CanvasText; }
+}
+`;
+function installGuestScrollbarActivity(doc) {
+  const root = doc.documentElement;
+  if (root.hasAttribute("data-oc-scrollbar-activity"))
+    return;
+  root.setAttribute("data-oc-scrollbar-activity", "");
+  const timers = /* @__PURE__ */ new WeakMap();
+  doc.addEventListener("scroll", (event) => {
+    const target = event.target === doc ? root : event.target;
+    if (!(target instanceof Element))
+      return;
+    if (!target.hasAttribute("data-oc-scrolling"))
+      target.setAttribute("data-oc-scrolling", "");
+    const pending = timers.get(target);
+    if (pending !== void 0)
+      clearTimeout(pending);
+    timers.set(target, setTimeout(() => {
+      timers.delete(target);
+      target.removeAttribute("data-oc-scrolling");
+    }, 1e3));
+  }, { capture: true, passive: true });
+}
+var GUEST_SCROLLBAR_SCRIPT = `(${installGuestScrollbarActivity.toString()})(document);`;
+
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/manifest.js
+var GUEST_PROVIDER_LOGO_BYTES_MAX = 1024 * 1024;
+var TRACKER_URL_TOKENS = ["{id}", "{segment}", "{segments+}"];
+var TRACKER_URL_TOKEN_SET = new Set(TRACKER_URL_TOKENS);
+
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/session-events.js
+var GUEST_SESSION_EVENT_TYPES = [
+  "turn-finished",
+  "turn-failed",
+  "permission-asked",
+  "question-asked",
+  "turn-started",
+  "session-created",
+  "session-archived",
+  "session-deleted"
+];
+var SESSION_EVENTS_IDLE_MS = 10 * 6e4;
+var EVENT_TYPES = new Set(GUEST_SESSION_EVENT_TYPES);
+
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/service-host.js
+var SERVICE_HOST_PATH = "/service/call";
+var OPENCHAMBER_HOST_CALLBACK_URL_ENV = "OPENCHAMBER_HOST_CALLBACK_URL";
+var SERVICE_HOST_TIMEOUT_MS = 3e4;
+var SERVICE_SCHEDULE_IDLE_MS = 10 * 6e4;
+var MENTIONS_IDLE_MS = 10 * 6e4;
+var ServiceHostError = class extends Error {
+  code;
+  status;
+  constructor(message, code, status) {
+    super(message);
+    this.name = "ServiceHostError";
+    this.code = code;
+    this.status = status;
+  }
+};
+var createServiceHost = ({ env }) => {
+  const call = async (method, input) => {
+    const base = env[OPENCHAMBER_HOST_CALLBACK_URL_ENV];
+    const token2 = env.OPENCHAMBER_SERVICE_TOKEN;
+    if (!base || !token2)
+      throw new ServiceHostError("This service was not started by OpenChamber.", "HOST_UNAVAILABLE", 0);
+    let response;
+    try {
+      response = await fetch(`${base.replace(/\/+$/, "")}${SERVICE_HOST_PATH}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token2}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ method, input }),
+        signal: AbortSignal.timeout(SERVICE_HOST_TIMEOUT_MS)
+      });
+    } catch {
+      throw new ServiceHostError("OpenChamber did not answer.", "HOST_UNAVAILABLE", 0);
+    }
+    const body = await response.json().catch(() => null);
+    if (response.ok && body?.result !== void 0)
+      return body.result;
+    throw new ServiceHostError(body?.error?.message ?? `OpenChamber answered HTTP ${response.status}.`, body?.error?.code ?? "HOST_UNAVAILABLE", response.status);
+  };
+  return {
+    sessions: {
+      start: (input) => call("sessions.start", input),
+      send: (sessionId, prompt) => call("sessions.send", { sessionId, prompt }),
+      retry: (sessionId) => call("sessions.retry", { sessionId }),
+      status: (sessionId) => call("sessions.status", { sessionId }),
+      lastReply: (sessionId) => call("sessions.lastReply", { sessionId }),
+      stop: (sessionId) => call("sessions.stop", { sessionId }),
+      answerPermission: (sessionId, requestId, answer) => call("sessions.answerPermission", { sessionId, requestId, ...answer }),
+      answerForm: (sessionId, formId, values, message) => call("sessions.answerForm", { sessionId, formId, values, ...message === void 0 ? {} : { message } })
+    },
+    setInstructions: (directory, text) => call("instructions.set", { directory, text }),
+    emit: (topic, data) => call("panels.emit", { topic, data }),
+    readSettings: () => call("settings.read", {}).then(({ settings }) => settings),
+    needsConfiguration: (message) => call("status.set", { needsConfiguration: message }),
+    setMark: (target, mark) => call("marks.set", { target, mark })
+  };
+};
+
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/contract.js
+var GUEST_FILE_STAT_KINDS = ["file", "directory", "other", "missing"];
+var GUEST_GENERATE_LATE_KEEP_MS = 60 * 6e4;
+var HOST_REQUEST_ERROR_CODES = [
+  "HOST_UNAVAILABLE",
+  "HOST_TIMEOUT",
+  "HOST_REJECTED",
+  "DISCONNECTED",
+  "DISABLED",
+  "BAD_PATH",
+  "NO_INTEGRATION",
+  "NO_SERVICE",
+  "SERVICE_FAILED",
+  "REQUEST_FAILED",
+  "RESPONSE_TOO_LARGE",
+  "NO_SESSION",
+  "SESSION_BUSY",
+  "NOT_GRANTED",
+  "NO_DIRECTORY",
+  "NOT_FOUND",
+  "FILE_TOO_LARGE",
+  "DENIED",
+  "NO_MODEL",
+  "MODEL_FAILED",
+  "UNSUPPORTED"
+];
+var SERVICE_STATUS_VALUES = ["stopped", "starting", "ready", "failed"];
+var hostRequestErrorCodeSet = new Set(HOST_REQUEST_ERROR_CODES);
+var serviceStatusSet = new Set(SERVICE_STATUS_VALUES);
+var fileStatKindSet = new Set(GUEST_FILE_STAT_KINDS);
+
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/service-providers.js
+var BROWSER_CONTROL_ACTIONS = [
+  "browser.open",
+  "browser.snapshot",
+  "browser.click",
+  "browser.type",
+  "browser.select",
+  "browser.scroll",
+  "browser.back",
+  "browser.forward",
+  "browser.inspect",
+  "browser.capture",
+  "browser.resize",
+  "browser.close"
+];
+var BROWSER_PROVIDER_IDLE_MS = 10 * 6e4;
+var CONTROL_ACTIONS = new Set(BROWSER_CONTROL_ACTIONS);
+var SOURCE_CONTROL_PROVIDER_IDLE_MS = 10 * 6e4;
+var NOTIFICATIONS_PROVIDER_IDLE_MS = 10 * 6e4;
+var TRACKER_PROVIDER_IDLE_MS = 10 * 6e4;
+var QUOTA_PROVIDER_IDLE_MS = 10 * 6e4;
+
+// ../../node_modules/.pnpm/@openchamber+sdk@2.7.3/node_modules/@openchamber/sdk/dist/service-surface.js
+var SURFACE_CONTROLLERS = ["none", "agent", "user"];
+var CONTROLLERS = new Set(SURFACE_CONTROLLERS);
 
 // ../../packages/plugin-core/src/cards.json
 var cards_default = [
@@ -752,6 +941,116 @@ function createPluginController(options) {
   };
 }
 
+// ../../packages/plugin-core/src/model-ranking.ts
+function modelSuitability(model) {
+  const family = (model.model + " " + model.displayName).toLowerCase();
+  const description = (model.description ?? "").toLowerCase();
+  const lightweight = /\b(nano|mini|haiku|flash|lite|luna)\b/.test(family);
+  const economical = lightweight || /\b(affordable|cheaper|cheap|inexpensive|low.cost|budget)\b/.test(description);
+  const fast = lightweight || /\b(fastest|fast|quick|low.latency)\b/.test(description);
+  if (economical && fast) return 0;
+  if (economical) return 1;
+  if (fast) return 2;
+  return 3;
+}
+
+// src/models.ts
+var RECENT_SESSIONS = 12;
+function createOpenCodeReader(baseUrl, token2, fetchImpl = globalThis.fetch) {
+  const base = baseUrl.replace(/\/$/, "");
+  return async (path) => {
+    const response = await fetchImpl(base + path, {
+      headers: { Authorization: `Bearer ${token2}`, Accept: "application/json" }
+    });
+    if (!response.ok) throw new Error(`OpenCode read failed: HTTP ${response.status}`);
+    return response.json();
+  };
+}
+function splitModel(value) {
+  const slash = value?.indexOf("/") ?? -1;
+  if (!value || slash <= 0 || slash === value.length - 1) return void 0;
+  return { providerId: value.slice(0, slash), model: value.slice(slash + 1) };
+}
+async function recentModels(read) {
+  const sessions2 = await read("/api/session");
+  const recent = (Array.isArray(sessions2) ? sessions2 : []).filter((s) => typeof s.id === "string").sort((a, b) => (b.time?.updated ?? 0) - (a.time?.updated ?? 0)).slice(0, RECENT_SESSIONS);
+  const found = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (const session of recent) {
+    let messages;
+    try {
+      messages = await read(`/api/session/${encodeURIComponent(session.id)}/message`);
+    } catch {
+      continue;
+    }
+    for (const message of Array.isArray(messages) ? [...messages].reverse() : []) {
+      const info = message.info;
+      if (info?.role !== "assistant" || !info.providerID || !info.modelID) continue;
+      const key = info.providerID + "/" + info.modelID;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      found.push({ providerId: info.providerID, model: info.modelID });
+    }
+  }
+  return found;
+}
+function createModelDirectory(read) {
+  let cached = [];
+  let expires = 0;
+  let failed = false;
+  let task;
+  function refresh(force) {
+    if (!read || task || !force && expires > Date.now()) return task;
+    task = recentModels(read).then((entries) => {
+      cached = entries;
+      failed = false;
+      expires = Date.now() + 5 * 6e4;
+    }).catch(() => {
+      failed = true;
+      expires = Date.now() + 15e3;
+    }).finally(() => {
+      task = void 0;
+    });
+    return task;
+  }
+  function snapshot(current) {
+    const entries = [...cached];
+    const now = splitModel(current);
+    if (now && !entries.some((e) => e.providerId === now.providerId && e.model === now.model)) {
+      entries.unshift(now);
+    }
+    const agents = entries.map((entry) => {
+      const rank = modelSuitability({ model: entry.model, displayName: entry.model });
+      return {
+        rank,
+        agent: {
+          ...entry,
+          label: entry.model,
+          providerLabel: entry.providerId,
+          recommended: rank < 3
+        }
+      };
+    }).sort((a, b) => a.rank - b.rank).map(({ agent }) => agent);
+    return {
+      agents,
+      unavailable: failed ? ["OpenCode"] : [],
+      loading: !!task
+    };
+  }
+  return {
+    /** For the panel: answers at once while a refresh runs. For invites: waits for it. */
+    async list(current, force = false, wait = false) {
+      const pending = refresh(force);
+      if (wait && pending) await pending;
+      return snapshot(current);
+    }
+  };
+}
+
+// src/service.ts
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+
 // src/protocol.ts
 function isAllowedGameOrigin(origin) {
   try {
@@ -868,6 +1167,11 @@ function createServiceHandler(options) {
     join(options.dataDir, "settings.json"),
     () => ({ localPreview: false })
   );
+  const childrenStore = new JsonFileStore(
+    join(options.dataDir, "agent-sessions.json"),
+    () => ({})
+  );
+  const models = createModelDirectory(options.opencode);
   let currentLocalPreview = false;
   let settingsLoaded = false;
   const pendingInvites = /* @__PURE__ */ new Map();
@@ -910,6 +1214,14 @@ function createServiceHandler(options) {
       },
       agentHost: {
         async invite(scopeId) {
+          const child = (await childrenStore.read())[scopeId];
+          if (child && options.sessions) {
+            await options.sessions.send(
+              scopeId,
+              buildOpenChamberInviteMessage({ agentToken: child.token, origin, reason: "rematch" })
+            );
+            return;
+          }
           const binding = await storage.get(scopeId);
           if (!binding?.agentToken) {
             throw new Error("Room has no agent token to invite.");
@@ -932,6 +1244,39 @@ function createServiceHandler(options) {
     });
     controllers.set(localPreview, controller);
     return controller;
+  }
+  async function inviteConnected(controller, scopeId, invite, directory) {
+    const sessions2 = options.sessions;
+    if (!sessions2) throw new Error("Approve session control for Crashing Agents in Settings \u2192 Extensions.");
+    await controller.inviteConnectedAgent(scopeId, invite, {
+      async recover() {
+        const children = await childrenStore.read();
+        return Object.keys(children).find((id) => children[id].requestId === invite.requestId);
+      },
+      async prepare() {
+        const target = `${invite.providerId}/${invite.model}`;
+        const agent = (await models.list(target, false, true)).agents.find(
+          (item) => item.providerId === invite.providerId && item.model === invite.model
+        );
+        if (!agent) throw new Error("This model is unavailable. Refresh the agent list.");
+        return {
+          name: (invite.name || agent.label).slice(0, 24),
+          async launch(prompt) {
+            const token2 = invitedSeatToken(prompt);
+            const { sessionId } = await sessions2.start({
+              prompt: buildOpenChamberInviteMessage({ agentToken: token2, origin: controller.origin }),
+              title: `${agent.label} \xB7 ${invite.roomCode}`,
+              model: `${agent.providerId}/${agent.model}`,
+              ...directory ? { directory } : {}
+            });
+            await childrenStore.update((all) => {
+              all[sessionId] = { token: token2, requestId: invite.requestId };
+            });
+            return sessionId;
+          }
+        };
+      }
+    });
   }
   async function ensureSettings() {
     if (!settingsLoaded) {
@@ -959,7 +1304,8 @@ function createServiceHandler(options) {
         const payload = {
           origin: controller.origin,
           assetsOrigin: controller.origin,
-          localPreview
+          localPreview,
+          connectedAgents: !!options.sessions
         };
         sendJson(res, 200, payload);
         return;
@@ -1025,6 +1371,25 @@ function createServiceHandler(options) {
         sendJson(res, 200, payload);
         return;
       }
+      if (method === "POST" && url.pathname === "/agents") {
+        const body = await readJsonBody(req);
+        const current = typeof body.currentModel === "string" ? body.currentModel : void 0;
+        sendJson(res, 200, await models.list(current, body.refresh === true));
+        return;
+      }
+      if (method === "POST" && url.pathname === "/invite-connected") {
+        const body = await readJsonBody(req);
+        const scopeId = assertScopeId(body.scopeId);
+        const invite = body.invite;
+        if (!invite || typeof invite.providerId !== "string" || typeof invite.model !== "string" || typeof invite.requestId !== "string" || typeof invite.roomCode !== "string") {
+          sendJson(res, 400, { error: "Invalid invitation." });
+          return;
+        }
+        const directory = typeof body.directory === "string" ? body.directory : void 0;
+        await inviteConnected(controller, scopeId, invite, directory);
+        sendJson(res, 200, { ok: true });
+        return;
+      }
       if (method === "POST" && url.pathname === "/rekey") {
         const body = await readJsonBody(req);
         const fromScopeId = assertScopeId(body.fromScopeId);
@@ -1059,7 +1424,15 @@ if (!Number.isInteger(port) || port <= 0 || !token) {
   console.error("OPENCHAMBER_SERVICE_PORT and OPENCHAMBER_SERVICE_TOKEN are required.");
   process.exit(1);
 }
-var { handle } = createServiceHandler({ dataDir, token });
+var callback = process.env.OPENCHAMBER_HOST_CALLBACK_URL;
+var opencodeUrl = process.env.OPENCHAMBER_OPENCODE_URL;
+var sessions = callback ? createServiceHost({ env: process.env }).sessions : void 0;
+var { handle } = createServiceHandler({
+  dataDir,
+  token,
+  ...sessions ? { sessions } : {},
+  ...opencodeUrl ? { opencode: createOpenCodeReader(opencodeUrl, token) } : {}
+});
 var server = http.createServer((req, res) => {
   void handle(req, res);
 });

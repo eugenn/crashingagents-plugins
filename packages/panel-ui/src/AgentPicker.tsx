@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import type { AgentInvitation, PanelBridge } from '@crashing/plugin-core';
+import type { AgentInvitation, LocalAgentChoices, PanelBridge } from '@crashing/plugin-core';
 import { useText } from './language';
 import { Glyph } from './icons';
 
@@ -53,25 +53,105 @@ export function useAgentCatalog(directory: Directory | undefined, enabled: boole
 /** Connected agents grouped as recommended / other, for use inside a `<select>`. */
 export function AgentOptions({ agents }: { agents: Catalog['agents'] }) {
   const t = useText();
+  const custom = [...new Set(agents.flatMap((item) => (item.group ? [item.group] : [])))];
+  const groups = [
+    ...custom.map((label) => ({ label, items: agents.filter((item) => item.group === label) })),
+    ...[true, false].map((recommended) => ({
+      label: recommended ? 'Suggested for quick turns' : 'Other models',
+      items: agents.filter((item) => !item.group && item.recommended === recommended),
+    })),
+  ];
   return (
     <>
-      {[true, false].map((recommended) => {
-        const group = agents.filter((item) => item.recommended === recommended);
-        return (
-          group.length > 0 && (
-            <optgroup
-              key={String(recommended)}
-              label={recommended ? t('Suggested for quick turns') : t('Other models')}
-            >
-              {group.map((item) => (
+      {groups.map(
+        ({ label, items }) =>
+          items.length > 0 && (
+            <optgroup key={label} label={t(label)}>
+              {items.map((item) => (
                 <option key={targetKey(item)} value={targetKey(item)}>
-                  {item.label} · {item.providerLabel}
+                  {item.label} · {t(item.providerLabel)}
                 </option>
               ))}
             </optgroup>
-          )
-        );
-      })}
+          ),
+      )}
+    </>
+  );
+}
+
+/** "My agent" for hosts without a current thread: an open terminal or a new agent CLI. */
+export function LocalAgentSelect({ api }: { api: NonNullable<PanelBridge['localAgent']> }) {
+  const t = useText();
+  const [choices, setChoices] = useState<LocalAgentChoices>();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [attempt, retry] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    setError('');
+    api.get().then(
+      (next) => active && setChoices(next),
+      (cause) => active && setError(cause instanceof Error ? cause.message : String(cause)),
+    );
+    return () => {
+      active = false;
+    };
+  }, [api, attempt]);
+
+  async function choose(value: string) {
+    setSaving(true);
+    setError('');
+    try {
+      await api.select(value || null);
+      setChoices((prev) => prev && { ...prev, selected: value || null });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const known = choices?.groups.some((g) => g.options.some((o) => o.value === choices.selected));
+  return (
+    <>
+      <label className="ca-field">
+        {t('My agent')}
+        <select
+          className="ca-input"
+          disabled={!choices || saving}
+          value={choices?.selected ?? ''}
+          onChange={(event) => void choose(event.target.value)}
+        >
+          <option value="">
+            {choices
+              ? t('Default ({name})', { name: choices.defaultLabel })
+              : t('Loading agents…')}
+          </option>
+          {choices?.selected && !known && (
+            <option disabled value={choices.selected}>
+              {t('Model unavailable')}
+            </option>
+          )}
+          {choices?.groups.map((group) => (
+            <optgroup key={group.label} label={t(group.label)}>
+              {group.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </label>
+      {error && (
+        <div className="ca-notice" role="alert">
+          {t(error)}{' '}
+          <button type="button" className="ca-link" onClick={() => retry((n) => n + 1)}>
+            {t('Retry')}
+          </button>
+        </div>
+      )}
     </>
   );
 }

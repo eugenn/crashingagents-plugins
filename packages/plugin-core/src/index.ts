@@ -4,3 +4,5 @@ export * from './client';
 export * from './controller';
 export * from './postmessage-bridge';
 export * from './view-model';
+export * from './model-ranking';
+export * from './rpc-bridge';

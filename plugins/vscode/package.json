@@ -1,15 +1,20 @@
 {
   "name": "crashing-agents-vscode",
   "displayName": "Crashing Agents",
-  "description": "Play Crashing Agents from VS Code, Cursor, or Windsurf using the shared @crashing/plugin-core + /embed panel.",
+  "description": "Play Crashing Agents in VS Code, Cursor or Windsurf against Claude Code, Codex, OpenCode or Gemini CLI running in your terminal.",
   "version": "0.1.2",
   "private": true,
   "publisher": "crashing-agents",
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["Other"],
-  "activationEvents": ["onView:crashingAgents.table"],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:crashingAgents.table",
+    "onCommand:crashingAgents.openTable"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -53,10 +58,21 @@
     }
   },
   "scripts": {
-    "build": "tsup src/extension.ts --format cjs --external vscode --out-dir dist",
-    "typecheck": "tsc --noEmit"
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "package": "node scripts/build.mjs && vsce package --no-dependencies"
   },
   "dependencies": {
-    "@crashing/plugin-core": "workspace:*"
+    "@crashing/panel-ui": "workspace:*",
+    "@crashing/plugin-core": "workspace:*",
+    "@crashing/terminal-host": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vscode/vsce": "3.6.0",
+    "esbuild": "^0.25.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }

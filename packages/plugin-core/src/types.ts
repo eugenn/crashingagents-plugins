@@ -68,11 +68,27 @@ export interface ConnectedAgent extends AgentTarget {
   label: string;
   providerLabel: string;
   recommended: boolean;
+  /** Listed first under its own heading (a UI string), e.g. agents already running. */
+  group?: string;
 }
 
 export interface ConnectedInvite extends AgentTarget {
   requestId: string;
   threadId?: string;
+}
+
+export interface LocalAgentOption {
+  value: string;
+  label: string;
+}
+
+/** Which agent "my agent" means in hosts without a single current thread (IDE terminals). */
+export interface LocalAgentChoices {
+  /** null selects the host default, described by `defaultLabel`. */
+  selected: string | null;
+  defaultLabel: string;
+  /** Group labels are UI strings the panel translates. */
+  groups: { label: string; options: LocalAgentOption[] }[];
 }
 
 export interface AgentInvitation extends AgentTarget {
@@ -138,6 +154,11 @@ export interface PanelBridge {
     }>;
     invite(invitation: AgentInvitation): Promise<void>;
     openThread?(threadId: string): void;
+  };
+  /** Lets the panel choose the agent that duels and "Invite my agent" reach. */
+  localAgent?: {
+    get(): Promise<LocalAgentChoices>;
+    select(value: string | null): Promise<void>;
   };
   getConfig(): Promise<PanelConfig>;
   getState(): Promise<TableSnapshot | null>;

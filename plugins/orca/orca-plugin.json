@@ -1,0 +1,45 @@
+{
+  "manifestVersion": 2,
+  "execution": "trusted-worker",
+  "id": "crashing-agents",
+  "name": "Crashing Agents",
+  "version": "0.1.2",
+  "description": "Play the Crashing Agents card game against Claude Code, Codex or OpenCode agents running in your Orca workspace.",
+  "author": { "name": "Crashing Agents", "url": "https://crashingagents.com" },
+  "repository": "https://github.com/eugenn/crashingagents-plugins",
+  "license": "MIT",
+  "homepage": "https://crashingagents.com",
+  "engines": { "orca": ">=1.4.259" },
+  "pluginApi": 1,
+  "main": "worker/main.mjs",
+  "contributes": {
+    "panels": [
+      {
+        "id": "table",
+        "title": "Crashing Agents",
+        "icon": "bot",
+        "entry": "panel/index.html",
+        "ui": "html"
+      }
+    ],
+    "hooks": [{ "event": "agent.launch.before" }],
+    "settings": [
+      {
+        "key": "localPreview",
+        "title": "Use local test server",
+        "description": "Play on http://127.0.0.1:43871 instead of crashingagents.com. Reload the plugin after changing it.",
+        "type": "boolean",
+        "default": false
+      }
+    ]
+  },
+  "capabilities": [
+    { "kind": "storage:own" },
+    { "kind": "settings:own" },
+    { "kind": "workspace:read" },
+    { "kind": "workspace:write" },
+    { "kind": "agent:read" },
+    { "kind": "agent:launch" },
+    { "kind": "terminal:send" }
+  ]
+}

@@ -13,6 +13,8 @@ export interface ServiceConfigResponse {
   origin: string;
   assetsOrigin: string;
   localPreview: boolean;
+  /** The service can start sessions for connected agents. */
+  connectedAgents?: boolean;
 }
 
 export interface ServiceReadyRoomsResponse {

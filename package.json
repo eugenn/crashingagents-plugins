@@ -18,8 +18,10 @@
     "test:bb": "tsx --test plugins/bb/*.test.ts",
     "build:openchamber": "pnpm --filter crashing-agents-openchamber build",
     "pack:openchamber": "pnpm --filter crashing-agents-openchamber pack",
-    "build:jetbrains": "pnpm --filter crashing-agents-jetbrains build:plugin",
-    "build:vscode": "pnpm --filter crashing-agents-vscode build"
+    "build:orca": "pnpm --filter crashing-agents-orca build",
+    "pack:orca": "pnpm --filter crashing-agents-orca pack",
+    "build:vscode": "pnpm --filter crashing-agents-vscode build",
+    "package:vscode": "pnpm --filter crashing-agents-vscode package"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

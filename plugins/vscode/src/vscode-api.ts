@@ -1,6 +1,6 @@
 /**
- * Minimal structural subset of the VS Code Extension API used by the thin host adapter.
- * Keeps the reference plugin self-contained without requiring @types/vscode at workspace level.
+ * Minimal structural subset of the VS Code Extension API this extension uses.
+ * Keeps the plugin self-contained without requiring @types/vscode at workspace level.
  */
 export interface Disposable {
   dispose(): void;
@@ -11,9 +11,16 @@ export interface Memento {
   update(key: string, value: unknown): PromiseLike<void>;
 }
 
+export interface Uri {
+  readonly fsPath: string;
+  toString(): string;
+}
+
 export interface Webview {
-  options: { enableScripts?: boolean };
+  options: { enableScripts?: boolean; localResourceRoots?: readonly Uri[] };
   html: string;
+  readonly cspSource: string;
+  asWebviewUri(uri: Uri): Uri;
   postMessage(message: unknown): PromiseLike<boolean>;
   onDidReceiveMessage(listener: (message: unknown) => void): Disposable;
 }
@@ -24,17 +31,28 @@ export interface WebviewView {
 }
 
 export interface WebviewViewProvider {
-  resolveWebviewView(webviewView: WebviewView): void;
+  resolveWebviewView(webviewView: WebviewView): void | PromiseLike<void>;
+}
+
+export interface Terminal {
+  readonly name: string;
+  readonly exitStatus: { code: number | undefined } | undefined;
+  sendText(text: string, shouldExecute?: boolean): void;
+  show(preserveFocus?: boolean): void;
 }
 
 export interface ExtensionContext {
   readonly workspaceState: Memento;
   readonly subscriptions: Disposable[];
+  readonly extensionUri: Uri;
+  readonly extensionPath: string;
 }
 
 export interface VsCodeApi {
   readonly window: {
     readonly activeColorTheme: { readonly kind: number };
+    readonly terminals: readonly Terminal[];
+    createTerminal(options: { name: string }): Terminal;
     registerWebviewViewProvider(
       viewId: string,
       provider: WebviewViewProvider,
@@ -50,9 +68,10 @@ export interface VsCodeApi {
   };
   readonly env: {
     readonly clipboard: { writeText(value: string): PromiseLike<void> };
-    openExternal(target: unknown): PromiseLike<boolean>;
+    openExternal(target: Uri): PromiseLike<boolean>;
   };
   readonly Uri: {
-    parse(value: string): unknown;
+    parse(value: string): Uri;
+    joinPath(base: Uri, ...segments: string[]): Uri;
   };
 }

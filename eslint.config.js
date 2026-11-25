@@ -10,10 +10,10 @@ export default tseslint.config(
       'plugins/openchamber/panel/main.js',
       'plugins/openchamber/service/main.js',
       'plugins/openchamber/opencode-plugin/index.js',
-      // JetBrains plugin Gradle build outputs and bundled JCEF webview assets.
-      'plugins/jetbrains/build/**',
-      'plugins/jetbrains/.gradle/**',
-      'plugins/jetbrains/src/main/resources/webview/main.js',
+      // Pre-built Orca plugin bundles shipped in plugins/orca.
+      'plugins/orca/panel/main.js',
+      'plugins/orca/worker/main.mjs',
+      'plugins/orca/bin/crashing-agents.mjs',
     ],
   },
   js.configs.recommended,

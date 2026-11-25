@@ -58,6 +58,22 @@ function OpenChamberApp({ host }: { host: HostClient }) {
     session: null,
   });
   const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
+  const [agentsEnabled, setAgentsEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!state.ready) return;
+    let live = true;
+    host
+      .serviceRequest({ method: 'GET', path: '/config' })
+      .then((result) => {
+        const config = JSON.parse(result.body) as { connectedAgents?: boolean };
+        if (live) setAgentsEnabled(result.status < 400 && !!config.connectedAgents);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [host, state.ready]);
 
   useEffect(() => {
     const unsubs = [
@@ -97,11 +113,23 @@ function OpenChamberApp({ host }: { host: HostClient }) {
       createOpenChamberBridge(host, {
         scopeId,
         sessionId: effectiveSessionId,
+        sessionModel: state.session?.model ?? null,
+        directory: state.directory,
+        connectedAgents: agentsEnabled,
         surface: state.surface,
         theme: state.theme,
         onSessionCreated: (id) => setCreatedSessionId(id),
       }),
-    [host, scopeId, effectiveSessionId, state.surface, state.theme],
+    [
+      host,
+      scopeId,
+      effectiveSessionId,
+      state.session?.model,
+      state.directory,
+      agentsEnabled,
+      state.surface,
+      state.theme,
+    ],
   );
 
   const rootStyle = useMemo<CSSProperties>(() => {
