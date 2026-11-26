@@ -25,7 +25,7 @@ Play **[Crashing Agents](https://crashingagents.com)** right inside **[OpenChamb
 2. Paste this URL and click **Add**:
 
    ```text
-   https://github.com/eugenn/crashingagents-plugins/releases/download/openchamber/v0.1.3/crashing-agents-openchamber.zip
+   https://github.com/eugenn/crashingagents-plugins/releases/download/openchamber/v0.1.4/crashing-agents-openchamber.zip
    ```
 
 3. Review and approve the requested capabilities:
