@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Translate } from '@crashing/plugin-core';
 import { Glyph } from './icons';
 import messages from './locales/messages.json';
+import flavor from './locales/flavor.json';
 import site from './locales/site.json';
 
 export type Language = keyof typeof site;
@@ -36,6 +37,39 @@ export const useText = (): Translate => translators.get(useLanguage())!;
 export function cardCopy(id: string | undefined, language: Language) {
   const cards: Record<string, { effect?: string; lore?: string }> = site[language].cards;
   return id && Object.hasOwn(cards, id) ? cards[id] : undefined;
+}
+
+type Flavor = { quotes: Record<string, string>; emphasis: string[] };
+const flavors = flavor as Record<Language, Flavor>;
+
+/** The in-character quote printed on the site's card face. */
+export function cardQuote(id: string | undefined, language: Language): string {
+  if (!id) return '';
+  return flavors[language]?.quotes[id]?.trim() || flavors.en.quotes[id] || '';
+}
+
+const emphasisPatterns = new Map<Language, RegExp | null>();
+function emphasisPattern(language: Language) {
+  if (!emphasisPatterns.has(language)) {
+    const phrases = [...(flavors[language]?.emphasis ?? [])].sort((a, b) => b.length - a.length);
+    emphasisPatterns.set(
+      language,
+      phrases.length
+        ? new RegExp(`(${phrases.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`)
+        : null,
+    );
+  }
+  return emphasisPatterns.get(language)!;
+}
+
+/** Bolds the key phrases in a card rule, exactly like the site's card face. */
+export function emphasize(text: string, language: Language): ReactNode[] {
+  const pattern = emphasisPattern(language);
+  if (!pattern) return [text];
+  return text
+    .split(pattern)
+    .map((part, i) => (i % 2 ? <b key={i}>{part}</b> : part))
+    .filter((part) => part !== '');
 }
 
 const STORAGE_KEY = 'crashing-agents.language';

@@ -348,21 +348,27 @@
 }
 .ca-card[data-cat='RED'] {
   --cat: #e66057;
+  --quote-ink: #961e20;
 }
 .ca-card[data-cat='GREEN'] {
   --cat: #8bcf70;
+  --quote-ink: #225916;
 }
 .ca-card[data-cat='BLUE'] {
   --cat: #73b9e8;
+  --quote-ink: #164873;
 }
 .ca-card[data-cat='ORANGE'] {
   --cat: #ee9a46;
+  --quote-ink: #8c2d19;
 }
 .ca-card[data-cat='YELLOW'] {
   --cat: #f8cf4b;
+  --quote-ink: #73480a;
 }
 .ca-card[data-cat='PURPLE'] {
   --cat: #a77ee0;
+  --quote-ink: #52198a;
 }
 .ca-card__band {
   display: flex;
@@ -437,17 +443,45 @@
   min-height: calc(4 * 1.32em);
   padding-inline: 1px;
 }
+.ca-card__rule b {
+  font-weight: 800;
+}
+/* Site card face: quote + rule in an inked box, lore as a dark log line. */
+.ca-card__rules {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px 8px;
+  background: #f3ece1;
+  border: 2px solid #181512;
+  border-radius: 7px;
+  box-shadow: 2px 2px 0 #181512;
+}
+.ca-card__quote {
+  margin: 0;
+  padding: 5px 7px;
+  color: var(--quote-ink, var(--ink));
+  background: #e6dac8;
+  border-left: 4px solid var(--cat);
+  border-radius: 0 5px 5px 0;
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.3;
+}
 .ca-card__lore {
   margin: 0;
-  padding-top: calc(var(--w) * 0.03);
-  border-top: 1px dashed rgb(24 21 18 / 0.3);
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #181512;
+  color: #e7ddcf;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 10.5px;
   line-height: 1.4;
-  color: var(--ink-soft);
 }
-.ca-card[data-cat='RED'] .ca-card__lore {
-  color: #961e20;
+.ca-card__lore b {
+  color: var(--cat);
+  font-weight: 700;
 }
 .ca-card--mini {
   --w: 76px;
@@ -1808,11 +1842,36 @@
 }
 @media (hover: hover) {
   .ca-hand__slot:not(.ca-hand__slot--stack):hover {
-    scale: 1.32;
+    scale: 1.06;
   }
 }
 .ca-hand__slot:not(.ca-hand__slot--stack):has(:focus-visible) {
-  scale: 1.32;
+  scale: 1.06;
+}
+/* Full card face (rule + lore) floating above the hovered hand card. */
+.ca-hand__peek {
+  position: absolute;
+  z-index: 60;
+  pointer-events: none;
+  animation: ca-peek-in 140ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ca-hand__peek .ca-card {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.35),
+    0 0 0 1px rgb(24 21 18 / 0.7),
+    0 24px 48px -16px rgb(0 0 0 / 0.75),
+    0 8px 18px -8px rgb(0 0 0 / 0.5);
+}
+@keyframes ca-peek-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ca-hand__peek {
+    animation: none;
+  }
 }
 .ca-hand__card {
   position: relative;
@@ -1848,11 +1907,17 @@
     0 0 0 3px color-mix(in oklab, var(--ca-signal) 70%, transparent),
     0 14px 30px -12px rgb(0 0 0 / 0.8);
 }
+/* Your move, but this card can't be played now. */
 .ca-hand__card.is-dim {
-  filter: saturate(0.65) brightness(0.92);
+  opacity: 0.45;
+  filter: grayscale(0.85) brightness(0.72);
 }
-.ca-hand__card.is-dim:hover {
-  filter: saturate(0.8) brightness(0.88);
+/* Not your move: the whole hand is muted; hovering a card brings its colour back. */
+.ca-hand.is-waiting .ca-hand__card:not(.is-picked) {
+  filter: saturate(0.42) brightness(0.76);
+}
+.ca-hand.is-waiting .ca-hand__slot:is(:hover, :focus-within) .ca-hand__card {
+  filter: saturate(0.88) brightness(0.95);
 }
 .ca-hand__card.is-picked {
   transform: translateY(calc(var(--lift) - 38px)) rotate(var(--rot));

@@ -6,7 +6,7 @@ import {
   cardKindLabel,
   type CardCategory,
 } from '@crashing/plugin-core';
-import { cardCopy, useLanguage, useText } from './language';
+import { cardCopy, cardQuote, emphasize, useLanguage, useText } from './language';
 
 const CORE_CARD_IDS = new Set(CATALOG.map((c) => c.id));
 
@@ -72,10 +72,19 @@ export function PaperCard({
   children?: ReactNode;
 }) {
   const t = useText();
-  const copy = cardCopy(type, useLanguage());
+  const language = useLanguage();
+  const copy = cardCopy(type, language);
   const kind = cardKindLabel(type);
   const info = CARDS[type];
   const large = size === 'lg';
+  const effect = copy?.effect ?? info?.effect;
+  const rule = size !== 'mini' && effect && (
+    <p className="ca-card__rule">{emphasize(effect, language)}</p>
+  );
+  const quote = large ? cardQuote(type, language) : '';
+  const lore = large ? (copy?.lore ?? info?.lore ?? '') : '';
+  // Lore reads like a log line, "[BENCHMARK]: …"; the tag takes the category colour.
+  const [, logTag = '', logText = lore] = lore.match(/^(\[[^\]]*\]:?)\s*([\s\S]*)$/) ?? [];
   return (
     <div
       className={`ca-card ca-card--${size} ${className}`}
@@ -89,10 +98,21 @@ export function PaperCard({
       <div className="ca-card__art">
         <Art type={type} full={large} />
       </div>
-      {size !== 'mini' && info?.effect && (
-        <p className="ca-card__rule">{copy?.effect ?? info.effect}</p>
+      {large ? (
+        (quote || rule) && (
+          <div className="ca-card__rules">
+            {quote && <p className="ca-card__quote">{quote}</p>}
+            {rule}
+          </div>
+        )
+      ) : (
+        rule
       )}
-      {large && info?.lore && <p className="ca-card__lore">{copy?.lore ?? info.lore}</p>}
+      {lore && (
+        <p className="ca-card__lore">
+          {logTag && <b>{logTag}</b>} {logText}
+        </p>
+      )}
       {children}
     </div>
   );
