@@ -44,6 +44,7 @@ function Hand({
   onPick,
   comboGroups,
   interactive,
+  waiting = false,
 }: {
   label: string;
   cards: Card[];
@@ -52,12 +53,18 @@ function Hand({
   onPick: (stack: Card[], ids: string[]) => void;
   comboGroups: string[][];
   interactive: boolean;
+  /** Not this player's move: the whole hand is muted, like the site's locked hand. */
+  waiting?: boolean;
 }) {
   const t = useText();
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [cardW, setCardW] = useState(136);
   const seen = useRef<Set<string> | null>(null);
+  // Hovering (or keyboard-focusing) a hand card shows its full face above the hand, like the site does.
+  const [peek, setPeek] = useState<{ type: string; slot: HTMLElement } | null>(null);
+  const [peekStyle, setPeekStyle] = useState<CSSProperties>();
+  const peekRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const el = box.current;
@@ -80,6 +87,28 @@ function Hand({
       ro.disconnect();
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const hand = box.current;
+    const card = peekRef.current;
+    if (!peek || !hand || !card) return;
+    const handRect = hand.getBoundingClientRect();
+    const slotRect = peek.slot.getBoundingClientRect();
+    const panel = hand.closest('.ca-panel') ?? document.documentElement;
+    const bounds = panel.getBoundingClientRect();
+    const w = card.offsetWidth;
+    const h = card.offsetHeight;
+    const margin = 8;
+    const gap = peek.slot.classList.contains('ca-hand__slot--stack') ? 52 : 16;
+    const center = slotRect.left + slotRect.width / 2;
+    const left = Math.max(bounds.left + margin, Math.min(center - w / 2, bounds.right - margin - w));
+    const top = Math.max(bounds.top + margin, slotRect.top - gap - h);
+    setPeekStyle({ left: left - handRect.left, top: top - handRect.top });
+  }, [peek]);
+
+  const showPeek = (type: string, slot: HTMLElement) =>
+    setPeek((prev) => (prev?.type === type && prev.slot === slot ? prev : { type, slot }));
+  const hidePeek = () => setPeek(null);
 
   const first = seen.current === null;
   const fresh = new Set(cards.filter((c) => !seen.current?.has(c.id)).map((c) => c.id));
@@ -114,7 +143,10 @@ function Hand({
   }
 
   return (
-    <div className={'ca-hand' + (crowded ? ' is-crowded' : '')} ref={box}>
+    <div
+      className={'ca-hand' + (crowded ? ' is-crowded' : '') + (waiting ? ' is-waiting' : '')}
+      ref={box}
+    >
       <div className="ca-hand__row" role="list" aria-label={label}>
         {stacks.map((stack, i) => {
           const c = stack[0];
@@ -150,6 +182,16 @@ function Hand({
               className={'ca-hand__slot' + (expands ? ' ca-hand__slot--stack' : '')}
               aria-label={expands ? t('Select copies of ') + stackLabel : undefined}
               style={style}
+              onPointerEnter={(event) => {
+                if (event.pointerType === 'mouse') showPeek(c.type, event.currentTarget);
+              }}
+              onPointerLeave={hidePeek}
+              onFocus={(event) => {
+                if (event.target.matches(':focus-visible')) showPeek(c.type, event.currentTarget);
+              }}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) hidePeek();
+              }}
             >
               {choices.map((ids, index) => {
                 const front = index === 0;
@@ -211,6 +253,17 @@ function Hand({
           );
         })}
       </div>
+      {peek && (
+        <div
+          ref={peekRef}
+          key={peek.type}
+          className="ca-hand__peek"
+          style={peekStyle ?? { visibility: 'hidden' }}
+          aria-hidden="true"
+        >
+          <PaperCard type={peek.type} size="lg" />
+        </div>
+      )}
     </div>
   );
 }
@@ -1165,6 +1218,7 @@ export function TableScreen({
             onPick={pick}
             comboGroups={comboGroups}
             interactive={!!decision && active.size > 0}
+            waiting={!decision}
           />
         </div>
       </div>
