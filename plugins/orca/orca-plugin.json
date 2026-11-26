@@ -3,7 +3,7 @@
   "execution": "trusted-worker",
   "id": "crashing-agents",
   "name": "Crashing Agents",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Play the Crashing Agents card game against Claude Code, Codex or OpenCode agents running in your Orca workspace.",
   "author": { "name": "Crashing Agents", "url": "https://crashingagents.com" },
   "repository": "https://github.com/eugenn/crashingagents-plugins",

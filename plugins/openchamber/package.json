@@ -1,6 +1,6 @@
 {
   "name": "crashing-agents-openchamber",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Play Crashing Agents card duels inside OpenChamber against your OpenCode agent or friends.",
   "private": true,
   "type": "module",
