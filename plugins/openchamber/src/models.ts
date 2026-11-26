@@ -29,31 +29,59 @@ export function splitModel(value: string | undefined): Entry | undefined {
   return { providerId: value.slice(0, slash), model: value.slice(slash + 1) };
 }
 
-/** Models from the assistant messages of the most recent sessions, newest first. */
+/** A list from OpenCode: a bare array (v1) or a page `{ data, cursor }` (v2). */
+function items(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value;
+  const data = (value as { data?: unknown } | null)?.data;
+  return Array.isArray(data) ? data : [];
+}
+
+type ModelRef = { id?: string; providerID?: string };
+type SessionInfo = { id?: string; time?: { updated?: number }; model?: ModelRef };
+type MessageInfo = {
+  role?: string;
+  providerID?: string;
+  modelID?: string;
+  model?: ModelRef;
+};
+
+/** A message's model: v1 `info.providerID/modelID` on assistant messages, v2 `model`. */
+function messageModel(message: unknown): Entry | undefined {
+  const raw = message as MessageInfo & { info?: MessageInfo };
+  const info = raw.info ?? raw;
+  if (info.role && info.role !== 'assistant') return undefined;
+  const providerId = info.providerID ?? info.model?.providerID;
+  const model = info.modelID ?? info.model?.id;
+  return providerId && model ? { providerId, model } : undefined;
+}
+
+/** Models of the most recent sessions, newest first: the session's own model, else its messages'. */
 export async function recentModels(read: OpenCodeReader): Promise<Entry[]> {
-  const sessions = (await read('/api/session')) as { id?: string; time?: { updated?: number } }[];
-  const recent = (Array.isArray(sessions) ? sessions : [])
+  const recent = (items(await read('/api/session')) as SessionInfo[])
     .filter((s) => typeof s.id === 'string')
     .sort((a, b) => (b.time?.updated ?? 0) - (a.time?.updated ?? 0))
     .slice(0, RECENT_SESSIONS);
   const found: Entry[] = [];
   const seen = new Set<string>();
+  const add = (entry: Entry | undefined) => {
+    if (!entry) return;
+    const key = entry.providerId + '/' + entry.model;
+    if (seen.has(key)) return;
+    seen.add(key);
+    found.push(entry);
+  };
   for (const session of recent) {
+    if (session.model?.providerID && session.model.id) {
+      add({ providerId: session.model.providerID, model: session.model.id });
+      continue;
+    }
     let messages: unknown;
     try {
       messages = await read(`/api/session/${encodeURIComponent(session.id!)}/message`);
     } catch {
       continue;
     }
-    for (const message of Array.isArray(messages) ? [...messages].reverse() : []) {
-      const info = (message as { info?: { role?: string; providerID?: string; modelID?: string } })
-        .info;
-      if (info?.role !== 'assistant' || !info.providerID || !info.modelID) continue;
-      const key = info.providerID + '/' + info.modelID;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      found.push({ providerId: info.providerID, model: info.modelID });
-    }
+    for (const message of [...items(messages)].reverse()) add(messageModel(message));
   }
   return found;
 }

@@ -29,6 +29,7 @@ import {
 } from './panel-bridge';
 import { readSeat, writeSeat } from '@crashing/terminal-host';
 import { buildOpenChamberInviteMessage, isAllowedGameOrigin, sessionSeatKey } from './protocol';
+import { recentModels } from './models';
 import { createServiceHandler } from './service';
 
 const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -479,6 +480,31 @@ describe('OpenChamber connected agents', () => {
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }
+  });
+});
+
+describe('recent models', () => {
+  it('reads OpenCode v2 pages, where sessions and messages carry `model`', async () => {
+    const reads: string[] = [];
+    const models = await recentModels(async (path) => {
+      reads.push(path);
+      if (path === '/api/session') {
+        return {
+          data: [
+            { id: 'a', time: { updated: 1 }, model: { id: 'big-pickle', providerID: 'opencode' } },
+            { id: 'b', time: { updated: 2 } },
+          ],
+          cursor: { next: null },
+        };
+      }
+      return { data: [{ model: { id: 'gpt-5-mini', providerID: 'openai' } }], cursor: {} };
+    });
+    expect(models).toEqual([
+      { providerId: 'openai', model: 'gpt-5-mini' },
+      { providerId: 'opencode', model: 'big-pickle' },
+    ]);
+    // A session that names its model needs no message read.
+    expect(reads).toEqual(['/api/session', '/api/session/b/message']);
   });
 });
 
